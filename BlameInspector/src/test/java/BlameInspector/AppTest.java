@@ -1,3 +1,5 @@
+package BlameInspector;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -17,20 +19,24 @@ import java.io.PrintStream;
 public class AppTest
         extends TestCase
 {
-    private String password = "LeisureWork1828";
-    private String repoName = "BlameWhoTest";
-    private String userName = "JackSmithJunior";
+    private String projectName;
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     /**
      * Create the test case
      *
      * @param testName name of the test case
      */
-    public AppTest( String testName )
-    {
+    public AppTest( String testName ) throws IOException {
         super( testName );
+        this.projectName = "BlameWhoTest";
+//        PropertyService propertyService = new PropertyService();
+//        propertyService.setIssueTracker();
+//        propertyService.setPathToRepo();
+//        propertyService.setPassword();
+//        propertyService.setUserName();
+//        propertyService.getProjectName();
+//        propertyService.writeInFile();
         System.setOut(new PrintStream(outContent));
-        System.setProperty("user.dir", "C:\\Jack's Repo");
     }
 
     /**
@@ -59,12 +65,22 @@ public class AppTest
 
     protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException
     {
-        Main.main(new String[] {repoName, "1", password});
+        try {
+            Main.main(new String[]{this.projectName, ticketNumber});
+        }catch (TicketCorruptedException e){
+            System.out.println(e.getStackTrace());
+        }
+
+        PropertyService propertyService = new PropertyService();
+        propertyService.readFromFile();
+
         GitHubClient client = new GitHubClient();
-        client.setCredentials(userName, password);
+        client.setCredentials(propertyService.getUserName(),
+                propertyService.getPassword());
 
         IssueService service = new IssueService(client);
-        Issue issue = service.getIssue(userName, repoName, Integer.parseInt(ticketNumber));
+        Issue issue = service.getIssue(propertyService.getUserName(),
+                this.projectName, Integer.parseInt(ticketNumber));
         assertTrue(issue.getAssignee().getLogin().equals(blameLogin));
 
     }

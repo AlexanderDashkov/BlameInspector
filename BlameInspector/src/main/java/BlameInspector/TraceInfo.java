@@ -1,3 +1,5 @@
+package BlameInspector;
+
 /**
  * Created by Alexander on 26.02.2016.
  */
