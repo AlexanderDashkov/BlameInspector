@@ -8,6 +8,21 @@
   <name>BlameInspector</name>
   <url>http://maven.apache.org</url>
 
+    <repositories>
+        <repository>
+            <id>atlassian-public</id>
+            <url>https://maven.atlassian.com/repository/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
   
     <dependencies>
     	 <dependency>
@@ -42,6 +57,12 @@
             <version>0.5</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/resources/stack-trace-parser-0.5-SNAPSHOT.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.bitbucket.server</groupId>
+            <artifactId>bitbucket-api</artifactId>
+            <scope>provided</scope>
+            <version>4.5.0-m3</version>
         </dependency>
     </dependencies>
 
