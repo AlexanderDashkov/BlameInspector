@@ -14,14 +14,18 @@ import java.util.NoSuchElementException;
 public class BlameInspector {
 
     private static VersionControlService vcs;
+    private static IssueTrackerService its;
 
-    public void init(PropertyService propertyService, int ticketNumber) throws IOException, GitAPIException, JSONException, TicketCorruptedException {
+    public void init(PropertyService propertyService) throws IOException, GitAPIException, JSONException, TicketCorruptedException {
         vcs = new GitService(propertyService.getPathToRepo(), propertyService.getIssueTracker());
-        IssueTrackerService its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
+        its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
                 propertyService.getPassword(),
                 vcs.getRepositoryOwner(),
                 propertyService.getProjectName(),
                 propertyService.getIssueTracker());
+    }
+
+    public void handleTicket(int ticketNumber) throws IOException, JSONException, GitAPIException, TicketCorruptedException {
         TraceInfo traceInfo = getTraceInfo(its.getIssueBody(ticketNumber));
         String blameEmail = vcs.getBlamedUser(traceInfo.getFileName(), traceInfo.getLineNumber());
         its.setIssueAssignee(blameEmail);
@@ -37,8 +41,7 @@ public class BlameInspector {
              throw new TicketCorruptedException("StackTrace corrupted!");
         }
         String locationInfo[];
-        for (int i = 0 ;i < stackTrace.getTrace().getFrames().size(); i++){
-            NFrame currentFrame = stackTrace.getTrace().getFrames().get(i);
+        for (NFrame currentFrame :  stackTrace.getTrace().getFrames()){
             int size = currentFrame.getLocation().length();
             locationInfo = currentFrame.getLocation().substring(1,size -1).split(":");
             if (vcs.filesInRepo.containsKey(locationInfo[0])){
