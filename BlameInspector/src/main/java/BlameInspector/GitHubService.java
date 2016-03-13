@@ -17,7 +17,10 @@ public class GitHubService extends IssueTrackerService {
     private IssueService issueService;
 
 
-    public GitHubService(String userName, String password, String repositoryOwner, String repositoryName){
+    public GitHubService(final String userName,
+                         final String password,
+                         final String repositoryOwner,
+                         final String repositoryName){
         super(userName, password, repositoryOwner, repositoryName);
         GitHubClient client = new GitHubClient();
         client.setCredentials(userName, password);
@@ -25,24 +28,24 @@ public class GitHubService extends IssueTrackerService {
     }
 
     @Override
-    public String getIssueBody(int issueNumber) throws IOException {
+    public String getIssueBody(final int issueNumber) throws IOException {
         issue = issueService.getIssue(repositoryOwner, repositoryName, issueNumber);
         return issue.getBody();
     }
 
     @Override
-    public void setIssueAssignee(String blameEmail) throws IOException, JSONException {
+    public void setIssueAssignee(final String blameEmail) throws IOException, JSONException {
         User blamedUser = new User();
         issue.setAssignee(blamedUser.setLogin(getUserLogin(blameEmail)));
         issueService.editIssue(repositoryOwner, repositoryName, issue);
     }
 
-    private static String getUserLogin(String blamedUserEmail) throws IOException, JSONException {
+    private static String getUserLogin(final String blamedUserEmail) throws IOException, JSONException {
 
         String email = blamedUserEmail.split("@")[0];
         String url = "https://api.github.com/search/users?q=" + email + "+in:email";
 
-        String result = GetRequest(url, null);
+        String result = getRequest(url, null);
 
         JSONObject searchResult = new JSONObject(result.replaceAll(", ", ", \\"));
         JSONArray items = searchResult.getJSONArray("items");

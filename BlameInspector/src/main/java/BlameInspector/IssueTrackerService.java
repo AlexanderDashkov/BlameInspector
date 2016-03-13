@@ -27,13 +27,13 @@ public abstract class IssueTrackerService {
     public abstract String getIssueBody(int issueNumber) throws IOException, JSONException;
     public abstract void setIssueAssignee(String blameLogin) throws IOException, JSONException;
 
-    protected static String GetRequest(final String url, final String auth) throws IOException {
+    protected static String getRequest(final String url, final String auth) throws IOException {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
 
         if (auth != null){
-            con.setRequestProperty ("Authorization", auth);
+            con.setRequestProperty("Authorization", auth);
         }
         con.setRequestMethod("GET");
         int responseCode = con.getResponseCode();
@@ -50,12 +50,12 @@ public abstract class IssueTrackerService {
         return response.toString();
     }
 
-    protected static void PutRequest(final String url, final String data, final String auth) throws IOException {
+    protected static void putRequest(final String url, final String data, final String auth) throws IOException {
         URL obj = new URL(url);
         HttpURLConnection httpCon = (HttpURLConnection) obj.openConnection();
 
         if (auth != null){
-            httpCon.setRequestProperty ("Authorization", auth);
+            httpCon.setRequestProperty("Authorization", auth);
         }
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("PUT");

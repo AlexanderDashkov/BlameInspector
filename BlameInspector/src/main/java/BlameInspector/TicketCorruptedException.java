@@ -7,7 +7,7 @@ public class TicketCorruptedException extends Throwable {
 
     private String message;
 
-    public TicketCorruptedException(String message) {
+    public TicketCorruptedException(final String message) {
         this.message = message;
     }
 

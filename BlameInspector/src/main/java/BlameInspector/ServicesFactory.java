@@ -8,7 +8,7 @@ public class ServicesFactory {
         String issueTrackerName = issueTrackerUrl.split("/")[2];
         if (issueTrackerName.equals("github.com")){
             return new GitHubService(userName, password, repoOwner, projectName);
-        }else if (issueTrackerName.equals("bitbucket.org")){
+        } else if (issueTrackerName.equals("bitbucket.org")){
             return new BitBucketService(userName, password, repoOwner, projectName);
         }
         return null;

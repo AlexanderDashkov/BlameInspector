@@ -8,10 +8,14 @@ import java.util.HashMap;
 
 public abstract class VersionControlService {
 
-    public HashMap<String, String> filesInRepo;
+    protected HashMap<String, String> filesInRepo;
     protected String repositoryURL;
 
     public abstract String getBlamedUser(String fileName, int lineNumber) throws IOException, GitAPIException;
 
     public abstract String getRepositoryOwner();
+
+    public boolean containsFile(final String fileName){
+        return filesInRepo.containsKey(fileName);
+    }
 }

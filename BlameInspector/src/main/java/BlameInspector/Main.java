@@ -10,14 +10,14 @@ public class Main {
 
     private static final String createConfigCommand = "create";
 
-    public static void main(String[] args) throws IOException, GitAPIException, JSONException, TicketCorruptedException {
+    public static void main(String [] args) throws IOException, GitAPIException, JSONException, TicketCorruptedException {
         String projectName;
         int ticketNumber = 0;
         PropertyService propertyService = new PropertyService();
 
         try {
             projectName = args[0];
-            if(projectName.equals(createConfigCommand)){
+            if (projectName.equals(createConfigCommand)){
                 Scanner in = new Scanner(System.in);
                 System.out.println("Enter project name:");
                 propertyService.setProjectName(in.nextLine());
@@ -34,10 +34,10 @@ public class Main {
                 System.exit(0);
             }
             ticketNumber = Integer.parseInt(args[1]);
-        }catch (ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e){
             System.out.println("Not enough arguments. Try again.");
             System.exit(0);
-        }catch (IOException e){
+        } catch (IOException e){
             System.out.println(e.getStackTrace());
             System.out.println("Something wrong with writing in file!");
             System.exit(0);
@@ -45,13 +45,13 @@ public class Main {
 
         try {
             propertyService.readFromFile();
-        }catch (IOException e){
+        } catch (IOException e){
             System.out.println(e.getStackTrace());
             System.out.println("Something wrong with reading config file!");
             System.exit(0);
         }
         BlameInspector blameInspector = new BlameInspector();
-        blameInspector.init(propertyService, ticketNumber);
-
+        blameInspector.init(propertyService);
+        blameInspector.handleTicket(ticketNumber);
     }
 }

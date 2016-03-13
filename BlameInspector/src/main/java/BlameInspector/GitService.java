@@ -38,7 +38,7 @@ public class GitService extends VersionControlService {
 
 
     @Override
-    public String getBlamedUser(String fileName, int lineNumber) throws IOException, GitAPIException {
+    public String getBlamedUser(final String fileName, final int lineNumber) throws IOException, GitAPIException {
         BlameCommand cmd = new BlameCommand(git.getRepository());
         cmd.setStartCommit(commitID);
         cmd.setFilePath(filesInRepo.get(fileName));

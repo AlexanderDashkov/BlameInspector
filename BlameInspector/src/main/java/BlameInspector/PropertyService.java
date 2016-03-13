@@ -81,7 +81,7 @@ public class PropertyService {
         try {
             fileInputStream = new FileInputStream(CONFIG_FILE_NAME);
             properties.loadFromXML(fileInputStream);
-        }catch (IOException e){
+        } catch (IOException e){
             throw e;
         }
     }

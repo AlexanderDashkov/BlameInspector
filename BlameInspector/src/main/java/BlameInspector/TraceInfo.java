@@ -9,7 +9,10 @@ public class TraceInfo {
     private String fileName;
     private int lineNumber;
 
-    public TraceInfo(String className, String methodName, String fileName, int lineNumber){
+    public TraceInfo(final String className,
+                     final String methodName,
+                     final String fileName,
+                     final int lineNumber){
         this.className = className;
         this.methodName = methodName;
         this.lineNumber = lineNumber;

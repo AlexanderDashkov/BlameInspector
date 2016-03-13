@@ -16,7 +16,7 @@ public class BlameInspector {
     private static VersionControlService vcs;
     private static IssueTrackerService its;
 
-    public void init(PropertyService propertyService) throws IOException, GitAPIException, JSONException, TicketCorruptedException {
+    public void init(final PropertyService propertyService) throws IOException, GitAPIException, JSONException, TicketCorruptedException {
         vcs = new GitService(propertyService.getPathToRepo(), propertyService.getIssueTracker());
         its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
                 propertyService.getPassword(),
@@ -25,26 +25,26 @@ public class BlameInspector {
                 propertyService.getIssueTracker());
     }
 
-    public void handleTicket(int ticketNumber) throws IOException, JSONException, GitAPIException, TicketCorruptedException {
+    public void handleTicket(final int ticketNumber) throws IOException, JSONException, GitAPIException, TicketCorruptedException {
         TraceInfo traceInfo = getTraceInfo(its.getIssueBody(ticketNumber));
         String blameEmail = vcs.getBlamedUser(traceInfo.getFileName(), traceInfo.getLineNumber());
         its.setIssueAssignee(blameEmail);
     }
 
 
-    private static TraceInfo getTraceInfo(String issueBody) throws TicketCorruptedException {
+    private static TraceInfo getTraceInfo(final String issueBody) throws TicketCorruptedException {
         NStackTrace stackTrace;
         try {
              stackTrace = StackTraceParser.parse(issueBody);
 
-        }catch (NoSuchElementException | RecognitionException e){
+        } catch (NoSuchElementException | RecognitionException e){
              throw new TicketCorruptedException("StackTrace corrupted!");
         }
-        String locationInfo[];
+        String [] locationInfo;
         for (NFrame currentFrame :  stackTrace.getTrace().getFrames()){
             int size = currentFrame.getLocation().length();
-            locationInfo = currentFrame.getLocation().substring(1,size -1).split(":");
-            if (vcs.filesInRepo.containsKey(locationInfo[0])){
+            locationInfo = currentFrame.getLocation().substring(1, size - 1).split(":");
+            if (vcs.containsFile(locationInfo[0])){
                 return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
                         locationInfo[0], Integer.parseInt(locationInfo[1]));
             }
