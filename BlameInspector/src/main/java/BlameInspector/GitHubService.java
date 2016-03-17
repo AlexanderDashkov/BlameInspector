@@ -9,12 +9,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 
 public class GitHubService extends IssueTrackerService {
 
     private Issue issue;
     private IssueService issueService;
+    private static final String GITHUB_SEARCH_EMAIL_URL = "https://api.github.com/search/users?q={0}+in:email";
 
 
     public GitHubService(final String userName,
@@ -43,7 +45,7 @@ public class GitHubService extends IssueTrackerService {
     private static String getUserLogin(final String blamedUserEmail) throws IOException, JSONException {
 
         String email = blamedUserEmail.split("@")[0];
-        String url = "https://api.github.com/search/users?q=" + email + "+in:email";
+        String url = MessageFormat.format(GITHUB_SEARCH_EMAIL_URL, blamedUserEmail);
 
         String result = getRequest(url, null);
 

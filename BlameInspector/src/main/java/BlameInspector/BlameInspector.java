@@ -36,7 +36,6 @@ public class BlameInspector {
         NStackTrace stackTrace;
         try {
              stackTrace = StackTraceParser.parse(issueBody);
-
         } catch (NoSuchElementException | RecognitionException e){
              throw new TicketCorruptedException("StackTrace corrupted!");
         }

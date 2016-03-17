@@ -1,89 +1,87 @@
 package BlameInspector;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Properties;
 
 public class PropertyService {
 
-    private static final String PROJECT_NAME = "projectName";
-    private static final String USER_NAME = "userName";
-    private static final String PASSWORD = "password";
-    private static final String PATH_TO_REPO = "pathToRepo";
-    private static final String ISSUE_TRACKER = "issueTracker";
+    private static final String PROJECT_TAG = "project";
+    private static final String NAME_ATTR = "name";
+    private static final String USER_NAME_TAG = "userName";
+    private static final String PASSWORD_TAG = "password";
+    private static final String PATH_TO_REPO_TAG = "pathToRepo";
+    private static final String ISSUE_TRACKER_TAG = "issueTracker";
+
+    private String projectName;
+    private String userName;
+    private String password;
+    private String pathToRepo;
+    private String issueTracker;
 
     private static final String CONFIG_FILE_NAME = "config.properties";
-    private Properties properties;
 
-    public PropertyService(){
-        properties = new Properties();
+    public PropertyService(final String projectName) throws IOException, ProjectNotFoundException {
+        this.projectName = projectName;
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = null;
+        try {
+            db = dbf.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        Document doc = null;
+        try {
+            doc = db.parse(new File(CONFIG_FILE_NAME));
+            doc.getDocumentElement().normalize();
+
+        } catch (SAXException e) {
+            e.printStackTrace();
+        }
+        NodeList nodeList = doc.getElementsByTagName(PROJECT_TAG);
+        for (int i = 0; i < nodeList.getLength(); i++){
+             Element element = (Element) nodeList.item(i);
+             if(element.getAttribute(NAME_ATTR).equals(projectName)){
+                 userName = getContentByTag(element, USER_NAME_TAG);
+                 password = getContentByTag(element, PASSWORD_TAG);
+                 pathToRepo = getContentByTag(element, PATH_TO_REPO_TAG);
+                 issueTracker = getContentByTag(element, ISSUE_TRACKER_TAG);
+             }
+        }
+        if (userName == null){
+            throw new ProjectNotFoundException();
+        }
     }
 
-    public void setProjectName(final String projectName){
-        properties.setProperty(PROJECT_NAME, projectName);
+    private String getContentByTag(final Element element, final String tag){
+        return element.getElementsByTagName(tag).item(0).getTextContent();
     }
 
     public String getProjectName(){
-        return properties.getProperty(PROJECT_NAME);
-    }
-
-    public void setUserName(final String userName){
-        properties.setProperty(USER_NAME, userName);
+        return projectName;
     }
 
     public String getUserName(){
-        return properties.getProperty(USER_NAME);
-    }
-
-    public void setPassword(final String password){
-        properties.setProperty(PASSWORD, password);
+        return userName;
     }
 
     public String getPassword(){
-        return properties.getProperty(PASSWORD);
-    }
-
-    public void setPathToRepo(final String pathToRepo){
-        properties.setProperty(PATH_TO_REPO, pathToRepo);
+        return password;
     }
 
     public String getPathToRepo(){
-        return properties.getProperty(PATH_TO_REPO);
-    }
-
-    public void setIssueTracker(final String issueTracker){
-        properties.setProperty(ISSUE_TRACKER, issueTracker);
+        return pathToRepo;
     }
 
     public String getIssueTracker(){
-        return properties.getProperty(ISSUE_TRACKER);
-    }
-
-
-    public void writeInFile() throws IOException{
-        FileOutputStream fileOutputStream;
-
-        try {
-            fileOutputStream = new FileOutputStream(new File(CONFIG_FILE_NAME));
-            properties.storeToXML(fileOutputStream, null);
-        }catch (IOException e){
-            throw e;
-        }
-
-    }
-
-    public void readFromFile() throws IOException {
-        FileInputStream fileInputStream;
-
-        try {
-            fileInputStream = new FileInputStream(CONFIG_FILE_NAME);
-            properties.loadFromXML(fileInputStream);
-        } catch (IOException e){
-            throw e;
-        }
+        return issueTracker;
     }
 
 }
