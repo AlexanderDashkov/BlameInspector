@@ -20,7 +20,7 @@ public class GitService extends VersionControlService {
     private Git git;
     private ObjectId commitID;
 
-    public GitService(final String pathToRepo, final String repoURL) throws IOException {
+    public GitService(final String pathToRepo, final String repoURL) throws IOException{
         filesInRepo = new HashMap<>();
         repositoryURL = repoURL;
         git = Git.open(new File(pathToRepo + "/.git"));

@@ -31,7 +31,6 @@ public abstract class IssueTrackerService {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-
         if (auth != null){
             con.setRequestProperty("Authorization", auth);
         }
@@ -76,7 +75,6 @@ public abstract class IssueTrackerService {
             response.append(inputLine);
         }
         in.close();
-//        System.out.println(response.toString());
     }
 
 }

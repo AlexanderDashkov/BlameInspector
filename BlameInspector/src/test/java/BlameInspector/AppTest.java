@@ -8,6 +8,7 @@ import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONException;
+import org.tmatesoft.svn.core.SVNException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,6 +23,9 @@ public class AppTest
     private String projectName;
     private String repoOwner;
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+
+    public PrintStream sysout = System.out;
     /**
      * Create the test case
      *
@@ -32,6 +36,7 @@ public class AppTest
         this.projectName = "BlameWhoTest";
         this.repoOwner = "JackSmithJunior";
         System.setOut(new PrintStream(outContent));
+        System.setErr(new PrintStream(errContent));
     }
 
     /**
@@ -42,28 +47,27 @@ public class AppTest
         return new TestSuite( AppTest.class );
     }
 
-    public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException {
+    public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException {
         ticketChecker("1","JaneSmithSenior");
     }
 
     public void testCorruptedTicket(){
-//        Main.main(new String[] {repoName, "2", password});
-//        assertTrue(outContent.toString().equals("Sorry, current ticket is corrupted!"));
+//        Main.main(new String[] {this.projectName, "2"});
+//        System.out.flush();
+//        String response = outContent.toString().split("!")[0];
+//        assertTrue(response.equals("Ticket is corrupted"));
     }
 
-    public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException {
+    public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException {
         ticketChecker("3", "JackSmithJunior");
     }
-    public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, ProjectNotFoundException {
+    public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException {
         ticketChecker("4", "JaneSmithSenior");
     }
 
-    protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException {
-        try {
-            Main.main(new String[]{this.projectName, ticketNumber});
-        }catch (TicketCorruptedException e){
-            System.out.println(e.getStackTrace());
-        }
+    protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException {
+        Main.main(new String[]{this.projectName, ticketNumber});
+
 
         PropertyService propertyService = new PropertyService(projectName);
 

@@ -1,13 +1,10 @@
 package BlameInspector;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.json.JSONException;
-
 import java.io.IOException;
 
 public class Main {
 
-    public static void main(String [] args) throws IOException, GitAPIException, JSONException, TicketCorruptedException {
+    public static void main(String [] args) {
         String projectName = null;
         int ticketNumber = 0;
         PropertyService propertyService = null;
@@ -32,7 +29,22 @@ public class Main {
             System.exit(0);
         }
         BlameInspector blameInspector = new BlameInspector();
-        blameInspector.init(propertyService);
-        blameInspector.handleTicket(ticketNumber);
+        try {
+            blameInspector.init(propertyService);
+            blameInspector.handleTicket(ticketNumber);
+        } catch (VersionControlServiceException e) {
+            printExceptionData(e,"Got exception in version control part.");
+        } catch (IssueTrackerException e) {
+            printExceptionData(e, "Got exception in issue tracker part.");
+        } catch (TicketCorruptedException e) {
+            System.out.println("Ticket is corrupted!");
+        }
+    }
+
+    public static void printExceptionData(final BlameInspectorException e,
+                                         final String message){
+        System.out.println(message);
+        System.out.println(e.getNestedException().getMessage());
+        e.getNestedException().printStackTrace();
     }
 }

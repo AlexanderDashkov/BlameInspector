@@ -4,31 +4,54 @@ import com.jmolly.stacktraceparser.NFrame;
 import com.jmolly.stacktraceparser.NStackTrace;
 import com.jmolly.stacktraceparser.StackTraceParser;
 import org.antlr.runtime.RecognitionException;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.json.JSONException;
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
-
 
 public class BlameInspector {
 
     private static VersionControlService vcs;
     private static IssueTrackerService its;
 
-    public void init(final PropertyService propertyService) throws IOException, GitAPIException, JSONException, TicketCorruptedException {
-        vcs = new GitService(propertyService.getPathToRepo(), propertyService.getIssueTracker());
-        its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
-                propertyService.getPassword(),
-                vcs.getRepositoryOwner(),
-                propertyService.getProjectName(),
-                propertyService.getIssueTracker());
+    public void init(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
+        try {
+            vcs = new GitService(propertyService.getPathToRepo(), propertyService.getIssueTracker());
+        }catch (Exception e){
+            throw new VersionControlServiceException(e);
+        }
+        try {
+            its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
+                    propertyService.getPassword(),
+                    vcs.getRepositoryOwner(),
+                    propertyService.getProjectName(),
+                    propertyService.getIssueTracker());
+        }catch (Exception e){
+            throw new IssueTrackerException(e);
+        }
+
     }
 
-    public void handleTicket(final int ticketNumber) throws IOException, JSONException, GitAPIException, TicketCorruptedException {
-        TraceInfo traceInfo = getTraceInfo(its.getIssueBody(ticketNumber));
-        String blameEmail = vcs.getBlamedUser(traceInfo.getFileName(), traceInfo.getLineNumber());
-        its.setIssueAssignee(blameEmail);
+    public void handleTicket(final int ticketNumber) throws TicketCorruptedException,
+            VersionControlServiceException,
+            IssueTrackerException {
+        TraceInfo traceInfo = null;
+        try {
+            traceInfo = getTraceInfo(its.getIssueBody(ticketNumber));
+        }catch (TicketCorruptedException e){
+            throw e;
+        }catch (Exception e) {
+            throw new VersionControlServiceException(e);
+        }
+        String blameEmail = null;
+        try {
+            blameEmail = vcs.getBlamedUser(traceInfo.getFileName(), traceInfo.getLineNumber());
+        }catch (Exception e){
+            throw new VersionControlServiceException(e);
+        }
+        try{
+            its.setIssueAssignee(blameEmail);
+        }catch (Exception e){
+            throw new IssueTrackerException(e);
+        }
     }
 
 
