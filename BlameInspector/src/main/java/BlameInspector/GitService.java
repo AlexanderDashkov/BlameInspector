@@ -43,7 +43,7 @@ public class GitService extends VersionControlService {
         cmd.setStartCommit(commitID);
         cmd.setFilePath(filesInRepo.get(fileName));
         BlameResult blameResult = cmd.call();
-        String blamedUserEmail = blameResult.getSourceAuthor(lineNumber).getEmailAddress();
+        String blamedUserEmail = blameResult.getSourceAuthor(lineNumber - 1).getEmailAddress();
         return blamedUserEmail;
     }
 

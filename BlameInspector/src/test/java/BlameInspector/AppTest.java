@@ -20,6 +20,7 @@ public class AppTest
         extends TestCase
 {
     private String projectName;
+    private String repoOwner;
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     /**
      * Create the test case
@@ -29,13 +30,7 @@ public class AppTest
     public AppTest( String testName ) throws IOException {
         super( testName );
         this.projectName = "BlameWhoTest";
-//        PropertyService propertyService = new PropertyService();
-//        propertyService.setIssueTracker();
-//        propertyService.setPathToRepo();
-//        propertyService.setPassword();
-//        propertyService.setUserName();
-//        propertyService.getProjectName();
-//        propertyService.writeInFile();
+        this.repoOwner = "JackSmithJunior";
         System.setOut(new PrintStream(outContent));
     }
 
@@ -47,7 +42,7 @@ public class AppTest
         return new TestSuite( AppTest.class );
     }
 
-    public void testSimpleTicket() throws IOException, GitAPIException, JSONException{
+    public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException {
         ticketChecker("1","JaneSmithSenior");
     }
 
@@ -56,32 +51,29 @@ public class AppTest
 //        assertTrue(outContent.toString().equals("Sorry, current ticket is corrupted!"));
     }
 
-    public void testPackageTicket() throws JSONException, GitAPIException, IOException {
+    public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException {
         ticketChecker("3", "JackSmithJunior");
     }
-    public void testThirdLibraryException() throws JSONException, GitAPIException, IOException {
-        ticketChecker("4", "JackSmithJunior");
+    public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, ProjectNotFoundException {
+        ticketChecker("4", "JaneSmithSenior");
     }
 
-    protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException
-    {
+    protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException {
         try {
             Main.main(new String[]{this.projectName, ticketNumber});
         }catch (TicketCorruptedException e){
             System.out.println(e.getStackTrace());
         }
 
-        PropertyService propertyService = new PropertyService();
-        propertyService.readFromFile();
+        PropertyService propertyService = new PropertyService(projectName);
 
         GitHubClient client = new GitHubClient();
         client.setCredentials(propertyService.getUserName(),
                 propertyService.getPassword());
 
         IssueService service = new IssueService(client);
-        Issue issue = service.getIssue(propertyService.getUserName(),
+        Issue issue = service.getIssue(repoOwner,
                 this.projectName, Integer.parseInt(ticketNumber));
         assertTrue(issue.getAssignee().getLogin().equals(blameLogin));
-
     }
 }
