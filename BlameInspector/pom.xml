@@ -50,12 +50,7 @@
     </dependencies>
 
      <build>
-     <resources>
-      <resource>
-        <directory>${project.basedir}/src/main/resources</directory>
-        <filtering>false</filtering>
-      </resource>
-    </resources>
+ 
 
     <plugins>
       <plugin>
@@ -74,16 +69,11 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>Main</mainClass>
+              <mainClass>BlameInspector.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
     </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>2.7</version>
-        </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -97,6 +87,12 @@
           </execution>
         </executions>
         <configuration>
+          <resources>
+            <resource>
+              <directory>${project.basedir}/src/main/resources</directory>
+              <filtering>false</filtering>
+            </resource>
+          </resources>
         <filters>
           <filter>
             <artifact>*:*</artifact>
