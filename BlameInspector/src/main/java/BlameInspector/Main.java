@@ -1,5 +1,6 @@
 package BlameInspector;
 
+import org.apache.commons.cli.*;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;
@@ -9,17 +10,34 @@ import java.io.PrintStream;
 public class Main {
 
     public static void main(String [] args) {
-        String projectName = null;
-        int ticketNumber = 0;
+        Option projectNameOption = new Option("p", "project", true, "Project Name");
+        projectNameOption.setArgs(1);
+        projectNameOption.setOptionalArg(false);
+        projectNameOption.setArgName("project name in xml file");
+        Option ticketNumberOption = new Option("t", "ticket", true, "Ticket Number");
+        Option fixKeyOption = new Option("f", "fix", true, "is set assignee");
+
+        Options options = new Options();
+        options.addOption(projectNameOption);
+        options.addOption(ticketNumberOption);
+        options.addOption(fixKeyOption);
+
+        CommandLineParser cmdLineParser = new PosixParser();
+        CommandLine cmdLine = null;
+        try {
+            cmdLine = cmdLineParser.parse(options, args);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        String projectName = cmdLine.getOptionValue("p");
+        int ticketNumber = Integer.parseInt(cmdLine.getOptionValue("t"));
+        boolean isSettingAssignee = false;
+        if (cmdLine.hasOption("f")){
+            isSettingAssignee = true;
+        }
         PropertyService propertyService = null;
 
-        try {
-            projectName = args[0];
-            ticketNumber = Integer.parseInt(args[1]);
-        } catch (ArrayIndexOutOfBoundsException e){
-            System.out.println("Not enough arguments. Try again.");
-            System.exit(0);
-        }
 
         try {
             propertyService = new PropertyService(projectName);
@@ -43,7 +61,7 @@ public class Main {
         System.setErr(outTempStream);
         try {
             blameInspector.init(propertyService);
-            blameInspector.handleTicket(ticketNumber);
+            blameInspector.handleTicket(ticketNumber, isSettingAssignee);
         } catch (VersionControlServiceException e) {
             System.setOut(sysOut);
             printExceptionData(e,"Got exception in version control part.");

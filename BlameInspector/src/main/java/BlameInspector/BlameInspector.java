@@ -30,7 +30,7 @@ public class BlameInspector {
 
     }
 
-    public void handleTicket(final int ticketNumber) throws TicketCorruptedException,
+    public String handleTicket(final int ticketNumber, final boolean isSettingAssignee) throws TicketCorruptedException,
             VersionControlServiceException,
             IssueTrackerException {
         TraceInfo traceInfo = null;
@@ -47,11 +47,13 @@ public class BlameInspector {
         }catch (Exception e){
             throw new VersionControlServiceException(e);
         }
+        if (!isSettingAssignee) return blameEmail;
         try{
             its.setIssueAssignee(blameEmail);
         }catch (Exception e){
             throw new IssueTrackerException(e);
         }
+        return blameEmail;
     }
 
 
