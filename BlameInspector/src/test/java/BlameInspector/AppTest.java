@@ -9,6 +9,7 @@ import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONException;
 import org.tmatesoft.svn.core.SVNException;
+import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class AppTest
         return new TestSuite( AppTest.class );
     }
 
-    public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException {
+    public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException {
         ticketChecker("1","JaneSmithSenior");
     }
 
@@ -58,14 +59,14 @@ public class AppTest
 //        assertTrue(response.equals("Ticket is corrupted"));
     }
 
-    public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException {
+    public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException, SAXException {
         ticketChecker("3", "JackSmithJunior");
     }
-    public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException {
+    public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException, SAXException {
         ticketChecker("4", "JaneSmithSenior");
     }
 
-    protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException {
+    protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException {
         Main.main(new String[]{this.projectName, ticketNumber});
 
 

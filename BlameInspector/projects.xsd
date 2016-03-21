@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="projects">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="project" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="project">
+    <xs:complexType>
+       <xs:sequence>
+        <xs:element name="vcs">
+         <xs:simpleType final="restriction">
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="git"/>
+            <xs:enumeration value="svn"/>
+           </xs:restriction>
+         </xs:simpleType>
+        </xs:element>
+        <xs:element name="pathToRepo" type="xs:string"/>
+        <xs:element name="projectName" type="xs:string"/>
+        <xs:element name="issueTracker" type="xs:string"/>
+        <xs:element name="userName" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+       </xs:sequence>
+     <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
+  </xs:element>
+</xs:schema>
