@@ -14,7 +14,11 @@ public class BlameInspector {
 
     public void init(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
         try {
-            vcs = new GitService(propertyService.getPathToRepo(), propertyService.getIssueTracker());
+            vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
+                    propertyService.getPathToRepo(),
+                    propertyService.getIssueTracker(),
+                    propertyService.getUserName(),
+                    propertyService.getPassword());
         }catch (Exception e){
             throw new VersionControlServiceException(e);
         }

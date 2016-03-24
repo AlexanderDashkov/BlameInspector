@@ -57,11 +57,11 @@ public class Main {
         BlameInspector blameInspector = new BlameInspector();
         PrintStream sysOut = System.out;
         PrintStream outTempStream = new PrintStream(new ByteArrayOutputStream());
-        System.setOut(outTempStream);
-        System.setErr(outTempStream);
+     //   System.setOut(outTempStream);
+     //   System.setErr(outTempStream);
         try {
             blameInspector.init(propertyService);
-            blameInspector.handleTicket(ticketNumber, isSettingAssignee);
+            System.out.println(blameInspector.handleTicket(ticketNumber, isSettingAssignee));
         } catch (VersionControlServiceException e) {
             System.setOut(sysOut);
             printExceptionData(e,"Got exception in version control part.");

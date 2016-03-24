@@ -22,15 +22,18 @@ public class PropertyService {
     private static final String PASSWORD_TAG = "password";
     private static final String PATH_TO_REPO_TAG = "pathToRepo";
     private static final String ISSUE_TRACKER_TAG = "issueTracker";
+    private static final String VERSION_CONTROL_TAG = "vcs";
 
     private static final String XML_SCHEMA = "projects.xsd";
     private static final String CONFIG_FILE_NAME = "config.properties";
+    private static final String SCHEMA_FACTORY_W3 = "http://www.w3.org/2001/XMLSchema";
 
     private String projectName;
     private String userName;
     private String password;
     private String pathToRepo;
     private String issueTracker;
+    private String versionControl;
 
 
 
@@ -40,7 +43,7 @@ public class PropertyService {
         dbf.setValidating(false);
         dbf.setNamespaceAware(true);
         SchemaFactory schemaFactory =
-                SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+                SchemaFactory.newInstance(SCHEMA_FACTORY_W3);
 
         dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(XML_SCHEMA)}));
 
@@ -65,6 +68,7 @@ public class PropertyService {
         for (int i = 0; i < nodeList.getLength(); i++){
              Element element = (Element) nodeList.item(i);
              if(element.getAttribute(NAME_ATTR).equals(projectName)){
+                 versionControl = getContentByTag(element, VERSION_CONTROL_TAG);
                  userName = getContentByTag(element, USER_NAME_TAG);
                  password = getContentByTag(element, PASSWORD_TAG);
                  pathToRepo = getContentByTag(element, PATH_TO_REPO_TAG);
@@ -100,4 +104,7 @@ public class PropertyService {
         return issueTracker;
     }
 
+    public String getVersionControl() {
+        return versionControl;
+    }
 }
