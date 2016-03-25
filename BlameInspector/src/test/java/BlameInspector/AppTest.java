@@ -70,7 +70,7 @@ public class AppTest
     }
 
     protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException {
-        Main.main(new String[]{"-p", this.projectName,"-t" ,ticketNumber});
+        Main.main(new String[]{"-p", this.projectName,"-t" ,ticketNumber, "-f"});
 
 
         PropertyService propertyService = new PropertyService(projectName);
