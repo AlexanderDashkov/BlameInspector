@@ -44,7 +44,8 @@ public class Main {
         try {
             cmdLine = cmdLineParser.parse(options, args);
         } catch (ParseException e) {
-            e.printStackTrace();
+            System.out.println("Wrong arguments, type -help for help");
+            System.exit(0);
         }
         if (cmdLine.hasOption("-help")) {
             HelpFormatter helpFormatter = new HelpFormatter();
