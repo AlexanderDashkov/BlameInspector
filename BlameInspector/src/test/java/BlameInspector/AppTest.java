@@ -25,8 +25,8 @@ public class AppTest
     private String repoOwner;
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+    private final PrintStream sysOut;
 
-    public PrintStream sysout = System.out;
     /**
      * Create the test case
      *
@@ -36,6 +36,7 @@ public class AppTest
         super( testName );
         this.projectName = "BlameWhoTest";
         this.repoOwner = "JackSmithJunior";
+        sysOut = System.out;
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));
     }
@@ -53,10 +54,12 @@ public class AppTest
     }
 
     public void testCorruptedTicket(){
-//        Main.main(new String[] {this.projectName, "2"});
-//        System.out.flush();
-//        String response = outContent.toString().split("!")[0];
-//        assertTrue(response.equals("Ticket is corrupted"));
+        Main.main(new String[] {"-p",this.projectName,"-t", "2"});
+        String response[] = outContent.toString().split("!");
+        String singleResponse = response[0];
+        System.setOut(sysOut);
+        System.out.println(singleResponse);
+//        assertTrue(singleResponse.equals("Ticket is corrupted"));
     }
 
     public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException, SAXException {
@@ -67,7 +70,7 @@ public class AppTest
     }
 
     protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException {
-        Main.main(new String[]{this.projectName, ticketNumber});
+        Main.main(new String[]{"-p", this.projectName,"-t" ,ticketNumber});
 
 
         PropertyService propertyService = new PropertyService(projectName);
