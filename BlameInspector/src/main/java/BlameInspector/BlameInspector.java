@@ -11,6 +11,9 @@ public class BlameInspector {
 
     private static VersionControlService vcs;
     private static IssueTrackerService its;
+    private static int numberOfTickets;
+
+    private String blameEmail;
 
     public void init(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
         try {
@@ -28,13 +31,14 @@ public class BlameInspector {
                     vcs.getRepositoryOwner(),
                     propertyService.getProjectName(),
                     propertyService.getIssueTracker());
+            numberOfTickets = its.getNumberOfTickets();
         }catch (Exception e){
             throw new IssueTrackerException(e);
         }
 
     }
 
-    public String handleTicket(final int ticketNumber, final boolean isSettingAssignee) throws TicketCorruptedException,
+    public String handleTicket(final int ticketNumber) throws TicketCorruptedException,
             VersionControlServiceException,
             IssueTrackerException {
         TraceInfo traceInfo = null;
@@ -45,21 +49,21 @@ public class BlameInspector {
         }catch (Exception e) {
             throw new VersionControlServiceException(e);
         }
-        String blameEmail = null;
         try {
             blameEmail = vcs.getBlamedUser(traceInfo.getFileName(), traceInfo.getLineNumber());
         }catch (Exception e){
             throw new VersionControlServiceException(e);
         }
-        if (!isSettingAssignee) return blameEmail;
+        return blameEmail;
+    }
+
+    public void setAssignee() throws IssueTrackerException {
         try{
             its.setIssueAssignee(blameEmail);
         }catch (Exception e){
             throw new IssueTrackerException(e);
         }
-        return blameEmail;
     }
-
 
     private static TraceInfo getTraceInfo(final String issueBody) throws TicketCorruptedException {
         NStackTrace stackTrace;
@@ -78,6 +82,15 @@ public class BlameInspector {
             }
         }
         throw new TicketCorruptedException("No entry of exception found in current repository.");
+    }
+
+    public void refresh(){
+        blameEmail = null;
+        its.refresh();
+    }
+
+    public static int getNumberOfTickets() {
+        return numberOfTickets;
     }
 
 }

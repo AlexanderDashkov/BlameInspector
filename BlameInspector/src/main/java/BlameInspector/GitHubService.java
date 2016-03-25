@@ -4,6 +4,7 @@ import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.IssueService;
+import org.eclipse.egit.github.core.service.RepositoryService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,18 +17,22 @@ public class GitHubService extends IssueTrackerService {
 
     private Issue issue;
     private IssueService issueService;
+
     private static final String GITHUB_SEARCH_EMAIL_URL = "https://api.github.com/search/users?q={0}+in:email";
 
 
     public GitHubService(final String userName,
                          final String password,
                          final String repositoryOwner,
-                         final String repositoryName){
+                         final String repositoryName) throws IOException {
         super(userName, password, repositoryOwner, repositoryName);
         GitHubClient client = new GitHubClient();
         client.setCredentials(userName, password);
         this.issueService = new IssueService(client);
+        RepositoryService repositoryService = new RepositoryService(client);
+        this.numberOfTickets = repositoryService.getRepository(repositoryOwner, repositoryName).getOpenIssues();
     }
+
 
     @Override
     public String getIssueBody(final int issueNumber) throws IOException {
@@ -53,5 +58,10 @@ public class GitHubService extends IssueTrackerService {
         JSONArray items = searchResult.getJSONArray("items");
 
         return items.getJSONObject(0).getString("login");
+    }
+
+    @Override
+    public void refresh() {
+        issue = null;
     }
 }

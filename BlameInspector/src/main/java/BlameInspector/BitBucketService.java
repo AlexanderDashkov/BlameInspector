@@ -52,4 +52,9 @@ public class BitBucketService extends IssueTrackerService {
         JSONObject jsonObject = new JSONObject(result);
         return jsonObject.getJSONObject("user").getString("username");
     }
+
+    @Override
+    public void refresh() {
+        issueNumber = -1;
+    }
 }

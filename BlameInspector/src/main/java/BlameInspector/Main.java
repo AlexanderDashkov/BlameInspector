@@ -6,21 +6,38 @@ import org.xml.sax.SAXException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String [] args) {
-        Option projectNameOption = new Option("p", "project", true, "Project Name");
-        projectNameOption.setArgs(1);
-        projectNameOption.setOptionalArg(false);
-        projectNameOption.setArgName("project name in xml file");
-        Option ticketNumberOption = new Option("t", "ticket", true, "Ticket Number");
-        Option fixKeyOption = new Option("f", "fix", true, "is set assignee");
+    private static BlameInspector blameInspector;
+    private static PropertyService propertyService;
 
+    private static PrintStream sysOut;
+
+    public static void main(String [] args) {
+        Option projectNameOption = new Option("p", "project", true, "project Name");
+        projectNameOption.setArgs(1);
+        projectNameOption.setArgName("project");
+        Option ticketNumberOption = new Option("t", "ticket", true, "ticket Number");
+        ticketNumberOption.setArgs(1);
+        ticketNumberOption.setArgName("number");
+        Option ticketsRangeOption = new Option("r", "range", true, "tickets range");
+        ticketsRangeOption.setArgs(2);
+        ticketsRangeOption.setOptionalArg(true);
+        ticketsRangeOption.setArgName("range bounds");
+        OptionGroup fixKeys = new OptionGroup();
+        fixKeys.addOption(new Option("f", "fix",false, "set assignee automaticaly"));
+        fixKeys.addOption(new Option("s", "show", false, "just print assignee, no setting"));
+        fixKeys.addOption(new Option("i", "interactive", false, "ask user whether set assignee"));
+
+        Option helpOption = new Option("help", false, "help key");
         Options options = new Options();
         options.addOption(projectNameOption);
         options.addOption(ticketNumberOption);
-        options.addOption(fixKeyOption);
+        options.addOptionGroup(fixKeys);
+        options.addOption(helpOption);
+        options.addOption(ticketsRangeOption);
 
         CommandLineParser cmdLineParser = new PosixParser();
         CommandLine cmdLine = null;
@@ -29,15 +46,32 @@ public class Main {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
+        if (cmdLine.hasOption("-help")) {
+            HelpFormatter helpFormatter = new HelpFormatter();
+            helpFormatter.printHelp("BlameInspector", options);
+            System.exit(0);
+        }
         String projectName = cmdLine.getOptionValue("p");
-        int ticketNumber = Integer.parseInt(cmdLine.getOptionValue("t"));
+        int startBound, endBound;
+        if (cmdLine.hasOption("r")){
+            String bound[] = cmdLine.getOptionValues("r");
+            startBound = Integer.parseInt(bound[0]);
+            if(bound.length > 1) {
+                endBound = Integer.parseInt(bound[1]);
+            } else {
+                endBound = -1;
+            }
+        } else {
+            int ticketNumber = Integer.parseInt(cmdLine.getOptionValue("t"));
+            startBound = endBound = ticketNumber;
+        }
         boolean isSettingAssignee = false;
+        boolean isInteractive = false;
         if (cmdLine.hasOption("f")){
             isSettingAssignee = true;
+        }else if (cmdLine.hasOption("i")){
+            isInteractive = true;
         }
-        PropertyService propertyService = null;
-
 
         try {
             propertyService = new PropertyService(projectName);
@@ -54,14 +88,44 @@ public class Main {
             System.out.println("Something wrong with XML config file!");
             System.exit(0);
         }
-        BlameInspector blameInspector = new BlameInspector();
-        PrintStream sysOut = System.out;
-        PrintStream outTempStream = new PrintStream(new ByteArrayOutputStream());
-     //   System.setOut(outTempStream);
-     //   System.setErr(outTempStream);
+        blameInspector = new BlameInspector();
         try {
             blameInspector.init(propertyService);
-            System.out.println(blameInspector.handleTicket(ticketNumber, isSettingAssignee));
+            if (endBound == -1){
+                endBound = blameInspector.getNumberOfTickets();
+            }
+        } catch (VersionControlServiceException e) {
+            printExceptionData(e, "Got exception in version control part.");
+        } catch (IssueTrackerException e) {
+            printExceptionData(e, "Got exception in issue tracker part.");
+        }
+        for (int i = startBound; i <= endBound; i++){
+            try {
+                System.out.println("Ticket number: " + i + " Assignee:  " + evaluateTicket(i));
+                if (!isInteractive){
+                    if (isSettingAssignee) assign();
+                }else {
+                    Scanner in = new Scanner(System.in);
+                    System.out.println("Set assignee on that ticket?(y/n)");
+                    if (in.next().equals("y")){
+                        assign();
+                    }
+                }
+                blameInspector.refresh();
+            }catch (TicketCorruptedException e){
+                continue;
+            }
+        }
+    }
+
+    public static String evaluateTicket(final int ticketNumber) throws TicketCorruptedException {
+        String blameEmail = null;
+        sysOut = System.out;
+        PrintStream outTempStream = new PrintStream(new ByteArrayOutputStream());
+        System.setOut(outTempStream);
+        System.setErr(outTempStream);
+        try {
+            blameEmail = blameInspector.handleTicket(ticketNumber);
         } catch (VersionControlServiceException e) {
             System.setOut(sysOut);
             printExceptionData(e,"Got exception in version control part.");
@@ -71,10 +135,22 @@ public class Main {
         } catch (TicketCorruptedException e) {
             System.setOut(sysOut);
             System.out.println("Ticket is corrupted!");
+            throw e;
         }catch(Exception e){
             System.setOut(sysOut);
             System.out.println("still exception");
             System.out.println(e);
+        }finally {
+            System.setOut(sysOut);
+        }
+        return blameEmail;
+    }
+
+    public static void assign(){
+        try {
+            blameInspector.setAssignee();
+        }catch (IssueTrackerException e){
+            printExceptionData(e, "Got exception in issue tracker part.");
         }
 
     }

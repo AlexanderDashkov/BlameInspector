@@ -15,6 +15,7 @@ public abstract class IssueTrackerService {
     protected String repositoryName;
     protected String repositoryOwner;
     protected String password;
+    protected int numberOfTickets;
 
     protected IssueTrackerService(final String userName, final String password,
                                   final String repositoryOwner, final String repositoryName){
@@ -77,4 +78,9 @@ public abstract class IssueTrackerService {
         in.close();
     }
 
+    public abstract void refresh();
+
+    public int getNumberOfTickets() {
+        return numberOfTickets;
+    }
 }

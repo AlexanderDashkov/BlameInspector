@@ -15,7 +15,7 @@ public class ServicesFactory {
 
     public static IssueTrackerService getIssueTrackerService(final String userName, final String password,
                                                       final String repoOwner, final String projectName,
-                                                      final String issueTrackerUrl) throws NoSuchMethodException {
+                                                      final String issueTrackerUrl) throws NoSuchMethodException, IOException {
         String issueTrackerName = issueTrackerUrl.split("/")[2];
         if (issueTrackerName.equals(GITHUB_URL)){
             return new GitHubService(userName, password, repoOwner, projectName);
