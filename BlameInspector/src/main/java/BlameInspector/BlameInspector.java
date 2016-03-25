@@ -39,15 +39,14 @@ public class BlameInspector {
     }
 
     public String handleTicket(final int ticketNumber) throws TicketCorruptedException,
-            VersionControlServiceException,
-            IssueTrackerException {
+            BlameInspectorException {
         TraceInfo traceInfo = null;
         try {
             traceInfo = getTraceInfo(its.getIssueBody(ticketNumber));
         }catch (TicketCorruptedException e){
             throw e;
         }catch (Exception e) {
-            throw new VersionControlServiceException(e);
+            throw new BlameInspectorException(e);
         }
         try {
             blameEmail = vcs.getBlamedUser(traceInfo.getFileName(), traceInfo.getLineNumber());

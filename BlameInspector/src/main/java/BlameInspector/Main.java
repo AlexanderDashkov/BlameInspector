@@ -16,10 +16,10 @@ public class Main {
     private static PrintStream sysOut;
 
     public static void main(String [] args) {
-        Option projectNameOption = new Option("p", "project", true, "project Name");
+        Option projectNameOption = new Option("p", "project", true, "project name");
         projectNameOption.setArgs(1);
         projectNameOption.setArgName("project");
-        Option ticketNumberOption = new Option("t", "ticket", true, "ticket Number");
+        Option ticketNumberOption = new Option("t", "ticket", true, "ticket number");
         ticketNumberOption.setArgs(1);
         ticketNumberOption.setArgName("number");
         Option ticketsRangeOption = new Option("r", "range", true, "tickets range");
@@ -128,7 +128,7 @@ public class Main {
             blameEmail = blameInspector.handleTicket(ticketNumber);
         } catch (VersionControlServiceException e) {
             System.setOut(sysOut);
-            printExceptionData(e,"Got exception in version control part.");
+            printExceptionData(e, "Got exception in version control part.");
         } catch (IssueTrackerException e) {
             System.setOut(sysOut);
             printExceptionData(e, "Got exception in issue tracker part.");
@@ -136,6 +136,9 @@ public class Main {
             System.setOut(sysOut);
             System.out.println("Ticket is corrupted!");
             throw e;
+        }catch (BlameInspectorException e){
+            System.setOut(sysOut);
+            printExceptionData(e, "got blame inspection.");
         }catch(Exception e){
             System.setOut(sysOut);
             System.out.println("still exception");

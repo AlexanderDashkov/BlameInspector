@@ -54,9 +54,12 @@
         </dependency>
     </dependencies>
 
-     <build>
- 
-
+    <build>
+    	<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -67,6 +70,60 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      <plugin>
+		<groupId>org.dstovall</groupId>
+		<artifactId>onejar-maven-plugin</artifactId>
+		<version>1.4.4</version>
+		<executions>
+		  <execution>
+			<goals>
+				<goal>one-jar</goal>
+			</goals>
+		  </execution>
+		</executions>
+	</plugin>
+      <plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/lib</outputDirectory>
+							<resources>
+								<resource>
+									<directory>resources</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+      <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-install-plugin</artifactId>
+    <version>2.4</version>
+    <executions>
+        <execution>
+            <phase>initialize</phase>
+            <goals>
+                <goal>install-file</goal>
+            </goals>
+            <configuration>
+                <groupId>jmolly</groupId>
+                <artifactId>com.jmolly.stacktraceparser</artifactId>
+                <version>0.5</version>
+                <packaging>jar</packaging>
+                <file>${basedir}/src/main/resources/stack-trace-parser-0.5-SNAPSHOT.jar</file>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -79,41 +136,13 @@
           </archive>
         </configuration>
     </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>1.6</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <resources>
-            <resource>
-              <directory>${project.basedir}/src/main/resources</directory>
-              <filtering>false</filtering>
-            </resource>
-          </resources>
-        <filters>
-          <filter>
-            <artifact>*:*</artifact>
-            <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-            </excludes>
-          </filter>
-        </filters>
-        <!-- Additional configuration. -->
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 
-
-
+  <pluginRepositories>
+        <pluginRepository>
+            <id>onejar-maven-plugin.googlecode.com</id>
+            <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
