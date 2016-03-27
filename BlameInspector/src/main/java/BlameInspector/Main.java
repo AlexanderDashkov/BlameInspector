@@ -8,6 +8,7 @@ import org.xml.sax.SAXException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class Main {
@@ -18,6 +19,7 @@ public class Main {
     private static String projectName;
     private static int startBound, endBound;
     private static boolean isInteractive, isSettingAssignee;
+    private static boolean isDebug;
 
     private static PrintStream sysOut;
 
@@ -80,38 +82,73 @@ public class Main {
         Option projectNameOption = new Option("p", "project", true, "project name");
         projectNameOption.setArgs(1);
         projectNameOption.setArgName("project");
+        projectNameOption.setRequired(true);
+        Option debugOption = new Option("X", false, "debug mode");
+        debugOption.setArgs(0);
+        OptionGroup ticketNumbersGroup  = new OptionGroup();
         Option ticketNumberOption = new Option("t", "ticket", true, "ticket number");
         ticketNumberOption.setArgs(1);
         ticketNumberOption.setArgName("number");
-        Option ticketsRangeOption = new Option("r", "range", true, "tickets range");
+        Option ticketsRangeOption = new Option("r", "range", true, "tickets range ");
         ticketsRangeOption.setArgs(2);
         ticketsRangeOption.setOptionalArg(true);
         ticketsRangeOption.setArgName("range bounds");
+        ticketNumbersGroup.addOption(ticketNumberOption);
+        ticketNumbersGroup.addOption(ticketsRangeOption);
+        ticketNumbersGroup.setRequired(true);
         OptionGroup fixKeys = new OptionGroup();
-        fixKeys.addOption(new Option("f", "fix",false, "set assignee automaticaly"));
+        fixKeys.addOption(new Option("f", "fix",false, "set assignee automatically"));
         fixKeys.addOption(new Option("s", "show", false, "just print assignee, no setting"));
         fixKeys.addOption(new Option("i", "interactive", false, "ask user whether set assignee"));
 
+
+
         Option helpOption = new Option("help", false, "help key");
+        Options helpOptions = new Options();
+        helpOptions.addOption(helpOption);
+
         Options options = new Options();
         options.addOption(projectNameOption);
-        options.addOption(ticketNumberOption);
+        options.addOptionGroup(ticketNumbersGroup);
         options.addOptionGroup(fixKeys);
-        options.addOption(helpOption);
-        options.addOption(ticketsRangeOption);
+        options.addOption(debugOption);
+
 
         CommandLineParser cmdLineParser = new PosixParser();
         CommandLine cmdLine = null;
+
+        try {
+            cmdLine = cmdLineParser.parse(helpOptions, args);
+            if (cmdLine.hasOption("-help")) {
+                HelpFormatter helpFormatter = new HelpFormatter();
+                Comparator<Option> comparator = new Comparator<Option>() {
+                    @Override
+                    public int compare(Option o1, Option o2) {
+                        String OPTS_ORDER = "ptrfisX";
+                        return OPTS_ORDER.indexOf(o1.getOpt()) - OPTS_ORDER.indexOf(o2.getOpt());
+                    }
+                };
+                helpFormatter.setOptionComparator(comparator);
+                helpFormatter.printHelp("BlameInspector", options, true);
+                System.exit(0);
+            }
+        } catch (ParseException e) {}
+
+
         try {
             cmdLine = cmdLineParser.parse(options, args);
         } catch (ParseException e) {
+            System.out.println(e.getMessage());
             System.out.println("Wrong arguments, type -help for help");
             System.exit(0);
         }
-        if (cmdLine.hasOption("-help")) {
-            HelpFormatter helpFormatter = new HelpFormatter();
-            helpFormatter.printHelp("BlameInspector", options);
+        if (args.length == 0){
+            System.out.println("No arguments provided, type -help for help");
             System.exit(0);
+        }
+        isDebug = false;
+        if (cmdLine.hasOption("-X")){
+            isDebug = true;
         }
         projectName = cmdLine.getOptionValue("p");
         if (cmdLine.hasOption("r")){
