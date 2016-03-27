@@ -10,7 +10,7 @@
 
   <xs:element name="project">
     <xs:complexType>
-       <xs:sequence>
+       <xs:all>
         <xs:element name="vcs">
          <xs:simpleType final="restriction">
           <xs:restriction base="xs:string">
@@ -24,7 +24,7 @@
         <xs:element name="issueTracker" type="xs:string"/>
         <xs:element name="userName" type="xs:string"/>
         <xs:element name="password" type="xs:string"/>
-       </xs:sequence>
+       </xs:all>
      <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
 
