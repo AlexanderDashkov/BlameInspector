@@ -1,5 +1,9 @@
 package BlameInspector;
 
+import BlameInspector.IssueTracker.IssueTrackerException;
+import BlameInspector.IssueTracker.IssueTrackerService;
+import BlameInspector.VCS.VersionControlService;
+import BlameInspector.VCS.VersionControlServiceException;
 import com.jmolly.stacktraceparser.NFrame;
 import com.jmolly.stacktraceparser.NStackTrace;
 import com.jmolly.stacktraceparser.StackTraceParser;

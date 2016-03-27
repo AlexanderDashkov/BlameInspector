@@ -1,4 +1,6 @@
-package BlameInspector;
+package BlameInspector.IssueTracker;
+
+import BlameInspector.BlameInspectorException;
 
 public class IssueTrackerException extends BlameInspectorException {
 

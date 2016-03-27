@@ -1,5 +1,7 @@
 package BlameInspector;
 
+import BlameInspector.IssueTracker.IssueTrackerException;
+import BlameInspector.VCS.VersionControlServiceException;
 import org.apache.commons.cli.*;
 import org.xml.sax.SAXException;
 
@@ -13,9 +15,68 @@ public class Main {
     private static BlameInspector blameInspector;
     private static PropertyService propertyService;
 
+    private static String projectName;
+    private static int startBound, endBound;
+    private static boolean isInteractive, isSettingAssignee;
+
     private static PrintStream sysOut;
 
     public static void main(String [] args) {
+        processComandLine(args);
+        processConfigFile();
+        blameInspector = new BlameInspector();
+        processTickets();
+    }
+
+    private static void processTickets() {
+        try {
+            blameInspector.init(propertyService);
+            if (endBound == -1){
+                endBound = blameInspector.getNumberOfTickets();
+            }
+        } catch (VersionControlServiceException e) {
+            printExceptionData(e, "Got exception in version control part.");
+        } catch (IssueTrackerException e) {
+            printExceptionData(e, "Got exception in issue tracker part.");
+        }
+        for (int i = startBound; i <= endBound; i++){
+            try {
+                System.out.println("Ticket number: " + i + " Assignee:  " + evaluateTicket(i));
+                if (!isInteractive){
+                    if (isSettingAssignee) assign();
+                }else {
+                    Scanner in = new Scanner(System.in);
+                    System.out.println("Set assignee on that ticket?(y/n)");
+                    if (in.next().equals("y")){
+                        assign();
+                    }
+                }
+                blameInspector.refresh();
+            }catch (TicketCorruptedException e){
+                continue;
+            }
+        }
+    }
+
+    private static void processConfigFile() {
+        try {
+            propertyService = new PropertyService(projectName);
+        } catch (IOException e){
+            e.printStackTrace();
+            System.out.println("Something wrong with reading config file!");
+            System.exit(0);
+        } catch (ProjectNotFoundException e){
+            e.printStackTrace();
+            System.out.println("Project with such name wasn't found on corresponding file.");
+            System.exit(0);
+        } catch (SAXException e) {
+            e.printStackTrace();
+            System.out.println("Something wrong with XML config file!");
+            System.exit(0);
+        }
+    }
+
+    private static void processComandLine(String[] args) {
         Option projectNameOption = new Option("p", "project", true, "project name");
         projectNameOption.setArgs(1);
         projectNameOption.setArgName("project");
@@ -52,8 +113,7 @@ public class Main {
             helpFormatter.printHelp("BlameInspector", options);
             System.exit(0);
         }
-        String projectName = cmdLine.getOptionValue("p");
-        int startBound, endBound;
+        projectName = cmdLine.getOptionValue("p");
         if (cmdLine.hasOption("r")){
             String bound[] = cmdLine.getOptionValues("r");
             startBound = Integer.parseInt(bound[0]);
@@ -66,56 +126,12 @@ public class Main {
             int ticketNumber = Integer.parseInt(cmdLine.getOptionValue("t"));
             startBound = endBound = ticketNumber;
         }
-        boolean isSettingAssignee = false;
-        boolean isInteractive = false;
+        isSettingAssignee = false;
+        isInteractive = false;
         if (cmdLine.hasOption("f")){
             isSettingAssignee = true;
         }else if (cmdLine.hasOption("i")){
             isInteractive = true;
-        }
-
-        try {
-            propertyService = new PropertyService(projectName);
-        } catch (IOException e){
-            e.printStackTrace();
-            System.out.println("Something wrong with reading config file!");
-            System.exit(0);
-        } catch (ProjectNotFoundException e){
-            e.printStackTrace();
-            System.out.println("Project with such name wasn't found on corresponding file.");
-            System.exit(0);
-        } catch (SAXException e) {
-            e.printStackTrace();
-            System.out.println("Something wrong with XML config file!");
-            System.exit(0);
-        }
-        blameInspector = new BlameInspector();
-        try {
-            blameInspector.init(propertyService);
-            if (endBound == -1){
-                endBound = blameInspector.getNumberOfTickets();
-            }
-        } catch (VersionControlServiceException e) {
-            printExceptionData(e, "Got exception in version control part.");
-        } catch (IssueTrackerException e) {
-            printExceptionData(e, "Got exception in issue tracker part.");
-        }
-        for (int i = startBound; i <= endBound; i++){
-            try {
-                System.out.println("Ticket number: " + i + " Assignee:  " + evaluateTicket(i));
-                if (!isInteractive){
-                    if (isSettingAssignee) assign();
-                }else {
-                    Scanner in = new Scanner(System.in);
-                    System.out.println("Set assignee on that ticket?(y/n)");
-                    if (in.next().equals("y")){
-                        assign();
-                    }
-                }
-                blameInspector.refresh();
-            }catch (TicketCorruptedException e){
-                continue;
-            }
         }
     }
 

@@ -1,4 +1,4 @@
-package BlameInspector;
+package BlameInspector.IssueTracker;
 
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.User;

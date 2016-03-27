@@ -1,4 +1,4 @@
-package BlameInspector;
+package BlameInspector.VCS;
 
 
 import org.eclipse.jgit.api.errors.GitAPIException;

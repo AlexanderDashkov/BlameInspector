@@ -1,4 +1,4 @@
-package BlameInspector;
+package BlameInspector.IssueTracker;
 
 import org.json.JSONException;
 

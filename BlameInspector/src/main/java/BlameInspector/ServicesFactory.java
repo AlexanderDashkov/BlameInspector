@@ -1,6 +1,12 @@
 package BlameInspector;
 
 
+import BlameInspector.IssueTracker.BitBucketService;
+import BlameInspector.IssueTracker.GitHubService;
+import BlameInspector.IssueTracker.IssueTrackerService;
+import BlameInspector.VCS.GitService;
+import BlameInspector.VCS.SubversionService;
+import BlameInspector.VCS.VersionControlService;
 import org.tmatesoft.svn.core.SVNException;
 
 import java.io.IOException;

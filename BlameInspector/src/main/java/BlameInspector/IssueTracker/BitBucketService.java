@@ -1,4 +1,4 @@
-package BlameInspector;
+package BlameInspector.IssueTracker;
 
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
