@@ -39,7 +39,7 @@ public class PropertyService {
 
 
 
-    public PropertyService(final String projectName) throws IOException, ProjectNotFoundException, SAXException {
+    public PropertyService(final String projectName) throws IOException, ProjectNotFoundException, SAXException, ParserConfigurationException {
         this.projectName = projectName;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setValidating(false);
@@ -49,22 +49,12 @@ public class PropertyService {
 
         dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(XML_SCHEMA)}));
 
-        DocumentBuilder db = null;
-        try {
-            db = dbf.newDocumentBuilder();
-            db.setErrorHandler(new SimpleErrorHandler());
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        db.setErrorHandler(new SimpleErrorHandler());
 
-        Document doc = null;
-        try {
-            doc = db.parse(new InputSource(CONFIG_FILE_NAME));
-            doc.getDocumentElement().normalize();
 
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
+        Document doc = db.parse(new InputSource(CONFIG_FILE_NAME));
+        doc.getDocumentElement().normalize();
 
         NodeList nodeList = doc.getElementsByTagName(PROJECT_TAG);
         for (int i = 0; i < nodeList.getLength(); i++){
@@ -78,7 +68,7 @@ public class PropertyService {
              }
         }
         if (userName == null){
-            throw new ProjectNotFoundException();
+            throw new ProjectNotFoundException("Project with such name wasn't found in file.");
         }
     }
 
@@ -112,15 +102,15 @@ public class PropertyService {
 
     public class SimpleErrorHandler implements ErrorHandler {
         public void warning(SAXParseException e) throws SAXException {
-            System.out.println(e.getMessage());
+            throw e;
         }
 
         public void error(SAXParseException e) throws SAXException {
-            System.out.println(e.getMessage());
+            throw e;
         }
 
         public void fatalError(SAXParseException e) throws SAXException {
-            System.out.println(e.getMessage());
+            throw e;
         }
     }
 }

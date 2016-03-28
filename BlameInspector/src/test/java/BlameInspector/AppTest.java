@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.tmatesoft.svn.core.SVNException;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -49,7 +50,7 @@ public class AppTest
         return new TestSuite( AppTest.class );
     }
 
-    public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException {
+    public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {
         ticketChecker("1","JaneSmithSenior");
     }
 
@@ -62,14 +63,14 @@ public class AppTest
 //        assertTrue(singleResponse.equals("Ticket is corrupted"));
     }
 
-    public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException, SAXException {
+    public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {
         ticketChecker("3", "JackSmithJunior");
     }
-    public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException, SAXException {
+    public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {
         ticketChecker("4", "JaneSmithSenior");
     }
 
-    protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException {
+    protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {
         Main.main(new String[]{"-p", this.projectName,"-t" ,ticketNumber, "-f"});
 
 

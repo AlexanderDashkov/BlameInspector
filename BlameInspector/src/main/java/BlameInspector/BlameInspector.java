@@ -73,7 +73,7 @@ public class BlameInspector {
         try {
              stackTrace = StackTraceParser.parse(issueBody);
         } catch (NoSuchElementException | RecognitionException e){
-             throw new TicketCorruptedException("StackTrace corrupted!");
+             throw new TicketCorruptedException("StackTrace is corrupted!");
         }
         String [] locationInfo;
         for (NFrame currentFrame :  stackTrace.getTrace().getFrames()){

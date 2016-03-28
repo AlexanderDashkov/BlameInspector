@@ -1,12 +1,9 @@
 package BlameInspector;
 
 import BlameInspector.IssueTracker.IssueTrackerException;
-import BlameInspector.VCS.VersionControlServiceException;
 import org.apache.commons.cli.*;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.Scanner;
@@ -36,10 +33,8 @@ public class Main {
             if (endBound == -1){
                 endBound = blameInspector.getNumberOfTickets();
             }
-        } catch (VersionControlServiceException e) {
-            printExceptionData(e, "Got exception in version control part.");
-        } catch (IssueTrackerException e) {
-            printExceptionData(e, "Got exception in issue tracker part.");
+        } catch (Exception e){
+            printExceptionData(e);
         }
         for (int i = startBound; i <= endBound; i++){
             try {
@@ -63,18 +58,8 @@ public class Main {
     private static void processConfigFile() {
         try {
             propertyService = new PropertyService(projectName);
-        } catch (IOException e){
-            e.printStackTrace();
-            System.out.println("Something wrong with reading config file!");
-            System.exit(0);
-        } catch (ProjectNotFoundException e){
-            e.printStackTrace();
-            System.out.println("Project with such name wasn't found on corresponding file.");
-            System.exit(0);
-        } catch (SAXException e) {
-            e.printStackTrace();
-            System.out.println("Something wrong with XML config file!");
-            System.exit(0);
+        } catch (Exception e){
+            printExceptionData(e);
         }
     }
 
@@ -100,8 +85,6 @@ public class Main {
         fixKeys.addOption(new Option("f", "fix",false, "set assignee automatically"));
         fixKeys.addOption(new Option("s", "show", false, "just print assignee, no setting"));
         fixKeys.addOption(new Option("i", "interactive", false, "ask user whether set assignee"));
-
-
 
         Option helpOption = new Option("help", false, "help key");
         Options helpOptions = new Options();
@@ -139,7 +122,7 @@ public class Main {
             cmdLine = cmdLineParser.parse(options, args);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            System.out.println("Wrong arguments, type -help for help");
+            System.out.println("Type -help for help");
             System.exit(0);
         }
         if (args.length == 0){
@@ -180,23 +163,12 @@ public class Main {
         System.setErr(outTempStream);
         try {
             blameEmail = blameInspector.handleTicket(ticketNumber);
-        } catch (VersionControlServiceException e) {
+        }catch (TicketCorruptedException e){
             System.setOut(sysOut);
-            printExceptionData(e, "Got exception in version control part.");
-        } catch (IssueTrackerException e) {
+            return e.getMessage();
+        } catch (Exception e){
             System.setOut(sysOut);
-            printExceptionData(e, "Got exception in issue tracker part.");
-        } catch (TicketCorruptedException e) {
-            System.setOut(sysOut);
-            System.out.println("Ticket is corrupted!");
-            throw e;
-        }catch (BlameInspectorException e){
-            System.setOut(sysOut);
-            printExceptionData(e, "got blame inspection.");
-        }catch(Exception e){
-            System.setOut(sysOut);
-            System.out.println("still exception");
-            System.out.println(e);
+            printExceptionData(e);
         }finally {
             System.setOut(sysOut);
         }
@@ -207,15 +179,16 @@ public class Main {
         try {
             blameInspector.setAssignee();
         }catch (IssueTrackerException e){
-            printExceptionData(e, "Got exception in issue tracker part.");
+            printExceptionData(e);
         }
 
     }
 
-    public static void printExceptionData(final BlameInspectorException e,
-                                         final String message){
-        System.out.println(message);
-        System.out.println(e.getNestedException().getMessage());
-        e.getNestedException().printStackTrace();
+    public static void printExceptionData(final Exception e){
+        System.out.println(e.getMessage());
+        if (isDebug){
+            e.printStackTrace();
+        }
+        System.exit(0);
     }
 }
