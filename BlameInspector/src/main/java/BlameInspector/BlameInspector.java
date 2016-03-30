@@ -13,6 +13,8 @@ import java.util.NoSuchElementException;
 
 public class BlameInspector {
 
+    private final String STACKTRACE_START = "Exception in thread";
+
     private static VersionControlService vcs;
     private static IssueTrackerService its;
     private static int numberOfTickets;
@@ -27,7 +29,7 @@ public class BlameInspector {
                     propertyService.getUserName(),
                     propertyService.getPassword());
         }catch (Exception e){
-            throw new VersionControlServiceException(e);
+            throw new VersionControlServiceException(e, "Can not create VCS object!");
         }
         try {
             its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
@@ -37,16 +39,20 @@ public class BlameInspector {
                     propertyService.getIssueTracker());
             numberOfTickets = its.getNumberOfTickets();
         }catch (Exception e){
-            throw new IssueTrackerException(e);
+            throw new IssueTrackerException(e, "Can not create IssueTracker object!");
         }
 
     }
 
     public String handleTicket(final int ticketNumber) throws TicketCorruptedException,
-            BlameInspectorException {
+            BlameInspectorException, VersionControlServiceException {
         TraceInfo traceInfo = null;
         try {
-            traceInfo = getTraceInfo(its.getIssueBody(ticketNumber));
+            String stackTrace = getStackTrace(its.getIssueBody(ticketNumber));
+            if (stackTrace.isEmpty()){
+                throw new TicketCorruptedException("No StackTrace found in current ticket!");
+            }
+            traceInfo = getTraceInfo(stackTrace);
         }catch (TicketCorruptedException e){
             throw e;
         }catch (Exception e) {
@@ -58,6 +64,13 @@ public class BlameInspector {
             throw new VersionControlServiceException(e);
         }
         return blameEmail;
+    }
+
+    public String getStackTrace(final String issueBody) {
+        if (!issueBody.contains(STACKTRACE_START)){
+            return "";
+        }
+        return issueBody;
     }
 
     public void setAssignee() throws IssueTrackerException {

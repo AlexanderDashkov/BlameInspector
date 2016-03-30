@@ -1,12 +1,14 @@
 package BlameInspector.VCS;
 
 
-import BlameInspector.BlameInspectorException;
-
-public class VersionControlServiceException extends BlameInspectorException {
+public class VersionControlServiceException extends Exception {
 
 
     public VersionControlServiceException(Exception e) {
         super(e);
+    }
+
+    public VersionControlServiceException(Exception e,final String s) {
+        super(s, e);
     }
 }

@@ -28,7 +28,7 @@ public class ServicesFactory {
         } else if (issueTrackerName.equals(BITBUCKET_URL)){
             return new BitBucketService(userName, password, repoOwner, projectName);
         }
-        throw new NoSuchMethodException("Not found appropriate Issue Tracker constructor.");
+        throw new RuntimeException("Not found appropriate Issue Tracker constructor.");
     }
 
     public static VersionControlService getVersionControlService(final String versionControl,
@@ -41,6 +41,6 @@ public class ServicesFactory {
         }else if (versionControl.equals(SVN)){
            return new SubversionService(pathToRepo, issueTracker, username, password);
         }
-        throw new NoSuchMethodException("Not found appropriate Version Control constructor.");
+        throw new RuntimeException("Not found appropriate Version Control constructor.");
     }
 }

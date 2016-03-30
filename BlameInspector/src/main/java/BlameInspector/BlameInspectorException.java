@@ -2,13 +2,9 @@ package BlameInspector;
 
 public class BlameInspectorException extends Exception{
 
-    protected Throwable nestedException;
 
     public BlameInspectorException(Exception e) {
-        this.nestedException = e;
+        super(e);
     }
 
-    public Throwable getNestedException(){
-        return this.nestedException;
-    }
 }

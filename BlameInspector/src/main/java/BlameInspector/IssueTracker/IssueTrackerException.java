@@ -1,10 +1,12 @@
 package BlameInspector.IssueTracker;
 
-import BlameInspector.BlameInspectorException;
-
-public class IssueTrackerException extends BlameInspectorException {
+public class IssueTrackerException extends Exception {
 
     public IssueTrackerException(Exception e) {
         super(e);
+    }
+
+    public IssueTrackerException(Exception e,final String s) {
+        super(s, e);
     }
 }
