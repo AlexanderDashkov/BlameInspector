@@ -7,4 +7,7 @@ public class BlameInspectorException extends Exception{
         super(e);
     }
 
+    public BlameInspectorException(Exception e, String s) {
+        super(s, e);
+    }
 }

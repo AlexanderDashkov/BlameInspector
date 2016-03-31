@@ -3,8 +3,6 @@ package BlameInspector;
 import BlameInspector.IssueTracker.IssueTrackerException;
 import org.apache.commons.cli.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.Scanner;
 
@@ -18,7 +16,7 @@ public class Main {
     private static boolean isInteractive, isSettingAssignee;
     private static boolean isDebug;
 
-    private static PrintStream sysOut;
+
 
     public static void main(String [] args) {
         processComandLine(args);
@@ -157,20 +155,14 @@ public class Main {
 
     public static String evaluateTicket(final int ticketNumber) throws TicketCorruptedException {
         String blameEmail = null;
-        sysOut = System.out;
-        PrintStream outTempStream = new PrintStream(new ByteArrayOutputStream());
-        System.setOut(outTempStream);
-        System.setErr(outTempStream);
         try {
             blameEmail = blameInspector.handleTicket(ticketNumber);
-        }catch (TicketCorruptedException e){
-            System.setOut(sysOut);
+        } catch (TicketCorruptedException e) {
             return e.getMessage();
-        } catch (Exception e){
-            System.setOut(sysOut);
+        }catch (BlameInspectorException e){
+            return e.getMessage();
+        }catch (Exception e){
             printExceptionData(e);
-        }finally {
-            System.setOut(sysOut);
         }
         return blameEmail;
     }
