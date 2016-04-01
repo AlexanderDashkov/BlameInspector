@@ -19,7 +19,7 @@ public class Main {
 
 
 
-    public static void main(String [] args) {
+    public static void main(final String [] args) {
         processComandLine(args);
         processConfigFile();
         blameInspector = new BlameInspector();
@@ -40,7 +40,7 @@ public class Main {
                 System.out.println("Ticket number: " + i + " Assignee:  " + evaluateTicket(i));
                 if (!isInteractive){
                     if (isSettingAssignee) assign();
-                }else {
+                } else {
                     Scanner in = new Scanner(System.in);
                     System.out.println("Set assignee on that ticket?(y/n)");
                     if (in.next().equals("y")){
@@ -48,7 +48,7 @@ public class Main {
                     }
                 }
                 blameInspector.refresh();
-            }catch (TicketCorruptedException e){
+            } catch (TicketCorruptedException e){
                 continue;
             }
         }
@@ -62,7 +62,7 @@ public class Main {
         }
     }
 
-    private static void processComandLine(String[] args) {
+    private static void processComandLine(final String [] args) {
         Option projectNameOption = new Option("p", "project", true, "project name");
         projectNameOption.setArgs(1);
         projectNameOption.setArgName("project");
@@ -81,7 +81,7 @@ public class Main {
         ticketNumbersGroup.addOption(ticketsRangeOption);
         ticketNumbersGroup.setRequired(true);
         OptionGroup fixKeys = new OptionGroup();
-        fixKeys.addOption(new Option("f", "fix",false, "set assignee automatically"));
+        fixKeys.addOption(new Option("f", "fix", false, "set assignee automatically"));
         fixKeys.addOption(new Option("s", "show", false, "just print assignee, no setting"));
         fixKeys.addOption(new Option("i", "interactive", false, "ask user whether set assignee"));
 
@@ -105,9 +105,9 @@ public class Main {
                 HelpFormatter helpFormatter = new HelpFormatter();
                 Comparator<Option> comparator = new Comparator<Option>() {
                     @Override
-                    public int compare(Option o1, Option o2) {
-                        String OPTS_ORDER = "ptrfisX";
-                        return OPTS_ORDER.indexOf(o1.getOpt()) - OPTS_ORDER.indexOf(o2.getOpt());
+                    public int compare(final Option o1, final Option o2) {
+                        String optsOrder = "ptrfisX";
+                        return optsOrder.indexOf(o1.getOpt()) - optsOrder.indexOf(o2.getOpt());
                     }
                 };
                 helpFormatter.setOptionComparator(comparator);
@@ -136,7 +136,7 @@ public class Main {
         if (cmdLine.hasOption("r")){
             String bound[] = cmdLine.getOptionValues("r");
             startBound = Integer.parseInt(bound[0]);
-            if(bound.length > 1) {
+            if (bound.length > 1) {
                 endBound = Integer.parseInt(bound[1]);
             } else {
                 endBound = -1;
@@ -149,7 +149,7 @@ public class Main {
         isInteractive = false;
         if (cmdLine.hasOption("f")){
             isSettingAssignee = true;
-        }else if (cmdLine.hasOption("i")){
+        } else if (cmdLine.hasOption("i")){
             isInteractive = true;
         }
     }

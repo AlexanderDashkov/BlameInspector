@@ -38,7 +38,7 @@ public class ServicesFactory {
                                                                  final String password) throws NoSuchMethodException, IOException, SVNException {
         if (versionControl.equals(GIT)){
             return new GitService(pathToRepo, issueTracker);
-        }else if (versionControl.equals(SVN)){
+        } else if (versionControl.equals(SVN)){
            return new SubversionService(pathToRepo, issueTracker, username, password);
         }
         throw new RuntimeException("Not found appropriate Version Control constructor.");
