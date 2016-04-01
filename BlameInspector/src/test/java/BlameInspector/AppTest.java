@@ -3,6 +3,7 @@ package BlameInspector;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.antlr.runtime.RecognitionException;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
@@ -60,6 +61,7 @@ public class AppTest
         }
     }
 
+
     public void testParseNoException() {
         String text = "I've got no exception just error!";
         testParse(text, null, "No StackTrace found in current ticket!");
@@ -76,18 +78,16 @@ public class AppTest
         testParse(text, null, "StackTrace is corrupted!");
     }
 
-
     public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {
         ticketChecker("1","JaneSmithSenior");
     }
 
     public void testCorruptedTicket(){
+        System.setOut(new PrintStream(outContent));
         Main.main(new String[] {"-p",this.projectName,"-t", "2"});
-        String response[] = outContent.toString().split("!");
-        String singleResponse = response[0];
+        String response = outContent.toString();
         System.setOut(sysOut);
-        System.out.println(singleResponse);
-//        assertTrue(singleResponse.equals("Ticket is corrupted"));
+//        assertEquals(response, "Ticket number: 2 Assignee: Ticket is corrupted!");
     }
 
     public void testPackageTicket() throws JSONException, GitAPIException, IOException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {
@@ -99,6 +99,27 @@ public class AppTest
 
     public void testComplexTicket() throws ProjectNotFoundException, ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException {
         ticketChecker("5", "JackSmithJunior");
+    }
+
+    public void testSimpleRealTicket() throws ProjectNotFoundException, ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException {
+        ticketCheckerOutterProjects("2034", "Guava", "Ticket number: 2034 Assignee:  kak@google.com");
+    }
+
+    public void testComplexRealTicket() throws RecognitionException, IOException {
+         ticketCheckerOutterProjects("1757", "Guava", "Ticket number: 1757 Assignee:  cpovirk@google.com");
+    }
+
+    public void testNoEntryTicket() throws IOException {
+        ticketCheckerOutterProjects("1841", "Guava", "Ticket number: 1841 Assignee:  No entry of exception found in current repository.");
+        ticketCheckerOutterProjects("2234", "Guava", "Ticket number: 2234 Assignee:  No entry of exception found in current repository.");
+    }
+
+    protected void ticketCheckerOutterProjects(String ticketNumber, String projectName, String result) throws IOException {
+        ByteArrayOutputStream myOut = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(myOut));
+        Main.main(new String[]{"-p", projectName, "-t", ticketNumber});
+        assertEquals(myOut.toString().trim(), result);
+        System.setOut(sysOut);
     }
 
     protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {

@@ -1,6 +1,7 @@
 package BlameInspector;
 
 import BlameInspector.IssueTracker.IssueTrackerException;
+import BlameInspector.VCS.VersionControlServiceException;
 import org.apache.commons.cli.*;
 
 import java.util.Comparator;
@@ -159,8 +160,9 @@ public class Main {
             blameEmail = blameInspector.handleTicket(ticketNumber);
         } catch (TicketCorruptedException e) {
             return e.getMessage();
-        }catch (BlameInspectorException e){
-            return e.getMessage();
+        } catch (VersionControlServiceException e){
+            if (e.getMessage().equals("Can not get blame for this line!")) return e.getMessage();
+            printExceptionData(e);
         }catch (Exception e){
             printExceptionData(e);
         }
