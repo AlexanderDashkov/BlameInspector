@@ -102,16 +102,16 @@ public class AppTest
     }
 
     public void testSimpleRealTicket() throws ProjectNotFoundException, ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException {
-        ticketCheckerOutterProjects("2034", "Guava", "Ticket number: 2034 Assignee:  kak@google.com");
+        ticketCheckerOutterProjects("2034", "Guava", "Ticket # 2034. Assigned to kak@google.com");
     }
 
     public void testComplexRealTicket() throws RecognitionException, IOException {
-         ticketCheckerOutterProjects("1757", "Guava", "Ticket number: 1757 Assignee:  cpovirk@google.com");
+         ticketCheckerOutterProjects("1757", "Guava", "Ticket # 1757. Assigned to cpovirk@google.com");
     }
 
     public void testNoEntryTicket() throws IOException {
-        ticketCheckerOutterProjects("1841", "Guava", "Ticket number: 1841 Assignee:  No entry of exception found in current repository.");
-        ticketCheckerOutterProjects("2234", "Guava", "Ticket number: 2234 Assignee:  No entry of exception found in current repository.");
+        ticketCheckerOutterProjects("1841", "Guava", "Ticket # 1841 was not assigned due to: No entry of exception found in current repository.");
+        ticketCheckerOutterProjects("2234", "Guava", "Ticket # 2234 was not assigned due to: No entry of exception found in current repository.");
     }
 
     protected void ticketCheckerOutterProjects(String ticketNumber, String projectName, String result) throws IOException {

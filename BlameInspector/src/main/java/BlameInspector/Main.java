@@ -1,9 +1,13 @@
 package BlameInspector;
 
 import BlameInspector.IssueTracker.IssueTrackerException;
+import BlameInspector.ReportPrinters.ReportConsole;
+import BlameInspector.ReportPrinters.ReportHtml;
+import BlameInspector.ReportPrinters.ReportPrinter;
 import BlameInspector.VCS.VersionControlServiceException;
 import org.apache.commons.cli.*;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
 
@@ -11,6 +15,7 @@ public class Main {
 
     private static BlameInspector blameInspector;
     private static PropertyService propertyService;
+    private static ArrayList<ReportPrinter> reportPrinters;
 
     private static String header = "Examples of usage:\n  " +
             "BlameInspector -p MyProject -t 24  -- show probable assignee for 24 ticket on MyProject\n  " +
@@ -44,7 +49,9 @@ public class Main {
         }
         for (int i = startBound; i <= endBound; i++){
             try {
-                System.out.println("Ticket number: " + i + " Assignee:  " + evaluateTicket(i));
+                for (ReportPrinter reportPrinter : reportPrinters){
+                    reportPrinter.printTicket(evaluateTicket(i));
+                }
                 if (!isInteractive){
                     if (isSettingAssignee) assign();
                 } else {
@@ -57,6 +64,11 @@ public class Main {
                 blameInspector.refresh();
             } catch (TicketCorruptedException e){
                 continue;
+            }
+        }
+        if (endBound - startBound > 1){
+            for (ReportPrinter reportPrinter : reportPrinters){
+                reportPrinter.flush();
             }
         }
     }
@@ -169,21 +181,28 @@ public class Main {
         } else if (cmdLine.hasOption("i")){
             isInteractive = true;
         }
+        reportPrinters = new ArrayList<>();
+        reportPrinters.add(new ReportConsole());
+        if (cmdLine.hasOption("g")){
+            reportPrinters.add(new ReportHtml());
+        }
     }
 
-    public static String evaluateTicket(final int ticketNumber) throws TicketCorruptedException {
+    public static TicketInfo evaluateTicket(final int ticketNumber) throws TicketCorruptedException {
         String blameEmail = null;
         try {
             blameEmail = blameInspector.handleTicket(ticketNumber);
         } catch (TicketCorruptedException e) {
-            return e.getMessage();
+            return new TicketInfo(ticketNumber, e);
         } catch (VersionControlServiceException e){
-            if (e.getMessage().equals("Can not get blame for this line!")) return e.getMessage();
+            if (e.getMessage().equals("Can not get blame for this line!")){
+                return new TicketInfo(ticketNumber, new TicketCorruptedException(e.getMessage()));
+            }
             printExceptionData(e);
         }catch (Exception e){
             printExceptionData(e);
         }
-        return blameEmail;
+        return new TicketInfo(ticketNumber, blameEmail);
     }
 
     public static void assign(){

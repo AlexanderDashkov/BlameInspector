@@ -8,5 +8,4 @@ public class TicketCorruptedException extends Exception {
     public TicketCorruptedException(final String message) {
         super(message);
     }
-
 }
