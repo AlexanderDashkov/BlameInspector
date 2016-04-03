@@ -12,6 +12,13 @@ public class Main {
     private static BlameInspector blameInspector;
     private static PropertyService propertyService;
 
+    private static String header = "Examples of usage:\n  " +
+            "BlameInspector -p MyProject -t 24  -- show probable assignee for 24 ticket on MyProject\n  " +
+            "BlameInspector -p MyProject -r 1 4 -f -X -- set assignee for tickets from 1 to 4 on MyProject\n " +
+            "BlameInspector -p MyProject -r 1 -f -X  -- set assignee for tickets from 1 until tickets end on MyProject" +
+            " and show exception stacktrace if occurs. \n \n";
+    private static String footer = "\nPlease report issues at https://github.com/JackSmithJunior/BlameInspector/issues";
+
     private static String projectName;
     private static int startBound, endBound;
     private static boolean isInteractive, isSettingAssignee;
@@ -68,8 +75,12 @@ public class Main {
         projectNameOption.setArgName("project");
         projectNameOption.setRequired(true);
         Option debugOption = new Option("X", false, "debug mode");
+        Option generateReport = new Option("g", false, "generate html report");
+        generateReport.setArgs(0);
         debugOption.setArgs(0);
         OptionGroup ticketNumbersGroup  = new OptionGroup();
+        Option allTicketsOption = new Option("a", "all", false, "all ticket evaluating");
+        allTicketsOption.setArgs(0);
         Option ticketNumberOption = new Option("t", "ticket", true, "ticket number");
         ticketNumberOption.setArgs(1);
         ticketNumberOption.setArgName("number");
@@ -79,10 +90,11 @@ public class Main {
         ticketsRangeOption.setArgName("range bounds");
         ticketNumbersGroup.addOption(ticketNumberOption);
         ticketNumbersGroup.addOption(ticketsRangeOption);
+        ticketNumbersGroup.addOption(allTicketsOption);
         ticketNumbersGroup.setRequired(true);
         OptionGroup fixKeys = new OptionGroup();
         fixKeys.addOption(new Option("f", "fix", false, "set assignee automatically"));
-        fixKeys.addOption(new Option("s", "show", false, "just print assignee, no setting"));
+        fixKeys.addOption(new Option("s", "show", false, "just print assignee, no setting (default)"));
         fixKeys.addOption(new Option("i", "interactive", false, "ask user whether set assignee"));
 
         Option helpOption = new Option("help", false, "help key");
@@ -94,6 +106,8 @@ public class Main {
         options.addOptionGroup(ticketNumbersGroup);
         options.addOptionGroup(fixKeys);
         options.addOption(debugOption);
+        options.addOption(generateReport);
+        options.addOption(helpOption);
 
 
         CommandLineParser cmdLineParser = new PosixParser();
@@ -106,12 +120,12 @@ public class Main {
                 Comparator<Option> comparator = new Comparator<Option>() {
                     @Override
                     public int compare(final Option o1, final Option o2) {
-                        String optsOrder = "ptrfisX";
+                        String optsOrder = "ptrafisgXh";
                         return optsOrder.indexOf(o1.getOpt()) - optsOrder.indexOf(o2.getOpt());
                     }
                 };
                 helpFormatter.setOptionComparator(comparator);
-                helpFormatter.printHelp("BlameInspector", options, true);
+                helpFormatter.printHelp("BlameInspector", header, options, footer, true);
                 System.exit(0);
             }
         } catch (ParseException e) {}
@@ -141,9 +155,12 @@ public class Main {
             } else {
                 endBound = -1;
             }
-        } else {
+        } else if (cmdLine.hasOption("t")) {
             int ticketNumber = Integer.parseInt(cmdLine.getOptionValue("t"));
             startBound = endBound = ticketNumber;
+        } else {
+            startBound = 1;
+            endBound = -1;
         }
         isSettingAssignee = false;
         isInteractive = false;
