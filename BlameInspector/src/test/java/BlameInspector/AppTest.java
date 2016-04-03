@@ -69,13 +69,7 @@ public class AppTest
 
 
     public void testParseBrokenException(){
-        String text = "Exception in thread \"main\" java.lang.ArithmeticException: / by zero\n" +
-                "at SampleClassOne.invokeJaneException(SampleClassOne.java:14)\n" +
-                "at Main.main(Main.java:12)\n" +
-                "at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" +
-                "at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n" +
-                "at sun.reflect.DelegatingMethodAccessorImpl.";
-        testParse(text, null, "StackTrace is corrupted!");
+        testParse(Storage.test1, null, "StackTrace is corrupted!");
     }
 
     public void testSimpleTicket() throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {
