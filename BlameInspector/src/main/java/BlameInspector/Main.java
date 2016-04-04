@@ -66,10 +66,8 @@ public class Main {
                 continue;
             }
         }
-        if (endBound - startBound > 1){
-            for (ReportPrinter reportPrinter : reportPrinters){
+        for (ReportPrinter reportPrinter : reportPrinters){
                 reportPrinter.flush();
-            }
         }
     }
 
@@ -184,7 +182,12 @@ public class Main {
         reportPrinters = new ArrayList<>();
         reportPrinters.add(new ReportConsole());
         if (cmdLine.hasOption("g")){
-            reportPrinters.add(new ReportHtml());
+            try {
+                reportPrinters.add(new ReportHtml());
+            } catch (Exception e) {
+                printExceptionData(e);
+                System.exit(0);
+            }
         }
     }
 

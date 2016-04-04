@@ -4,6 +4,8 @@ To build:
 
 mvn package
 
-To run in one directory with git and stacktraceparserjmolly.jar
+and add one-jar.properties to the root of the jar
 
-java -classpath BlameInspector.jar;stacktraceparser.jar BlameInspector.Main $RepositoryName$ $TicketNumber$
+To run in one directory with git
+
+java -jar BlameInspector.one-jar.jar -p $RepositoryName$ -t $TicketNumber$

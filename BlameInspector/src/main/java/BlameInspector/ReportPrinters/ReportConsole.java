@@ -36,7 +36,7 @@ public class ReportConsole implements ReportPrinter {
 
     @Override
     public void flush() {
-        System.out.println(MessageFormat.format(SUMMARY,
-                numberOfAllTickets, numberOfAssigned));
+       // System.out.println(MessageFormat.format(SUMMARY,
+       //         numberOfAllTickets, numberOfAssigned));
     }
 }
