@@ -96,11 +96,11 @@ public class AppTest
     }
 
     public void testSimpleRealTicket() throws ProjectNotFoundException, ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException {
-        ticketCheckerOutterProjects("2034", "Guava", "Ticket # 2034. Assigned to kak@google.com");
+        ticketCheckerOutterProjects("2034", "Guava", "Ticket # 2034. Assigned to kluever");
     }
 
     public void testComplexRealTicket() throws RecognitionException, IOException {
-         ticketCheckerOutterProjects("1757", "Guava", "Ticket # 1757. Assigned to cpovirk@google.com");
+         ticketCheckerOutterProjects("1757", "Guava", "Ticket # 1757. Assigned to cpovirk");
     }
 
     public void testNoEntryTicket() throws IOException {
@@ -129,7 +129,7 @@ public class AppTest
         IssueService service = new IssueService(client);
         Issue issue = service.getIssue(repoOwner,
                 this.projectName, Integer.parseInt(ticketNumber));
-        assertTrue(issue.getAssignee().getLogin().equals(blameLogin));
+        assertEquals(issue.getAssignee().getLogin(), blameLogin);
         issue.setAssignee(new User().setLogin(""));
         service.editIssue(repoOwner, this.projectName, issue);
     }

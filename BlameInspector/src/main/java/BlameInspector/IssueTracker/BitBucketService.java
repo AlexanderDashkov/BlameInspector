@@ -1,5 +1,7 @@
 package BlameInspector.IssueTracker;
 
+import BlameInspector.VCS.VersionControlService;
+import BlameInspector.VCS.VersionControlServiceException;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,9 +17,13 @@ public class BitBucketService extends IssueTrackerService {
     private static final String BITBUCKET_ISSUE = "https://api.bitbucket.org/1.0/repositories/{0}/{1}/issues/{2}";
     private static final String BITBUCKET_USER = "https://api.bitbucket.org/1.0/users/";
 
+
     public BitBucketService(final String userName, final String password, final String repositoryOwner,
                             final String repositoryName) {
         super(userName, password, repositoryOwner, repositoryName);
+        ISSUE_URL = "https://bitbucket.org/{0}/{1}/issues/";
+        ISSUE_URL = MessageFormat.format(ISSUE_URL, repositoryOwner, repositoryName.toLowerCase());
+        ASSIGNEE_URL = "https://bitbucket.org/{0}";
         String userCredentials = this.userName + ":" + this.password;
         this.basicAuth = "Basic " + new String(Base64.encodeBase64(userCredentials.getBytes()));
     }
@@ -36,17 +42,35 @@ public class BitBucketService extends IssueTrackerService {
     }
 
     @Override
-    public void setIssueAssignee(final String blameEmail) throws IOException, JSONException {
+    public void setIssueAssignee(final String Login) throws IOException, JSONException {
         String url = MessageFormat.format(BITBUCKET_ISSUE,
                 this.repositoryOwner,
                 this.repositoryName.toLowerCase(),
                 this.issueNumber);
-        String blameLogin = "\"" + getLogin(blameEmail) + "\"";
+        String blameLogin = "\"" + Login + "\"";
         String data = "{\"responsible\":" + blameLogin  + " }";
         putRequest(url, data, basicAuth);
     }
 
-    private String getLogin(final String blameEmail) throws IOException, JSONException {
+
+    @Override
+    public String assigneeUrl(String userName) {
+        return null;
+    }
+
+    @Override
+    public String ticketUrl(int issueNumber) {
+        return null;
+    }
+
+
+    public String getUserLogin(final VersionControlService vcs, final String file, final int number) throws IOException, JSONException, VersionControlServiceException {
+        String blameEmail = null;
+        try {
+            blameEmail = vcs.getBlamedUserEmail(file, number);
+        } catch (Exception e) {
+            throw new VersionControlServiceException(e);
+        }
         String url = BITBUCKET_USER + blameEmail;
         String result = getRequest(url, null);
         JSONObject jsonObject = new JSONObject(result);

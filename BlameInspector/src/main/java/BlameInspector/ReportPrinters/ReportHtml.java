@@ -29,12 +29,15 @@ public class ReportHtml implements ReportPrinter{
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
         if (ticketInfo.isAssigned()){
             reportWriter.print(MessageFormat.format(HtmlStructureStorage.TABLE_ELEM,
+                    ticketInfo.getTicketUrl(),
                     ticketNumber,
+                    ticketInfo.getAssigneeUrl(),
                     ticketInfo.getAssignee(),
                     "-"));
             numberOfAssigned++;
         }else {
             reportWriter.print(MessageFormat.format(HtmlStructureStorage.TABLE_ELEM,
+                    ticketInfo.getTicketUrl(),
                     ticketNumber, "-", ticketInfo.getErrorType().getMessage()));
         }
         numberOfAllTickets++;

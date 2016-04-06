@@ -2,7 +2,6 @@ package BlameInspector.VCS;
 
 import org.eclipse.jgit.api.BlameCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -38,17 +37,35 @@ public class GitService extends VersionControlService {
 
 
     @Override
-    public String getBlamedUser(final String fileName, final int lineNumber) throws IOException, GitAPIException {
-        BlameCommand cmd = new BlameCommand(git.getRepository());
-        cmd.setStartCommit(commitID);
-        cmd.setFilePath(filesInRepo.get(fileName));
-        BlameResult blameResult = cmd.call();
-        String blamedUserEmail = blameResult.getSourceAuthor(lineNumber - 1).getEmailAddress();
-        if (blamedUserEmail.split("@").length > 2){
-            String chunkedEmail[] = blamedUserEmail.split("@");
-            blamedUserEmail = chunkedEmail[0] + "@" + chunkedEmail[1];
+    public String getBlamedUserCommit(final String fileName, final int lineNumber) throws VersionControlServiceException {
+        try {
+            BlameCommand cmd = new BlameCommand(git.getRepository());
+            cmd.setStartCommit(commitID);
+            cmd.setFilePath(filesInRepo.get(fileName));
+            BlameResult blameResult = cmd.call();
+            String blameCommit  = blameResult.getSourceCommit(lineNumber - 1).getName();
+            return blameCommit;
+        }catch (Exception e){
+            throw new VersionControlServiceException(e, e.getMessage());
         }
-        return blamedUserEmail;
+    }
+
+    @Override
+    public String getBlamedUserEmail(final String fileName, final int lineNumber) throws VersionControlServiceException {
+        try {
+            BlameCommand cmd = new BlameCommand(git.getRepository());
+            cmd.setStartCommit(commitID);
+            cmd.setFilePath(filesInRepo.get(fileName));
+            BlameResult blameResult = cmd.call();
+            String blamedUserEmail = blameResult.getSourceAuthor(lineNumber - 1).getEmailAddress();
+            if (blamedUserEmail.split("@").length > 2) {
+                String chunkedEmail[] = blamedUserEmail.split("@");
+                blamedUserEmail = chunkedEmail[0] + "@" + chunkedEmail[1];
+            }
+            return blamedUserEmail;
+        }catch (Exception e){
+            throw new VersionControlServiceException(e, e.getMessage());
+        }
     }
 
     public String getRepositoryOwner(){

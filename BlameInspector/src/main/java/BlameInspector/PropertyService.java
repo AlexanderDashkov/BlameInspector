@@ -50,6 +50,8 @@ public class PropertyService {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(classloader.getResourceAsStream(XML_SCHEMA))}));
 
+//        dbf.setSchema(schemaFactory.newSchema(new Source[] {new StreamSource(XML_SCHEMA)}));
+
         DocumentBuilder db = dbf.newDocumentBuilder();
         db.setErrorHandler(new SimpleErrorHandler());
 

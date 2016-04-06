@@ -1,5 +1,7 @@
 package BlameInspector.IssueTracker;
 
+import BlameInspector.VCS.VersionControlService;
+import BlameInspector.VCS.VersionControlServiceException;
 import org.json.JSONException;
 
 import java.io.BufferedReader;
@@ -8,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.MessageFormat;
 
 public abstract class IssueTrackerService {
 
@@ -16,6 +19,9 @@ public abstract class IssueTrackerService {
     protected String repositoryOwner;
     protected String password;
     protected int numberOfTickets;
+
+    protected static String ISSUE_URL;
+    protected static String ASSIGNEE_URL;
 
     protected IssueTrackerService(final String userName, final String password,
                                   final String repositoryOwner, final String repositoryName){
@@ -26,7 +32,18 @@ public abstract class IssueTrackerService {
     }
 
     public abstract String getIssueBody(int issueNumber) throws IOException, JSONException;
-    public abstract void setIssueAssignee(String blameLogin) throws IOException, JSONException;
+    public abstract void setIssueAssignee(final String blameLogin) throws IOException, JSONException;
+    public abstract String getUserLogin(final VersionControlService vcs, final String file, final int number)
+            throws IOException, JSONException, VersionControlServiceException, IssueTrackerException;
+
+    public String assigneeUrl(String userName) {
+        return MessageFormat.format(ASSIGNEE_URL, userName);
+    }
+
+    public String ticketUrl(int issueNumber) {
+        return ISSUE_URL + String.valueOf(issueNumber);
+    }
+
 
     protected static String getRequest(final String url, final String auth) throws IOException {
         URL obj = new URL(url);

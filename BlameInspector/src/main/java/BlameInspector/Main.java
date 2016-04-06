@@ -49,9 +49,7 @@ public class Main {
         }
         for (int i = startBound; i <= endBound; i++){
             try {
-                for (ReportPrinter reportPrinter : reportPrinters){
-                    reportPrinter.printTicket(evaluateTicket(i));
-                }
+                evaluateTicket(i);
                 if (!isInteractive){
                     if (isSettingAssignee) assign();
                 } else {
@@ -191,21 +189,16 @@ public class Main {
         }
     }
 
-    public static TicketInfo evaluateTicket(final int ticketNumber) throws TicketCorruptedException {
-        String blameEmail = null;
+    public static void evaluateTicket(final int ticketNumber) throws TicketCorruptedException {
         try {
-            blameEmail = blameInspector.handleTicket(ticketNumber);
-        } catch (TicketCorruptedException e) {
-            return new TicketInfo(ticketNumber, e);
-        } catch (VersionControlServiceException e){
-            if (e.getMessage().equals("Can not get blame for this line!")){
-                return new TicketInfo(ticketNumber, new TicketCorruptedException(e.getMessage()));
+            TicketInfo ticketInfo =  blameInspector.handleTicket(ticketNumber);
+            for (ReportPrinter reportPrinter : reportPrinters){
+                reportPrinter.printTicket(ticketInfo);
             }
+        }catch (BlameInspectorException | VersionControlServiceException e){
             printExceptionData(e);
-        }catch (Exception e){
-            printExceptionData(e);
+            System.exit(0);
         }
-        return new TicketInfo(ticketNumber, blameEmail);
     }
 
     public static void assign(){

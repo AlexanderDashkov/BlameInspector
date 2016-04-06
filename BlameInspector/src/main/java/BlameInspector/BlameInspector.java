@@ -27,7 +27,7 @@ public class BlameInspector {
     private static IssueTrackerService its;
     private static int numberOfTickets;
 
-    private String blameEmail;
+    private String blameLogin;
 
     public void init(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
         try {
@@ -52,14 +52,16 @@ public class BlameInspector {
 
     }
 
-    public String handleTicket(final int ticketNumber) throws TicketCorruptedException,
+    public TicketInfo handleTicket(final int ticketNumber) throws TicketCorruptedException,
             BlameInspectorException, VersionControlServiceException {
         TraceInfo traceInfo = null;
         String issueBody;
+        String ticketURL = its.ticketUrl(ticketNumber);
         try {
            issueBody = its.getIssueBody(ticketNumber);
         }catch (Exception e){
-            throw new TicketCorruptedException("Can not access ticket with such number!");
+            return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not access ticket with such number!"),
+                    ticketURL) ;
         }
         String body = issueBody;
         while (traceInfo == null || traceInfo.getClassName() == null && body.length() != 0) {
@@ -72,12 +74,14 @@ public class BlameInspector {
                     if(issueBody.length() == 0) break;
                     issueBody = issueBody.substring(1);
                 } catch (TicketCorruptedException e) {
-                    if (e.getMessage().equals(NO_ENTRY)) throw e;
+                    if (e.getMessage().equals(NO_ENTRY)){
+                        return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_ENTRY), ticketURL);
+                    }
                     if (issueBody.length() != 0) {
                         issueBody = issueBody.substring(1);
                         continue;
                     }else {
-                        throw new TicketCorruptedException(NO_STACKTRACE);
+                        return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_STACKTRACE), ticketURL);
                     }
                 } catch (Exception e) {
                     throw new BlameInspectorException(e);
@@ -85,14 +89,21 @@ public class BlameInspector {
             }
         }
         if (traceInfo == null){
-            throw new TicketCorruptedException(NO_STACKTRACE);
+            return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_STACKTRACE), ticketURL);
         }
         try {
-            blameEmail = vcs.getBlamedUser(traceInfo.getFileName(), traceInfo.getLineNumber());
-        }catch (Exception e){
-            throw new VersionControlServiceException(e, "Can not get blame for this line!");
+            blameLogin = its.getUserLogin(vcs, traceInfo.getFileName(), traceInfo.getLineNumber());
+        }catch (VersionControlServiceException e){
+            return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not do blame for this line!") , ticketURL);
+        }catch (IssueTrackerException e){
+            if (e.getMessage().equals("Can not get data for commit!")){
+                return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not get data for commit!") , ticketURL);
+            }
+            throw new BlameInspectorException(e);
+        } catch (Exception e){
+            throw new BlameInspectorException(e);
         }
-        return blameEmail;
+        return new TicketInfo(ticketNumber, blameLogin , ticketURL, its.assigneeUrl(blameLogin));
     }
 
     private String correctStackTrace(final String issueBody) {
@@ -113,8 +124,9 @@ public class BlameInspector {
 
 
     public void setAssignee() throws IssueTrackerException {
+        if (blameLogin == null) return;
         try{
-            its.setIssueAssignee(blameEmail);
+            its.setIssueAssignee(blameLogin);
         }catch (Exception e){
             throw new IssueTrackerException(e);
         }
@@ -154,7 +166,7 @@ public class BlameInspector {
     }
 
     public void refresh(){
-        blameEmail = null;
+        blameLogin = null;
         its.refresh();
     }
 

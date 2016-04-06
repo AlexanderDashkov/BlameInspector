@@ -25,7 +25,7 @@ public interface HtmlStructureStorage {
             "   background-color:#fff;\n" +
             "}\n" +
             "table#t01 th  {\n" +
-            "    background-color: black;\n" +
+            "    background-color: #CEFFCE;\n" +
             "    color: white;\n" +
             "}\n" +
             "</style>\n" +
@@ -47,8 +47,8 @@ public interface HtmlStructureStorage {
             "</html>";
 
     public final String TABLE_ELEM ="  <tr>\n" +
-            "    <th>Ticket # {0}</th>\n" +
-            "    <th>{1}</th>    \n" +
-            "    <th>{2}</th>\n" +
+            "    <td><a href=\"{0}\">Ticket # {1}</a></th>\n" +
+            "    <td><a href=\"{2}\">{3}</a></th>    \n" +
+            "    <td>{4}</th>\n" +
             "  </tr>\n";;
 }

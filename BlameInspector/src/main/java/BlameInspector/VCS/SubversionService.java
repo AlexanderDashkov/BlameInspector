@@ -56,15 +56,25 @@ public class SubversionService extends VersionControlService {
 
 
     @Override
-    public String getBlamedUser(final String fileName, final int lineNumber) throws IOException, SVNException {
-        SVNLogClient logClient = SVNClientManager.newInstance().getLogClient();
-        AnnotationHandler annotationHandler = new AnnotationHandler(false, false, logClient.getOptions(),lineNumber);
-        logClient.doAnnotate(new File(filesInRepo.get(fileName)), SVNRevision.UNDEFINED,
-                SVNRevision.create(1),
-                SVNRevision.HEAD, annotationHandler);
+    public String getBlamedUserEmail(final String fileName, final int lineNumber) throws VersionControlServiceException {
+        try {
+            SVNLogClient logClient = SVNClientManager.newInstance().getLogClient();
+            AnnotationHandler annotationHandler = new AnnotationHandler(false, false, logClient.getOptions(), lineNumber);
+            logClient.doAnnotate(new File(filesInRepo.get(fileName)), SVNRevision.UNDEFINED,
+                    SVNRevision.create(1),
+                    SVNRevision.HEAD, annotationHandler);
 
-        return annotationHandler.getAuthor();
+            return annotationHandler.getAuthor();
+        }catch (Exception e){
+            throw new VersionControlServiceException(e, e.getMessage());
+        }
     }
+
+    @Override
+    public String getBlamedUserCommit(String fileName, int lineNumber) throws Exception {
+        return null;
+    }
+
 
     @Override
     public String getRepositoryOwner() {
