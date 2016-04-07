@@ -4,7 +4,9 @@ To build:
 
 mvn package
 
-and add one-jar.properties to the root of the jar
+After build copy one-jar.properties to your target directory, in target directory run:
+
+jar uf BlameInspector.one-jar.jar one-jar.properties
 
 To run in one directory with git
 
