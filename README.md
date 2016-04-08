@@ -6,7 +6,7 @@ mvn package
 
 After build copy one-jar.properties to your target directory, in target directory run:
 
-jar uf BlameInspector.one-jar.jar one-jar.properties
+jar uf BlameInspector-1.0-SNAPSHOT.one-jar.jar one-jar.properties
 
 To run in one directory with git
 

@@ -1,5 +1,7 @@
 package BlameInspector;
 
+import com.jmolly.stacktraceparser.NStackTrace;
+import com.jmolly.stacktraceparser.StackTraceParser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -108,12 +110,25 @@ public class AppTest
         ticketCheckerOutterProjects("2234", "Guava", "Ticket # 2234 was not assigned due to: No entry of exception found in current repository.");
     }
 
+    public void testNoEntryTicketCauseOfOptim() throws IOException{
+        ticketCheckerOutterProjects("1806", "Guava", "Ticket # 1806 was not assigned due to: No entry of exception found in current repository.");
+    }
+
     protected void ticketCheckerOutterProjects(String ticketNumber, String projectName, String result) throws IOException {
         ByteArrayOutputStream myOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(myOut));
         Main.main(new String[]{"-p", projectName, "-t", ticketNumber});
         assertEquals(myOut.toString().trim(), result);
         System.setOut(sysOut);
+    }
+
+    public void testOptimiserStackTrace(){
+        try {
+            NStackTrace stackTrace = StackTraceParser.parse(Storage.test2);
+            assertEquals(stackTrace.getTrace().getFrames().get(0).getLocation(), "(SourceFile:110)");
+        } catch (RecognitionException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, ProjectNotFoundException, SVNException, SAXException, ParserConfigurationException {

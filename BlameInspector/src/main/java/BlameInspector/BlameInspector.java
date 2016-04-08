@@ -17,6 +17,8 @@ public class BlameInspector {
 
     private final String AT = "at ";
     private final String RIGHT_BRACKET = ")";
+    private final String LEFT_TAG_BRACKET = "&lt;";
+    private final String RIGHT_TAG_BRACKET = "&gt;";
     private final String NBSP = "&nbsp";
     private final String NL = "\n";
 
@@ -33,9 +35,7 @@ public class BlameInspector {
         try {
             vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
                     propertyService.getPathToRepo(),
-                    propertyService.getIssueTracker(),
-                    propertyService.getUserName(),
-                    propertyService.getPassword());
+                    propertyService.getIssueTracker());
         }catch (Exception e){
             throw new VersionControlServiceException(e, "Can not create VCS object!");
         }
@@ -63,7 +63,7 @@ public class BlameInspector {
             return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not access ticket with such number!"),
                     ticketURL) ;
         }
-        String body = issueBody;
+        String body = standartizeStackTrace(issueBody);
         while (traceInfo == null || traceInfo.getClassName() == null && body.length() != 0) {
             issueBody = body;
             issueBody = correctStackTrace(issueBody);
@@ -77,8 +77,9 @@ public class BlameInspector {
                     if (e.getMessage().equals(NO_ENTRY)){
                         return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_ENTRY), ticketURL);
                     }
-                    if (issueBody.length() != 0) {
-                        issueBody = issueBody.substring(1);
+                    String words[]  = issueBody.split("\\s+");
+                    if (issueBody.length() != 0 && words.length > 1) {
+                        issueBody = issueBody.substring(words[0].length() + 1);
                         continue;
                     }else {
                         return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_STACKTRACE), ticketURL);
@@ -106,11 +107,18 @@ public class BlameInspector {
         return new TicketInfo(ticketNumber, blameLogin , ticketURL, its.assigneeUrl(blameLogin));
     }
 
+    private String standartizeStackTrace(final String text){
+        String stackTrace = text;
+        stackTrace = stackTrace.replace(NBSP + ";", "");
+        stackTrace = stackTrace.replace(LEFT_TAG_BRACKET, "<");
+        stackTrace = stackTrace.replace(RIGHT_TAG_BRACKET, ">");
+        return stackTrace;
+    }
+
     private String correctStackTrace(final String issueBody) {
         if (!issueBody.contains(AT)) return issueBody;
         String finishLine = issueBody.substring(issueBody.lastIndexOf(AT));
         String stackTrace = issueBody.substring(0, issueBody.lastIndexOf(AT) + finishLine.indexOf(RIGHT_BRACKET) + 1);
-        stackTrace = stackTrace.replace(NBSP + ";", "");
         return stackTrace;
     }
 

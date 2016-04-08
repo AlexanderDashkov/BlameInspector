@@ -3,7 +3,6 @@ package BlameInspector.VCS;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc.*;
 import org.tmatesoft.svn.core.wc2.ISvnObjectReceiver;
 import org.tmatesoft.svn.core.wc2.SvnList;
@@ -13,20 +12,20 @@ import org.tmatesoft.svn.core.wc2.SvnTarget;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 
 public class SubversionService extends VersionControlService {
 
-    private SVNClientManager svnClientManager;
-    private SVNURL svnUrl;
+    private Exception nestedException;
+
 
     public SubversionService(final String pathToRepo,
-                             final String repoURL,
-                             final String userName,
-                             final String password) throws SVNException {
+                             final String repoURL) throws SVNException, VersionControlServiceException {
         filesInRepo = new HashMap<>();
+        this.repositoryURL = repoURL;
         File workingCopyLoc = new File(pathToRepo);
         SVNRevision revision = SVNRevision.HEAD;
         SvnOperationFactory operationFactory = new SvnOperationFactory();
@@ -35,10 +34,10 @@ public class SubversionService extends VersionControlService {
         list.setRevision(revision);
         list.addTarget(SvnTarget.fromFile(workingCopyLoc));
         list.setReceiver(new ISvnObjectReceiver<SVNDirEntry>() {
-            public void receive(final SvnTarget target, final SVNDirEntry object) throws SVNException {
+            public void receive(final SvnTarget target, final SVNDirEntry object) throws SVNException{
                 String dirName = object.getName();
                 try {
-                    if (!dirName.equals("")) {
+                    if (!dirName.equals("") && !dirName.equals("tags")) {
                         Files.walk(Paths.get(pathToRepo + "\\" + object.getRelativePath())).forEach(filePath -> {
                             if (Files.isRegularFile(filePath)) {
                                 File file = new File(String.valueOf(filePath));
@@ -46,41 +45,45 @@ public class SubversionService extends VersionControlService {
                             }
                         });
                     }
+                }catch (NoSuchFileException e){
+                    return;
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    nestedException = e;
+                    return;
                 }
             }
         });
         list.run();
+        if (nestedException != null){
+            throw new VersionControlServiceException(nestedException, "Something wrong with svn dir!");
+        }
     }
 
 
-    @Override
-    public String getBlamedUserEmail(final String fileName, final int lineNumber) throws VersionControlServiceException {
+    private AnnotationHandler doBlame(final String fileName, final int lineNumber) throws VersionControlServiceException {
+        SVNLogClient logClient = SVNClientManager.newInstance().getLogClient();
+        AnnotationHandler annotationHandler = new AnnotationHandler(false, false, logClient.getOptions(), lineNumber);
         try {
-            SVNLogClient logClient = SVNClientManager.newInstance().getLogClient();
-            AnnotationHandler annotationHandler = new AnnotationHandler(false, false, logClient.getOptions(), lineNumber);
-            logClient.doAnnotate(new File(filesInRepo.get(fileName)), SVNRevision.UNDEFINED,
-                    SVNRevision.create(1),
+            //System.out.println(new File(filesInRepo.get(fileName)).canRead());
+            logClient.doAnnotate(new File(filesInRepo.get(fileName)), SVNRevision.HEAD,
+                    SVNRevision.create(0),
                     SVNRevision.HEAD, annotationHandler);
-
-            return annotationHandler.getAuthor();
-        }catch (Exception e){
+            return annotationHandler;
+        } catch (Exception e) {
+            //e.printStackTrace();
             throw new VersionControlServiceException(e, e.getMessage());
         }
     }
 
     @Override
-    public String getBlamedUserCommit(String fileName, int lineNumber) throws Exception {
-        return null;
+    public String getBlamedUserEmail(final String fileName, final int lineNumber) throws VersionControlServiceException {
+        return doBlame(fileName, lineNumber).getAuthor();
     }
-
 
     @Override
-    public String getRepositoryOwner() {
-        return null;
+    public String getBlamedUserCommit(String fileName, int lineNumber) throws Exception {
+        return doBlame(fileName, lineNumber).getRevision();
     }
-
 
 
     private static class AnnotationHandler implements ISVNAnnotateHandler {
@@ -89,6 +92,7 @@ public class SubversionService extends VersionControlService {
         private ISVNOptions myOptions;
 
         private String author;
+        private String revision;
         private int lineNumber;
 
         public AnnotationHandler(final boolean useMergeHistory,
@@ -122,11 +126,14 @@ public class SubversionService extends VersionControlService {
                                final String mergedPath,
                                final int lineNumber) throws SVNException {
             String resAuthor = author;
+            String rev = String.valueOf(revision);
             if (myIsUseMergeHistory) {
                 resAuthor = mergedAuthor;
+                rev = String.valueOf(mergedRevision);
             }
             if (lineNumber == this.lineNumber) {
                 this.author = resAuthor;
+                this.revision = rev;
             }
         }
 
@@ -144,5 +151,9 @@ public class SubversionService extends VersionControlService {
             return author;
         }
         public void handleEOF() {}
+
+        public String getRevision() {
+            return revision;
+        }
     }
 }

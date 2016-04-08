@@ -7,6 +7,7 @@ import BlameInspector.IssueTracker.IssueTrackerService;
 import BlameInspector.VCS.GitService;
 import BlameInspector.VCS.SubversionService;
 import BlameInspector.VCS.VersionControlService;
+import BlameInspector.VCS.VersionControlServiceException;
 import org.tmatesoft.svn.core.SVNException;
 
 import java.io.IOException;
@@ -33,13 +34,14 @@ public class ServicesFactory {
 
     public static VersionControlService getVersionControlService(final String versionControl,
                                                                  final String pathToRepo,
-                                                                 final String issueTracker,
-                                                                 final String username,
-                                                                 final String password) throws NoSuchMethodException, IOException, SVNException {
+                                                                 final String issueTracker)
+            throws NoSuchMethodException,
+            IOException,
+            SVNException, VersionControlServiceException {
         if (versionControl.equals(GIT)){
             return new GitService(pathToRepo, issueTracker);
         } else if (versionControl.equals(SVN)){
-           return new SubversionService(pathToRepo, issueTracker, username, password);
+           return new SubversionService(pathToRepo, issueTracker);
         }
         throw new RuntimeException("Not found appropriate Version Control constructor.");
     }

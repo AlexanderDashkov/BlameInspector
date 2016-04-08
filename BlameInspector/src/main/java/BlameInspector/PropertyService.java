@@ -19,6 +19,7 @@ import java.io.IOException;
 public class PropertyService {
 
     private static final String PROJECT_TAG = "project";
+    private static final String PROJECT_NAME_TAG = "projectName";
     private static final String NAME_ATTR = "name";
     private static final String USER_NAME_TAG = "userName";
     private static final String PASSWORD_TAG = "password";
@@ -40,7 +41,6 @@ public class PropertyService {
 
 
     public PropertyService(final String projectName) throws IOException, ProjectNotFoundException, SAXException, ParserConfigurationException {
-        this.projectName = projectName;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setValidating(false);
         dbf.setNamespaceAware(true);
@@ -68,6 +68,7 @@ public class PropertyService {
                  password = getContentByTag(element, PASSWORD_TAG);
                  pathToRepo = getContentByTag(element, PATH_TO_REPO_TAG);
                  issueTracker = getContentByTag(element, ISSUE_TRACKER_TAG);
+                 this.projectName = getContentByTag(element, PROJECT_NAME_TAG);
              }
         }
         if (userName == null){

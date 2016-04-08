@@ -68,8 +68,4 @@ public class GitService extends VersionControlService {
         }
     }
 
-    public String getRepositoryOwner(){
-        String []urlParts = repositoryURL.split("/");
-        return repositoryURL.split("/")[urlParts.length - 2];
-    }
 }

@@ -38,7 +38,7 @@ public class ReportHtml implements ReportPrinter{
         }else {
             reportWriter.print(MessageFormat.format(HtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
-                    ticketNumber, "-", ticketInfo.getErrorType().getMessage()));
+                    ticketNumber, "-", "none", ticketInfo.getErrorType().getMessage()));
         }
         numberOfAllTickets++;
     }

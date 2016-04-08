@@ -25,13 +25,17 @@ public interface HtmlStructureStorage {
             "   background-color:#fff;\n" +
             "}\n" +
             "table#t01 th  {\n" +
-            "    background-color: #CEFFCE;\n" +
+            "    background-color: #21CC46;\n" +
             "    color: white;\n" +
             "}\n" +
+            "h3 {" +
+            "color:#4050FF;"+
+            "}\n" +
             "</style>\n" +
+            "<title>BlameInspector Report file</title>"+
             "</head>\n" +
             "<body>\n" +
-            "\n" + "<br>\n" +
+            "<h3>BlameInspector report.</h3>"+
             "\n" +
             "<table id=\"t01\">\n" +
             "  <tr>\n" +
