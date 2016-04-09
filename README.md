@@ -4,7 +4,7 @@
 
 Command line utility, which allows to define(optionally set) assignees of issues with stacktraces using your git/svn repo.
 
-## Building:
+## Building
 
 Building using maven:
 
@@ -21,3 +21,17 @@ First of all you have to create a **config.properties** file with data about you
 Secondly, you run BlameInspector like this, in command line in directory, where **config.properties** file situated: 
 
     java -jar BlameInspector.one-jar.jar -p $RepositoryName$ -t $TicketNumber$
+
+## Usage examples
+
+Show probable assignee for 24 ticket on MyProject:
+     
+    java -jar BlameInspector.one-jar.jar -p MyProject -t 24
+
+Set assignee for tickets from 1 to 4 on MyProject:
+
+    java -jar BlameInspector.one-jar.jar -p MyProject -r 1 4 -f -X -- 
+
+Set assignee for tickets from 1 until tickets end on MyProject and show exception stacktrace if occurs:
+
+    java -jar BlameInspector.one-jar.jar -p MyProject -r 1 -f -X  -- 
