@@ -1,5 +1,6 @@
 package BlameInspector;
 
+import BlameInspector.IssueTracker.YouTrackService;
 import com.jmolly.stacktraceparser.NStackTrace;
 import com.jmolly.stacktraceparser.StackTraceParser;
 import junit.framework.Test;
@@ -52,6 +53,13 @@ public class AppTest
     public static Test suite()
     {
         return new TestSuite( AppTest.class );
+    }
+
+    public void testYouTrack() throws IOException, JSONException {
+        YouTrackService youTrackService = new YouTrackService("Jack", "Password", "none", "KT",
+                "https://youtrack.jetbrains.com/rest/issue/KT");
+        assertEquals(youTrackService.getIssueBody(1), Storage.testKotlin);
+        youTrackService.setIssueAssignee("me");
     }
 
     private void testParse(final String text, final String fileName, final String errorLine){

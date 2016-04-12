@@ -30,8 +30,8 @@ Show probable assignee for 24 ticket on MyProject:
 
 Set assignee for tickets from 1 to 4 on MyProject:
 
-    java -jar BlameInspector.one-jar.jar -p MyProject -r 1 4 -f -X -- 
+    java -jar BlameInspector.one-jar.jar -p MyProject -r 1 4 -f -X
 
 Set assignee for tickets from 1 until tickets end on MyProject and show exception stacktrace if occurs:
 
-    java -jar BlameInspector.one-jar.jar -p MyProject -r 1 -f -X  -- 
+    java -jar BlameInspector.one-jar.jar -p MyProject -r 1 -f -X

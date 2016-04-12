@@ -4,6 +4,7 @@ package BlameInspector;
 import BlameInspector.IssueTracker.BitBucketService;
 import BlameInspector.IssueTracker.GitHubService;
 import BlameInspector.IssueTracker.IssueTrackerService;
+import BlameInspector.IssueTracker.YouTrackService;
 import BlameInspector.VCS.GitService;
 import BlameInspector.VCS.SubversionService;
 import BlameInspector.VCS.VersionControlService;
@@ -16,6 +17,7 @@ public class ServicesFactory {
 
     private static final String GITHUB_URL = "github.com";
     private static final String BITBUCKET_URL = "bitbucket.org";
+    private static final String YOUTRACK_URL = "youtrack.jetbrains.com";
 
     private static final String GIT = "git";
     private static final String SVN = "svn";
@@ -28,6 +30,8 @@ public class ServicesFactory {
             return new GitHubService(userName, password, repoOwner, projectName);
         } else if (issueTrackerName.equals(BITBUCKET_URL)){
             return new BitBucketService(userName, password, repoOwner, projectName);
+        } else if (issueTrackerName.equals(YOUTRACK_URL)){
+            return new YouTrackService(userName, password, repoOwner, projectName, issueTrackerUrl);
         }
         throw new RuntimeException("Not found appropriate Issue Tracker constructor.");
     }

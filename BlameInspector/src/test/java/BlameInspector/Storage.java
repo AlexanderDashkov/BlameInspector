@@ -25,4 +25,9 @@ public interface Storage {
             "    at com.google.common.base.CharMatcher.a(SourceFile:775)\n" +
             "    at com.google.common.base.CharMatcher.<clinit>(SourceFile:212)\n" +
             "    ... 11 more";
+    String testKotlin = "{code}fun print(message : String) {" +
+            "  System.out?.println(message)}fun String.print() {" +
+            "  System.out?.println(this)}{code}Exception in thread \"main\" " +
+            "java.lang.ClassFormatError: " +
+            "Duplicate method name&signature in class file demo/namespace";
 }
