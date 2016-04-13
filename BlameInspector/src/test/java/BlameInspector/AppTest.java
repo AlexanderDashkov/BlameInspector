@@ -1,6 +1,5 @@
 package BlameInspector;
 
-import BlameInspector.IssueTracker.YouTrackService;
 import com.jmolly.stacktraceparser.NStackTrace;
 import com.jmolly.stacktraceparser.StackTraceParser;
 import junit.framework.Test;
@@ -55,13 +54,6 @@ public class AppTest
         return new TestSuite( AppTest.class );
     }
 
-    public void testYouTrack() throws IOException, JSONException {
-        YouTrackService youTrackService = new YouTrackService("Jack", "Password", "none", "KT",
-                "https://youtrack.jetbrains.com/rest/issue/KT");
-        assertEquals(youTrackService.getIssueBody(1), Storage.testKotlin);
-        youTrackService.setIssueAssignee("me");
-    }
-
     private void testParse(final String text, final String fileName, final String errorLine){
         try {
             String file = new BlameInspector().parseIssueBody(text).getFileName();
@@ -103,6 +95,10 @@ public class AppTest
 
     public void testComplexTicket() throws ProjectNotFoundException, ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException {
         ticketChecker("5", "JackSmithJunior");
+    }
+
+    public void testKotlinRepo() throws IOException {
+        ticketCheckerOutterProjects("1000", "Kotlin", "Ticket # 1000 was not assigned due to: No StackTrace found in current ticket!");
     }
 
     public void testSimpleRealTicket() throws ProjectNotFoundException, ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException {
