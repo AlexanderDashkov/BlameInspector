@@ -36,12 +36,13 @@ public class YouTrackService extends IssueTrackerService {
                            final String repoOwner, final String projectName,
                            final String itsUrl) {
         super(username, password, repoOwner, projectName);
-        String urlParam[] = itsUrl.split(SLASH);
+        ASSIGNEE_URL = "";
+        String [] urlParam = itsUrl.split(SLASH);
         this.itsUrl = urlParam[0] + SLASH + SLASH + urlParam[2] + SLASH + REST_API + SLASH + ISSUE + SLASH + projectName;
     }
 
     @Override
-    public String getIssueBody(int issueNumber) throws IOException, JSONException {
+    public String getIssueBody(final int issueNumber) throws IOException, JSONException {
         this.issueNumber = issueNumber;
         String result = getRequest(itsUrl + DASH + issueNumber, null);
         DocumentBuilder db = null;
@@ -64,18 +65,18 @@ public class YouTrackService extends IssueTrackerService {
 
         String issueBody = "";
         Element element = (Element) doc.getElementsByTagName(ISSUE).item(0);
-        for (int i = 0 ; i < element.getElementsByTagName(FIELD_TAG).getLength(); i++ ){
+        for (int i = 0; i < element.getElementsByTagName(FIELD_TAG).getLength(); i++ ){
             Element e = (Element) element.getElementsByTagName(FIELD_TAG).item(i);
-            if(e.getAttribute(NAME_ATTR).equals(DESCR_VALUE)){
+            if (e.getAttribute(NAME_ATTR).equals(DESCR_VALUE)){
                 issueBody = e.getTextContent().trim();
                 return issueBody;
             }
         }
-        throw new NoSuchFieldError("no field with description!");
+        return "";
     }
 
     @Override
-    public void setIssueAssignee(String blameLogin) throws IOException, JSONException {
+    public void setIssueAssignee(final String blameLogin) throws IOException, JSONException {
         String command  = "command=Assignee " + blameLogin;
         String url = itsUrl + "-" + issueNumber + "/execute?" + command;
         putRestRequest(url, null);
@@ -105,12 +106,17 @@ public class YouTrackService extends IssueTrackerService {
     }
 
     @Override
-    public String getUserLogin(VersionControlService vcs, String file, int number) throws IOException, JSONException, VersionControlServiceException, IssueTrackerException {
-        return null;
+    public String getUserLogin(final VersionControlService vcs, final String file, final String className,
+                               final int number) throws IOException, JSONException, VersionControlServiceException, IssueTrackerException {
+        try{
+            return vcs.getBlamedUserEmail(file, className, number);
+        }catch (Exception e){
+            throw new IssueTrackerException(e, "Can not get blame!");
+        }
     }
 
     @Override
     public void refresh() {
-
+        issueNumber = -1;
     }
 }

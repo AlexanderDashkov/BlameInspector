@@ -3,11 +3,11 @@ package BlameInspector;
 public class BlameInspectorException extends Exception{
 
 
-    public BlameInspectorException(Exception e) {
+    public BlameInspectorException(final Exception e) {
         super(e);
     }
 
-    public BlameInspectorException(Exception e, String s) {
+    public BlameInspectorException(final Exception e, final String s) {
         super(s, e);
     }
 }

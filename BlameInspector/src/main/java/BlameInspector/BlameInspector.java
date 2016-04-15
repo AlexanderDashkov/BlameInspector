@@ -25,6 +25,7 @@ public class BlameInspector {
     private static final String NO_STACKTRACE = "No StackTrace found in current ticket!";
     private static final String NO_ENTRY = "No entry of exception found in current repository.";
 
+    private static StackTraceTree stTree;
     private static VersionControlService vcs;
     private static IssueTrackerService its;
     private static int numberOfTickets;
@@ -32,6 +33,7 @@ public class BlameInspector {
     private String blameLogin;
 
     public void init(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
+        stTree = new StackTraceTree(propertyService.getProjectName());
         try {
             vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
                     propertyService.getPathToRepo(),
@@ -70,15 +72,15 @@ public class BlameInspector {
             body = issueBody;
             while (traceInfo == null || traceInfo.getClassName() == null && issueBody.length()!=0) {
                 try {
-                    traceInfo = parseIssueBody(issueBody);
-                    if(issueBody.length() == 0) break;
+                    traceInfo = parseIssueBody(issueBody, ticketNumber);
+                    if(issueBody.length() <= 1) break;
                     issueBody = issueBody.substring(1);
                 } catch (TicketCorruptedException e) {
                     if (e.getMessage().equals(NO_ENTRY)){
                         return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_ENTRY), ticketURL);
                     }
                     String words[]  = issueBody.split("\\s+");
-                    if (issueBody.length() != 0 && words.length > 1) {
+                    if (words.length > 1 && issueBody.length() > (words[0].length() + 1)) {
                         issueBody = issueBody.substring(words[0].length() + 1);
                         continue;
                     }else {
@@ -93,12 +95,12 @@ public class BlameInspector {
             return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_STACKTRACE), ticketURL);
         }
         try {
-            blameLogin = its.getUserLogin(vcs, traceInfo.getFileName(), traceInfo.getLineNumber());
+            blameLogin = its.getUserLogin(vcs, traceInfo.getFileName(),traceInfo.getClassName(), traceInfo.getLineNumber());
         }catch (VersionControlServiceException e){
             return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not do blame for this line!") , ticketURL);
         }catch (IssueTrackerException e){
-            if (e.getMessage().equals("Can not get data for commit!")){
-                return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not get data for commit!") , ticketURL);
+            if (e.getMessage().equals("Can not get blame!")){
+                return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not get blame!") , ticketURL);
             }
             throw new BlameInspectorException(e);
         } catch (Exception e){
@@ -122,12 +124,12 @@ public class BlameInspector {
         return stackTrace;
     }
 
-    public TraceInfo parseIssueBody(final String issueBody) throws TicketCorruptedException {
+    public TraceInfo parseIssueBody(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
         String stackTrace = issueBody;
         if (stackTrace.isEmpty() && !stackTrace.contains(AT)){
             throw new TicketCorruptedException(NO_STACKTRACE);
         }
-        return getTraceInfo(stackTrace);
+        return getTraceInfo(stackTrace, ticketNumber);
     }
 
 
@@ -140,7 +142,7 @@ public class BlameInspector {
         }
     }
 
-    public static TraceInfo getTraceInfo(final String issueBody) throws TicketCorruptedException {
+    public static TraceInfo getTraceInfo(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
         NStackTrace stackTrace;
         PrintStream sysOut = System.out;
         PrintStream sysErr = System.err;
@@ -160,8 +162,10 @@ public class BlameInspector {
         }
         for (NFrame currentFrame :  stackTrace.getTrace().getFrames()){
             int size = currentFrame.getLocation().length();
+            if(currentFrame.getLocation().indexOf(":") == -1) continue;
             locationInfo = currentFrame.getLocation().substring(1, size - 1).split(":");
             if (vcs.containsFile(locationInfo[0])){
+                stTree.addTicket(stackTrace, ticketNumber);
                 return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
                         locationInfo[0], Integer.parseInt(locationInfo[1]));
             }

@@ -24,6 +24,7 @@ public class ReportHtml implements ReportPrinter{
         numberOfAllTickets = 0;
         numberOfAssigned = 0;
     }
+
     @Override
     public void printTicket(final TicketInfo ticketInfo) {
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
@@ -35,7 +36,7 @@ public class ReportHtml implements ReportPrinter{
                     ticketInfo.getAssignee(),
                     "-"));
             numberOfAssigned++;
-        }else {
+        } else {
             reportWriter.print(MessageFormat.format(HtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
                     ticketNumber, "-", "none", ticketInfo.getErrorType().getMessage()));
@@ -46,7 +47,7 @@ public class ReportHtml implements ReportPrinter{
     @Override
     public void flush() {
         reportWriter.print(MessageFormat.format(HtmlStructureStorage.HTML_END,
-                numberOfAllTickets, numberOfAssigned));
+                String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned)));
         reportWriter.close();
     }
 }

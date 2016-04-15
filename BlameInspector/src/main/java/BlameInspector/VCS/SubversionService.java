@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -41,7 +42,10 @@ public class SubversionService extends VersionControlService {
                         Files.walk(Paths.get(pathToRepo + "\\" + object.getRelativePath())).forEach(filePath -> {
                             if (Files.isRegularFile(filePath)) {
                                 File file = new File(String.valueOf(filePath));
-                                filesInRepo.put(file.getName(), String.valueOf(filePath));
+                                if (!filesInRepo.containsKey(file.getName())){
+                                    filesInRepo.put(file.getName(), new ArrayList<String>());
+                                }
+                                filesInRepo.get(file.getName()).add(String.valueOf(filePath));
                             }
                         });
                     }
@@ -60,29 +64,30 @@ public class SubversionService extends VersionControlService {
     }
 
 
-    private AnnotationHandler doBlame(final String fileName, final int lineNumber) throws VersionControlServiceException {
+    private AnnotationHandler doBlame(final String fileName, final String className, final int lineNumber) throws VersionControlServiceException {
         SVNLogClient logClient = SVNClientManager.newInstance().getLogClient();
         AnnotationHandler annotationHandler = new AnnotationHandler(false, false, logClient.getOptions(), lineNumber);
         try {
-            //System.out.println(new File(filesInRepo.get(fileName)).canRead());
-            logClient.doAnnotate(new File(filesInRepo.get(fileName)), SVNRevision.HEAD,
+            String filePath = getFilePath(fileName, className);
+            logClient.doAnnotate(new File(filePath), SVNRevision.HEAD,
                     SVNRevision.create(0),
                     SVNRevision.HEAD, annotationHandler);
             return annotationHandler;
         } catch (Exception e) {
-            //e.printStackTrace();
             throw new VersionControlServiceException(e, e.getMessage());
         }
     }
 
     @Override
-    public String getBlamedUserEmail(final String fileName, final int lineNumber) throws VersionControlServiceException {
-        return doBlame(fileName, lineNumber).getAuthor();
+    public String getBlamedUserEmail(final String fileName, final String className,
+                                     final int lineNumber) throws VersionControlServiceException {
+        return doBlame(fileName, className, lineNumber).getAuthor();
     }
 
     @Override
-    public String getBlamedUserCommit(String fileName, int lineNumber) throws Exception {
-        return doBlame(fileName, lineNumber).getRevision();
+    public String getBlamedUserCommit(final String fileName, final String className, final int lineNumber)
+            throws Exception {
+        return doBlame(fileName,className, lineNumber).getRevision();
     }
 
 

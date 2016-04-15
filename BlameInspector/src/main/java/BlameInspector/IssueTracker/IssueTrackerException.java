@@ -2,11 +2,11 @@ package BlameInspector.IssueTracker;
 
 public class IssueTrackerException extends Exception {
 
-    public IssueTrackerException(Exception e) {
+    public IssueTrackerException(final Exception e) {
         super(e);
     }
 
-    public IssueTrackerException(Exception e,final String s) {
+    public IssueTrackerException(final Exception e, final String s) {
         super(s, e);
     }
 }

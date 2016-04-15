@@ -56,7 +56,7 @@ public class AppTest
 
     private void testParse(final String text, final String fileName, final String errorLine){
         try {
-            String file = new BlameInspector().parseIssueBody(text).getFileName();
+            String file = new BlameInspector().parseIssueBody(text, 1).getFileName();
             assertEquals(file, fileName);
         }catch (TicketCorruptedException e){
             assertEquals(e.getMessage(), errorLine);

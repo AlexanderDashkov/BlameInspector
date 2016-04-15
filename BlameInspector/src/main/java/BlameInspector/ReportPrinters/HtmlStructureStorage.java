@@ -50,7 +50,7 @@ public interface HtmlStructureStorage {
             "</body>\n" +
             "</html>";
 
-    public final String TABLE_ELEM ="  <tr>\n" +
+    public final String TABLE_ELEM = "  <tr>\n" +
             "    <td><a href=\"{0}\">Ticket # {1}</a></th>\n" +
             "    <td><a href=\"{2}\">{3}</a></th>    \n" +
             "    <td>{4}</th>\n" +

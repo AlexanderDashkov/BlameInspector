@@ -54,20 +54,22 @@ public class BitBucketService extends IssueTrackerService {
 
 
     @Override
-    public String assigneeUrl(String userName) {
+    public String assigneeUrl(final String userName) {
         return null;
     }
 
     @Override
-    public String ticketUrl(int issueNumber) {
+    public String ticketUrl(final int issueNumber) {
         return null;
     }
 
 
-    public String getUserLogin(final VersionControlService vcs, final String file, final int number) throws IOException, JSONException, VersionControlServiceException {
+    public String getUserLogin(final VersionControlService vcs, final String file,
+                               final String className, final int number) throws IOException, JSONException,
+            VersionControlServiceException {
         String blameEmail = null;
         try {
-            blameEmail = vcs.getBlamedUserEmail(file, number);
+            blameEmail = vcs.getBlamedUserEmail(file, className, number);
         } catch (Exception e) {
             throw new VersionControlServiceException(e);
         }

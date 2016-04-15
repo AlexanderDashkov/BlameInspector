@@ -11,6 +11,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -31,17 +32,22 @@ public class GitService extends VersionControlService {
         treeWalk.addTree(tree);
         treeWalk.setRecursive(true);
         while (treeWalk.next()) {
-            filesInRepo.put(treeWalk.getNameString(), treeWalk.getPathString());
+            if (!filesInRepo.containsKey(treeWalk.getNameString())){
+                filesInRepo.put(treeWalk.getNameString(), new ArrayList<String>());
+            }
+            filesInRepo.get(treeWalk.getNameString()).add(treeWalk.getPathString());
         }
     }
 
 
     @Override
-    public String getBlamedUserCommit(final String fileName, final int lineNumber) throws VersionControlServiceException {
+    public String getBlamedUserCommit(final String fileName, final String className,
+                                      final int lineNumber) throws VersionControlServiceException {
         try {
+            String filePath = getFilePath(fileName, className);
             BlameCommand cmd = new BlameCommand(git.getRepository());
             cmd.setStartCommit(commitID);
-            cmd.setFilePath(filesInRepo.get(fileName));
+            cmd.setFilePath(filePath);
             BlameResult blameResult = cmd.call();
             String blameCommit  = blameResult.getSourceCommit(lineNumber - 1).getName();
             return blameCommit;
@@ -51,11 +57,13 @@ public class GitService extends VersionControlService {
     }
 
     @Override
-    public String getBlamedUserEmail(final String fileName, final int lineNumber) throws VersionControlServiceException {
+    public String getBlamedUserEmail(final String fileName, final String className,
+                                     final int lineNumber) throws VersionControlServiceException {
         try {
+            String filePath = getFilePath(fileName, className);
             BlameCommand cmd = new BlameCommand(git.getRepository());
             cmd.setStartCommit(commitID);
-            cmd.setFilePath(filesInRepo.get(fileName));
+            cmd.setFilePath(filePath);
             BlameResult blameResult = cmd.call();
             String blamedUserEmail = blameResult.getSourceAuthor(lineNumber - 1).getEmailAddress();
             if (blamedUserEmail.split("@").length > 2) {
@@ -67,5 +75,6 @@ public class GitService extends VersionControlService {
             throw new VersionControlServiceException(e, e.getMessage());
         }
     }
+
 
 }

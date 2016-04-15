@@ -41,7 +41,7 @@ public class Main {
     private static void processTickets() {
         try {
             blameInspector.init(propertyService);
-            if (endBound == -1){
+            if (endBound == -1) {
                 endBound = blameInspector.getNumberOfTickets();
             }
         } catch (Exception e){
@@ -212,7 +212,7 @@ public class Main {
 
     public static void printExceptionData(final Exception e){
         System.out.println(e.getMessage());
-        if (isDebug){
+        if (isDebug) {
             e.printStackTrace();
         }
         System.exit(0);

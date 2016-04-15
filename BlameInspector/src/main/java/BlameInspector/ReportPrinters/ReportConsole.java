@@ -27,7 +27,7 @@ public class ReportConsole implements ReportPrinter {
                     ticketNumber,
                     ticketInfo.getAssignee()));
             numberOfAssigned++;
-        }else {
+        } else {
             System.out.println(MessageFormat.format(TICKET_FAILED,
                     ticketNumber) + ticketInfo.getErrorType().getMessage());
         }

@@ -60,13 +60,13 @@ public class GitHubService extends IssueTrackerService {
     }
 
 
-    public String getUserLogin(final VersionControlService vcs, final String file, final int number) throws IOException,
+    public String getUserLogin(final VersionControlService vcs, final String file, final String className, final int number) throws IOException,
             JSONException,
             VersionControlServiceException,
             IssueTrackerException {
         String commitId;
         try {
-            commitId = vcs.getBlamedUserCommit(file, number);
+            commitId = vcs.getBlamedUserCommit(file, className, number);
         } catch (Exception e) {
             throw new VersionControlServiceException(e);
         }
@@ -74,7 +74,12 @@ public class GitHubService extends IssueTrackerService {
             String login = commitService.getCommit(repository, commitId).getAuthor().getLogin();
             return login;
         } catch (IOException | NullPointerException e) {
-            throw new IssueTrackerException(e, "Can not get data for commit!");
+            try {
+                String blameEmail = vcs.getBlamedUserEmail(file, className,  number);
+                return blameEmail;
+            }catch (Exception e1) {
+                throw new IssueTrackerException(e1, "Can not get blame!");
+            }
         }
     }
 
