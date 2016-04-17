@@ -1,4 +1,4 @@
-package BlameInspector;
+package blameinspector;
 
 
 public interface Storage {

@@ -1,4 +1,4 @@
-package BlameInspector;
+package blameinspector;
 
 /**
  * Created by Alexander on 26.02.2016.

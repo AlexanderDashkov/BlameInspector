@@ -1,11 +1,11 @@
-package BlameInspector.ReportPrinters;
+package blameinspector.reportprinters;
 
 
-import BlameInspector.TicketInfo;
+import blameinspector.TicketInfo;
 
 import java.text.MessageFormat;
 
-public class ReportConsole implements ReportPrinter {
+public class ReportConsole implements IReportPrinter {
 
     private static final String TICKET_INFO = "Ticket # {0}. Assigned to {1}";
     private static final String TICKET_FAILED = "Ticket # {0} was not assigned due to: ";
@@ -29,7 +29,7 @@ public class ReportConsole implements ReportPrinter {
             numberOfAssigned++;
         } else {
             System.out.println(MessageFormat.format(TICKET_FAILED,
-                    ticketNumber) + ticketInfo.getErrorType().getMessage());
+                    ticketNumber) + ticketInfo.getErrorType());
         }
         numberOfAllTickets++;
     }

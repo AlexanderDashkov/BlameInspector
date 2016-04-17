@@ -1,17 +1,11 @@
-package BlameInspector;
+package blameinspector;
 
 
-import BlameInspector.IssueTracker.BitBucketService;
-import BlameInspector.IssueTracker.GitHubService;
-import BlameInspector.IssueTracker.IssueTrackerService;
-import BlameInspector.IssueTracker.YouTrackService;
-import BlameInspector.VCS.GitService;
-import BlameInspector.VCS.SubversionService;
-import BlameInspector.VCS.VersionControlService;
-import BlameInspector.VCS.VersionControlServiceException;
-import org.tmatesoft.svn.core.SVNException;
-
-import java.io.IOException;
+import blameinspector.issuetracker.*;
+import blameinspector.vcs.GitService;
+import blameinspector.vcs.SubversionService;
+import blameinspector.vcs.VersionControlService;
+import blameinspector.vcs.VersionControlServiceException;
 
 public class ServicesFactory {
 
@@ -24,29 +18,39 @@ public class ServicesFactory {
 
     public static IssueTrackerService getIssueTrackerService(final String userName, final String password,
                                                       final String repoOwner, final String projectName,
-                                                      final String issueTrackerUrl) throws NoSuchMethodException, IOException {
+                                                      final String issueTrackerUrl) throws IssueTrackerException {
         String issueTrackerName = issueTrackerUrl.split("/")[2];
-        if (issueTrackerName.equals(GITHUB_URL)){
-            return new GitHubService(userName, password, repoOwner, projectName);
-        } else if (issueTrackerName.equals(BITBUCKET_URL)){
-            return new BitBucketService(userName, password, repoOwner, projectName);
-        } else if (issueTrackerName.equals(YOUTRACK_URL)){
-            return new YouTrackService(userName, password, repoOwner, projectName, issueTrackerUrl);
+        try {
+            if (issueTrackerName.equals(GITHUB_URL)) {
+                return new GitHubService(userName, password, repoOwner, projectName);
+            } else if (issueTrackerName.equals(BITBUCKET_URL)) {
+                return new BitBucketService(userName, password, repoOwner, projectName);
+            } else if (issueTrackerName.equals(YOUTRACK_URL)) {
+                return new YouTrackService(userName, password, repoOwner, projectName, issueTrackerUrl);
+            }
+            throw new IssueTrackerException("Not found appropriate Issue Tracker constructor.");
+        } catch (IssueTrackerException e){
+            throw e;
+        } catch (Exception e){
+            throw new IssueTrackerException(e);
         }
-        throw new RuntimeException("Not found appropriate Issue Tracker constructor.");
     }
 
     public static VersionControlService getVersionControlService(final String versionControl,
                                                                  final String pathToRepo,
                                                                  final String issueTracker)
-            throws NoSuchMethodException,
-            IOException,
-            SVNException, VersionControlServiceException {
-        if (versionControl.equals(GIT)){
-            return new GitService(pathToRepo, issueTracker);
-        } else if (versionControl.equals(SVN)){
-           return new SubversionService(pathToRepo, issueTracker);
+            throws VersionControlServiceException {
+        try {
+            if (versionControl.equals(GIT)) {
+                return new GitService(pathToRepo, issueTracker);
+            } else if (versionControl.equals(SVN)) {
+                return new SubversionService(pathToRepo, issueTracker);
+            }
+            throw new VersionControlServiceException("Not found appropriate Version Control constructor.");
+        } catch (VersionControlServiceException e){
+            throw e;
+        } catch (Exception e){
+            throw new VersionControlServiceException(e);
         }
-        throw new RuntimeException("Not found appropriate Version Control constructor.");
     }
 }

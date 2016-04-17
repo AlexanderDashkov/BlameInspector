@@ -1,4 +1,4 @@
-package BlameInspector;
+package blameinspector;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -10,11 +10,9 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
-import java.io.IOException;
 
 public class PropertyService {
 
@@ -40,40 +38,47 @@ public class PropertyService {
 
 
 
-    public PropertyService(final String projectName) throws IOException, ProjectNotFoundException, SAXException, ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setValidating(false);
-        dbf.setNamespaceAware(true);
-        SchemaFactory schemaFactory =
-                SchemaFactory.newInstance(SCHEMA_FACTORY_W3);
+    public PropertyService(final String projectName) throws PropertyServiceException {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setValidating(false);
+            dbf.setNamespaceAware(true);
+            SchemaFactory schemaFactory =
+                    SchemaFactory.newInstance(SCHEMA_FACTORY_W3);
 
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(classloader.getResourceAsStream(XML_SCHEMA))}));
+//      ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+//      dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(classloader.getResourceAsStream(XML_SCHEMA))}));
 
-//        dbf.setSchema(schemaFactory.newSchema(new Source[] {new StreamSource(XML_SCHEMA)}));
+            dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(XML_SCHEMA)}));
 
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        db.setErrorHandler(new SimpleErrorHandler());
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setErrorHandler(new SimpleErrorHandler());
 
 
-        Document doc = db.parse(new InputSource(CONFIG_FILE_NAME));
-        doc.getDocumentElement().normalize();
+            Document doc = db.parse(new InputSource(CONFIG_FILE_NAME));
+            doc.getDocumentElement().normalize();
 
-        NodeList nodeList = doc.getElementsByTagName(PROJECT_TAG);
-        for (int i = 0; i < nodeList.getLength(); i++){
-             Element element = (Element) nodeList.item(i);
-             if(element.getAttribute(NAME_ATTR).equals(projectName)){
-                 versionControl = getContentByTag(element, VERSION_CONTROL_TAG);
-                 userName = getContentByTag(element, USER_NAME_TAG);
-                 password = getContentByTag(element, PASSWORD_TAG);
-                 pathToRepo = getContentByTag(element, PATH_TO_REPO_TAG);
-                 issueTracker = getContentByTag(element, ISSUE_TRACKER_TAG);
-                 this.projectName = getContentByTag(element, PROJECT_NAME_TAG);
-             }
+            NodeList nodeList = doc.getElementsByTagName(PROJECT_TAG);
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element element = (Element) nodeList.item(i);
+                if (element.getAttribute(NAME_ATTR).equals(projectName)) {
+                    versionControl = getContentByTag(element, VERSION_CONTROL_TAG);
+                    userName = getContentByTag(element, USER_NAME_TAG);
+                    password = getContentByTag(element, PASSWORD_TAG);
+                    pathToRepo = getContentByTag(element, PATH_TO_REPO_TAG);
+                    issueTracker = getContentByTag(element, ISSUE_TRACKER_TAG);
+                    this.projectName = getContentByTag(element, PROJECT_NAME_TAG);
+                }
+            }
+            if (userName == null) {
+                throw new PropertyServiceException("Project with such name wasn't found in file.");
+            }
+        } catch (PropertyServiceException e){
+            throw e;
+        } catch (Exception e){
+            throw new PropertyServiceException(e);
         }
-        if (userName == null){
-            throw new ProjectNotFoundException("Project with such name wasn't found in file.");
-        }
+
     }
 
     private String getContentByTag(final Element element, final String tag){

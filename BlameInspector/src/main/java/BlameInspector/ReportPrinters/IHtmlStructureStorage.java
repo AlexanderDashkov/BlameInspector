@@ -1,7 +1,7 @@
-package BlameInspector.ReportPrinters;
+package blameinspector.reportprinters;
 
 
-public interface HtmlStructureStorage {
+public interface IHtmlStructureStorage {
 
     public final String HTML_START = "<!DOCTYPE html>\n" +
             "<html>\n" +
@@ -32,10 +32,10 @@ public interface HtmlStructureStorage {
             "color:#4050FF;"+
             "}\n" +
             "</style>\n" +
-            "<title>BlameInspector Report file</title>"+
+            "<title>blameinspector Report file</title>"+
             "</head>\n" +
             "<body>\n" +
-            "<h3>BlameInspector report.</h3>"+
+            "<h3>blameinspector report.</h3>"+
             "\n" +
             "<table id=\"t01\">\n" +
             "  <tr>\n" +

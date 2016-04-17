@@ -1,4 +1,4 @@
-package BlameInspector;
+package blameinspector;
 
 
 public class TicketInfo {
@@ -10,7 +10,7 @@ public class TicketInfo {
     private String assigneeUrl;
     private String ticketUrl;
 
-    private TicketCorruptedException errorType;
+    private String errorType;
 
     private void init(final int ticketNumber, final boolean assigned, final String ticketUrl){
         this.ticketNumber = ticketNumber;
@@ -24,7 +24,7 @@ public class TicketInfo {
         this.assigneeUrl = assigneeUrl;
     }
 
-    public TicketInfo(final int ticketNumber, final TicketCorruptedException e, final String ticketUrl){
+    public TicketInfo(final int ticketNumber, final String e, final String ticketUrl){
         init(ticketNumber, false, ticketUrl);
         this.errorType = e;
     }
@@ -41,7 +41,7 @@ public class TicketInfo {
         return assignee;
     }
 
-    public TicketCorruptedException getErrorType() {
+    public String getErrorType() {
         return errorType;
     }
 

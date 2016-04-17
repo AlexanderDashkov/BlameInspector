@@ -1,7 +1,7 @@
-package BlameInspector.ReportPrinters;
+package blameinspector.reportprinters;
 
 
-import BlameInspector.TicketInfo;
+import blameinspector.TicketInfo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 
-public class ReportHtml implements ReportPrinter{
+public class ReportHtml implements IReportPrinter {
 
    private PrintWriter reportWriter;
 
@@ -20,7 +20,7 @@ public class ReportHtml implements ReportPrinter{
     public ReportHtml() throws FileNotFoundException, UnsupportedEncodingException {
         File reportFile = new File("report.html");
         reportWriter = new PrintWriter(reportFile, "UTF-8");
-        reportWriter.print(HtmlStructureStorage.HTML_START);
+        reportWriter.print(IHtmlStructureStorage.HTML_START);
         numberOfAllTickets = 0;
         numberOfAssigned = 0;
     }
@@ -29,7 +29,7 @@ public class ReportHtml implements ReportPrinter{
     public void printTicket(final TicketInfo ticketInfo) {
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
         if (ticketInfo.isAssigned()){
-            reportWriter.print(MessageFormat.format(HtmlStructureStorage.TABLE_ELEM,
+            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
                     ticketNumber,
                     ticketInfo.getAssigneeUrl(),
@@ -37,16 +37,16 @@ public class ReportHtml implements ReportPrinter{
                     "-"));
             numberOfAssigned++;
         } else {
-            reportWriter.print(MessageFormat.format(HtmlStructureStorage.TABLE_ELEM,
+            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
-                    ticketNumber, "-", "none", ticketInfo.getErrorType().getMessage()));
+                    ticketNumber, "-", "none", ticketInfo.getErrorType()));
         }
         numberOfAllTickets++;
     }
 
     @Override
     public void flush() {
-        reportWriter.print(MessageFormat.format(HtmlStructureStorage.HTML_END,
+        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_END,
                 String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned)));
         reportWriter.close();
     }

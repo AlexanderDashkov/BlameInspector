@@ -1,7 +1,7 @@
-package BlameInspector.IssueTracker;
+package blameinspector.issuetracker;
 
-import BlameInspector.VCS.VersionControlService;
-import BlameInspector.VCS.VersionControlServiceException;
+import blameinspector.vcs.VersionControlService;
+import blameinspector.vcs.VersionControlServiceException;
 import org.json.JSONException;
 
 import java.io.BufferedReader;

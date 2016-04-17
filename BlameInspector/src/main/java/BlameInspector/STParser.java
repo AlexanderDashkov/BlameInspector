@@ -1,4 +1,4 @@
-package BlameInspector;
+package blameinspector;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

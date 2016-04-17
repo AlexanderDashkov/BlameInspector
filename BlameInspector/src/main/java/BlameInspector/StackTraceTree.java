@@ -1,4 +1,4 @@
-package BlameInspector;
+package blameinspector;
 
 import com.jmolly.stacktraceparser.NFrame;
 import com.jmolly.stacktraceparser.NStackTrace;
@@ -66,7 +66,7 @@ public class StackTraceTree {
     public void readTree(){}
 
 
-    private class Node{
+    private static class Node{
         private boolean isFinal;
         private NFrame frame;
         private ArrayList<Integer> tickets;

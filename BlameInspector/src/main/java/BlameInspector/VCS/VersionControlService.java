@@ -1,4 +1,4 @@
-package BlameInspector.VCS;
+package blameinspector.vcs;
 
 
 import java.util.ArrayList;

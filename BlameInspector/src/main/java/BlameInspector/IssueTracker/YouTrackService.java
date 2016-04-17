@@ -1,7 +1,7 @@
-package BlameInspector.IssueTracker;
+package blameinspector.issuetracker;
 
-import BlameInspector.VCS.VersionControlService;
-import BlameInspector.VCS.VersionControlServiceException;
+import blameinspector.vcs.VersionControlService;
+import blameinspector.vcs.VersionControlServiceException;
 import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

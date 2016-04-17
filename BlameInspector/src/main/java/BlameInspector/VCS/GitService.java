@@ -1,4 +1,4 @@
-package BlameInspector.VCS;
+package blameinspector.vcs;
 
 import org.eclipse.jgit.api.BlameCommand;
 import org.eclipse.jgit.api.Git;

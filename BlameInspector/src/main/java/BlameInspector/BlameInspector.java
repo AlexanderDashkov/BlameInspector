@@ -1,9 +1,9 @@
-package BlameInspector;
+package blameinspector;
 
-import BlameInspector.IssueTracker.IssueTrackerException;
-import BlameInspector.IssueTracker.IssueTrackerService;
-import BlameInspector.VCS.VersionControlService;
-import BlameInspector.VCS.VersionControlServiceException;
+import blameinspector.issuetracker.IssueTrackerException;
+import blameinspector.issuetracker.IssueTrackerService;
+import blameinspector.vcs.VersionControlService;
+import blameinspector.vcs.VersionControlServiceException;
 import com.jmolly.stacktraceparser.NFrame;
 import com.jmolly.stacktraceparser.NStackTrace;
 import com.jmolly.stacktraceparser.StackTraceParser;
@@ -32,26 +32,17 @@ public class BlameInspector {
 
     private String blameLogin;
 
-    public void init(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
+    public BlameInspector(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
         stTree = new StackTraceTree(propertyService.getProjectName());
-        try {
-            vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
+        vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
                     propertyService.getPathToRepo(),
                     propertyService.getIssueTracker());
-        }catch (Exception e){
-            throw new VersionControlServiceException(e, "Can not create VCS object!");
-        }
-        try {
-            its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
+        its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
                     propertyService.getPassword(),
                     vcs.getRepositoryOwner(),
                     propertyService.getProjectName(),
                     propertyService.getIssueTracker());
-            numberOfTickets = its.getNumberOfTickets();
-        }catch (Exception e){
-            throw new IssueTrackerException(e, "Can not create IssueTracker object!");
-        }
-
+        numberOfTickets = its.getNumberOfTickets();
     }
 
     public TicketInfo handleTicket(final int ticketNumber) throws TicketCorruptedException,
@@ -62,7 +53,7 @@ public class BlameInspector {
         try {
            issueBody = its.getIssueBody(ticketNumber);
         }catch (Exception e){
-            return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not access ticket with such number!"),
+            return new TicketInfo(ticketNumber, "Can not access ticket with such number!",
                     ticketURL) ;
         }
         String body = standartizeStackTrace(issueBody);
@@ -77,14 +68,14 @@ public class BlameInspector {
                     issueBody = issueBody.substring(1);
                 } catch (TicketCorruptedException e) {
                     if (e.getMessage().equals(NO_ENTRY)){
-                        return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_ENTRY), ticketURL);
+                        return new TicketInfo(ticketNumber, NO_ENTRY, ticketURL);
                     }
                     String words[]  = issueBody.split("\\s+");
                     if (words.length > 1 && issueBody.length() > (words[0].length() + 1)) {
                         issueBody = issueBody.substring(words[0].length() + 1);
                         continue;
                     }else {
-                        return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_STACKTRACE), ticketURL);
+                        return new TicketInfo(ticketNumber, NO_STACKTRACE, ticketURL);
                     }
                 } catch (Exception e) {
                     throw new BlameInspectorException(e);
@@ -92,15 +83,15 @@ public class BlameInspector {
             }
         }
         if (traceInfo == null){
-            return new TicketInfo(ticketNumber, new TicketCorruptedException(NO_STACKTRACE), ticketURL);
+            return new TicketInfo(ticketNumber, NO_STACKTRACE, ticketURL);
         }
         try {
             blameLogin = its.getUserLogin(vcs, traceInfo.getFileName(),traceInfo.getClassName(), traceInfo.getLineNumber());
         }catch (VersionControlServiceException e){
-            return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not do blame for this line!") , ticketURL);
+            return new TicketInfo(ticketNumber, "Can not do blame for this line!" , ticketURL);
         }catch (IssueTrackerException e){
             if (e.getMessage().equals("Can not get blame!")){
-                return new TicketInfo(ticketNumber, new TicketCorruptedException("Can not get blame!") , ticketURL);
+                return new TicketInfo(ticketNumber, "Can not get blame!", ticketURL);
             }
             throw new BlameInspectorException(e);
         } catch (Exception e){
@@ -170,7 +161,7 @@ public class BlameInspector {
                         locationInfo[0], Integer.parseInt(locationInfo[1]));
             }
         }
-        if (stackTrace.getTrace().getFrames().size()==0) {
+        if (stackTrace.getTrace().getFrames().size() == 0) {
             throw new TicketCorruptedException(NO_STACKTRACE);
         }else{
             throw new TicketCorruptedException(NO_ENTRY);

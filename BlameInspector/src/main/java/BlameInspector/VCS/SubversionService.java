@@ -1,4 +1,4 @@
-package BlameInspector.VCS;
+package blameinspector.vcs;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNDirEntry;
