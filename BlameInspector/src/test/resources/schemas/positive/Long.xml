@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE projects>
+<projects xsi:noNamespaceSchemaLocation="projects.xsd" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <project name="BlameWhoTest">
+         <vcs>git</vcs>
+         <pathToRepo>C:\Users\александр\Desktop\Jane's Repo\BlameWhoTest</pathToRepo>
+         <projectName>BlameWhoTest</projectName>
+         <issueTracker>https://github.com/JackSmithJunior/BlameWhoTest</issueTracker>
+         <password>PASS</password>
+         <userName>NAME</userName>
+    </project>
+    <project name="BlameBit">
+         <vcs>git</vcs>
+         <pathToRepo>C:\Users\александр\Desktop\JackBitRepo\blamebit</pathToRepo>
+         <projectName>BlameBit</projectName>
+         <issueTracker>https://bitbucket.org/JackSmithJunior/blamebit</issueTracker>
+         <userName>NAMEr</userName>
+         <password>PASS</password>
+    </project>
+    <project name="BlameSvn">
+         <vcs>svn</vcs>
+         <pathToRepo>C:\Users\александр\Desktop\guavaSvn\guava</pathToRepo>
+         <projectName>guava</projectName>
+         <issueTracker>https://github.com/google/guava</issueTracker>
+         <userName>NAME</userName>
+         <password>PASS</password>
+    </project>
+      <project name="Guava">
+         <vcs>git</vcs>
+         <pathToRepo>C:\Users\александр\Desktop\Google\guava</pathToRepo>
+         <projectName>guava</projectName>
+         <issueTracker>https://github.com/google/guava</issueTracker>
+         <userName>NAME</userName>
+         <password>PASS</password>
+    </project>
+    <project name="Kotlin">
+         <vcs>git</vcs>
+         <pathToRepo>C:\Users\александр\Desktop\Kotlin\kotlin</pathToRepo>
+         <projectName>KT</projectName>
+         <issueTracker>https://youtrack.jetbrains.com/issues/KT</issueTracker>
+         <userName>NAME</userName>
+         <password>PASS</password>
+    </project>
+</projects>

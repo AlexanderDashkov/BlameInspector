@@ -42,7 +42,7 @@ public class GitService extends VersionControlService {
 
     @Override
     public String getBlamedUserCommit(final String fileName, final String className,
-                                      final int lineNumber) throws VersionControlServiceException {
+                                      final int lineNumber) {
         try {
             String filePath = getFilePath(fileName, className);
             BlameCommand cmd = new BlameCommand(git.getRepository());
@@ -52,13 +52,14 @@ public class GitService extends VersionControlService {
             String blameCommit  = blameResult.getSourceCommit(lineNumber - 1).getName();
             return blameCommit;
         }catch (Exception e){
-            throw new VersionControlServiceException(e, e.getMessage());
+            //throw new VersionControlServiceException(e, e.getMessage());
+            return null;
         }
     }
 
     @Override
     public String getBlamedUserEmail(final String fileName, final String className,
-                                     final int lineNumber) throws VersionControlServiceException {
+                                     final int lineNumber){
         try {
             String filePath = getFilePath(fileName, className);
             BlameCommand cmd = new BlameCommand(git.getRepository());
@@ -72,7 +73,22 @@ public class GitService extends VersionControlService {
             }
             return blamedUserEmail;
         }catch (Exception e){
-            throw new VersionControlServiceException(e, e.getMessage());
+            //throw new VersionControlServiceException(e, e.getMessage());
+            return null;
+        }
+    }
+
+    public String getBlamedUserName(final String fileName, final String className, final int lineNumber){
+        try{
+            String filePath = getFilePath(fileName, className);
+            BlameCommand cmd = new BlameCommand(git.getRepository());
+            cmd.setStartCommit(commitID);
+            cmd.setFilePath(filePath);
+            BlameResult blameResult = cmd.call();
+            String blamedUserName = blameResult.getSourceAuthor(lineNumber - 1).getName();
+            return blamedUserName;
+        }catch (Exception e){
+            return null;
         }
     }
 

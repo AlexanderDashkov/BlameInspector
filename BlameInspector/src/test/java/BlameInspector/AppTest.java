@@ -139,7 +139,7 @@ public class AppTest
         Main.main(new String[]{"-p", this.projectName,"-t" ,ticketNumber, "-f"});
 
 
-        PropertyService propertyService = new PropertyService(projectName);
+        PropertyService propertyService = new PropertyService(projectName, "config.properties");
 
         GitHubClient client = new GitHubClient();
         client.setCredentials(propertyService.getUserName(),

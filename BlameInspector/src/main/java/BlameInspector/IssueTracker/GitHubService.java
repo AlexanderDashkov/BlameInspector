@@ -1,6 +1,6 @@
 package blameinspector.issuetracker;
 
-import blameinspector.vcs.VersionControlService;
+import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Repository;
@@ -60,26 +60,21 @@ public class GitHubService extends IssueTrackerService {
     }
 
 
-    public String getUserLogin(final VersionControlService vcs, final String file, final String className, final int number) throws IOException,
+    public String getUserLogin(final BlamedUserInfo blamedUserInfo) throws IOException,
             JSONException,
             VersionControlServiceException,
             IssueTrackerException {
-        String commitId;
         try {
-            commitId = vcs.getBlamedUserCommit(file, className, number);
-        } catch (Exception e) {
-            throw new VersionControlServiceException(e);
-        }
-        try {
-            String login = commitService.getCommit(repository, commitId).getAuthor().getLogin();
-            return login;
-        } catch (IOException | NullPointerException e) {
-            try {
-                String blameEmail = vcs.getBlamedUserEmail(file, className,  number);
-                return blameEmail;
-            }catch (Exception e1) {
-                throw new IssueTrackerException(e1, "Can not get blame!");
+            if (blamedUserInfo.getUserCommitId() !=  null) {
+                return commitService.getCommit(repository, blamedUserInfo.getUserCommitId()).getAuthor().getLogin();
+            } else if (blamedUserInfo.getUserEmail() != null ){
+                return  blamedUserInfo.getUserEmail();
+            }else if (blamedUserInfo.getUserName() != null) {
+                return blamedUserInfo.getUserName();
             }
+            throw new IssueTrackerException("Not enough info got from VCS");
+        } catch (IOException | NullPointerException e) {
+                throw new IssueTrackerException(e, "Can not get blame!");
         }
     }
 

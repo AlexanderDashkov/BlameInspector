@@ -1,6 +1,6 @@
 package blameinspector.issuetracker;
 
-import blameinspector.vcs.VersionControlService;
+import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
@@ -64,14 +64,13 @@ public class BitBucketService extends IssueTrackerService {
     }
 
 
-    public String getUserLogin(final VersionControlService vcs, final String file,
-                               final String className, final int number) throws IOException, JSONException,
-            VersionControlServiceException {
+    public String getUserLogin(final BlamedUserInfo blamedUserInfo) throws IOException, JSONException,
+            VersionControlServiceException, IssueTrackerException {
         String blameEmail = null;
-        try {
-            blameEmail = vcs.getBlamedUserEmail(file, className, number);
-        } catch (Exception e) {
-            throw new VersionControlServiceException(e);
+        if (blamedUserInfo.getUserEmail() != null){
+           blameEmail = blamedUserInfo.getUserEmail();
+        } else {
+            throw new IssueTrackerException("not enough info from vcs!");
         }
         String url = BITBUCKET_USER + blameEmail;
         String result = getRequest(url, null);

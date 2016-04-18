@@ -1,6 +1,6 @@
 package blameinspector.issuetracker;
 
-import blameinspector.vcs.VersionControlService;
+import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.json.JSONException;
 
@@ -33,8 +33,7 @@ public abstract class IssueTrackerService {
 
     public abstract String getIssueBody(int issueNumber) throws IOException, JSONException;
     public abstract void setIssueAssignee(final String blameLogin) throws IOException, JSONException;
-    public abstract String getUserLogin(final VersionControlService vcs, final String file, final String className,
-                                        final int number)
+    public abstract String getUserLogin(final BlamedUserInfo blamedUserInfo)
             throws IOException, JSONException, VersionControlServiceException, IssueTrackerException;
 
     public String assigneeUrl(String userName) {

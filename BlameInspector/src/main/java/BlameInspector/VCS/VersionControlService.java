@@ -9,10 +9,15 @@ public abstract class VersionControlService {
     protected HashMap<String, ArrayList<String>> filesInRepo;
     protected String repositoryURL;
 
-    public abstract String getBlamedUserCommit(final String fileName, final String className,
-                                               final int lineNumber) throws Exception;
-    public abstract String getBlamedUserEmail(final String fileName, final String className,
-                                              final int lineNumber) throws Exception;
+    public abstract String getBlamedUserCommit(final String fileName,
+                                               final String className,
+                                               final int lineNumber);
+    public abstract String getBlamedUserEmail(final String fileName,
+                                              final String className,
+                                              final int lineNumber);
+    public abstract String getBlamedUserName(final String fileName,
+                                             final String className,
+                                             final int lineNumber);
 
     public String getRepositoryOwner(){
         String []urlParts = repositoryURL.split("/");
@@ -32,4 +37,11 @@ public abstract class VersionControlService {
         }
         return filesInRepo.get(fileName).get(0);
     }
+
+    public BlamedUserInfo getBlamedUserInfo(final String fileName, final String className, final int lineNumber){
+        return new BlamedUserInfo(getBlamedUserName(fileName, className, lineNumber),
+                getBlamedUserEmail(fileName, className, lineNumber),
+                getBlamedUserCommit(fileName, className, lineNumber));
+    }
+
 }

@@ -46,8 +46,8 @@ public class ReportHtml implements IReportPrinter {
 
     @Override
     public void flush() {
-        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_END,
-                String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned)));
-        reportWriter.close();
+            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_END,
+                    String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned)));
+            reportWriter.close();
     }
 }

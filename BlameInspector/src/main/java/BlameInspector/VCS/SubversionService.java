@@ -80,14 +80,31 @@ public class SubversionService extends VersionControlService {
 
     @Override
     public String getBlamedUserEmail(final String fileName, final String className,
-                                     final int lineNumber) throws VersionControlServiceException {
-        return doBlame(fileName, className, lineNumber).getAuthor();
+                                     final int lineNumber) {
+        try {
+            return doBlame(fileName, className, lineNumber).getAuthor();
+        }catch (Exception e){
+            return null;
+        }
+
     }
 
     @Override
-    public String getBlamedUserCommit(final String fileName, final String className, final int lineNumber)
-            throws Exception {
-        return doBlame(fileName,className, lineNumber).getRevision();
+    public String getBlamedUserName(String fileName, String className, int lineNumber) {
+        try {
+             return doBlame(fileName, className, lineNumber).getAuthor();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public String getBlamedUserCommit(final String fileName, final String className, final int lineNumber) {
+        try {
+            return doBlame(fileName,className, lineNumber).getRevision();
+        } catch (Exception e){
+            return null;
+        }
     }
 
 

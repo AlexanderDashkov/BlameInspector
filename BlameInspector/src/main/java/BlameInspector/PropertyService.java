@@ -26,7 +26,6 @@ public class PropertyService {
     private static final String VERSION_CONTROL_TAG = "vcs";
 
     private static final String XML_SCHEMA = "projects.xsd";
-    private static final String CONFIG_FILE_NAME = "config.properties";
     private static final String SCHEMA_FACTORY_W3 = "http://www.w3.org/2001/XMLSchema";
 
     private String projectName;
@@ -38,7 +37,7 @@ public class PropertyService {
 
 
 
-    public PropertyService(final String projectName) throws PropertyServiceException {
+    public PropertyService(final String projectName, final String configFileName) throws PropertyServiceException {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setValidating(false);
@@ -55,10 +54,11 @@ public class PropertyService {
             db.setErrorHandler(new SimpleErrorHandler());
 
 
-            Document doc = db.parse(new InputSource(CONFIG_FILE_NAME));
+            Document doc = db.parse(new InputSource(configFileName));
             doc.getDocumentElement().normalize();
 
             NodeList nodeList = doc.getElementsByTagName(PROJECT_TAG);
+            boolean found = false;
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
                 if (element.getAttribute(NAME_ATTR).equals(projectName)) {
@@ -68,9 +68,10 @@ public class PropertyService {
                     pathToRepo = getContentByTag(element, PATH_TO_REPO_TAG);
                     issueTracker = getContentByTag(element, ISSUE_TRACKER_TAG);
                     this.projectName = getContentByTag(element, PROJECT_NAME_TAG);
+                    found = true;
                 }
             }
-            if (userName == null) {
+            if (!found) {
                 throw new PropertyServiceException("Project with such name wasn't found in file.");
             }
         } catch (PropertyServiceException e){
@@ -81,8 +82,12 @@ public class PropertyService {
 
     }
 
-    private String getContentByTag(final Element element, final String tag){
-        return element.getElementsByTagName(tag).item(0).getTextContent().trim();
+    private String getContentByTag(final Element element, final String tag) throws PropertyServiceException {
+        try {
+            return element.getElementsByTagName(tag).item(0).getTextContent().trim();
+        }catch (NullPointerException e){
+            throw new PropertyServiceException("No value in field!");
+        }
     }
 
     public String getProjectName(){

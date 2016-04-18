@@ -86,7 +86,7 @@ public class Main {
     }
 
     public static void processConfigFile() throws PropertyServiceException {
-        propertyService = new PropertyService(projectName);
+        propertyService = new PropertyService(projectName, "config.properties");
     }
 
     public static void processComandLine(final String [] args) throws FileNotFoundException, UnsupportedEncodingException {

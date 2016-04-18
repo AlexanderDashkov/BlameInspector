@@ -2,6 +2,7 @@ package blameinspector;
 
 import blameinspector.issuetracker.IssueTrackerException;
 import blameinspector.issuetracker.IssueTrackerService;
+import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlService;
 import blameinspector.vcs.VersionControlServiceException;
 import com.jmolly.stacktraceparser.NFrame;
@@ -86,7 +87,8 @@ public class BlameInspector {
             return new TicketInfo(ticketNumber, NO_STACKTRACE, ticketURL);
         }
         try {
-            blameLogin = its.getUserLogin(vcs, traceInfo.getFileName(),traceInfo.getClassName(), traceInfo.getLineNumber());
+            BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(), traceInfo.getClassName(), traceInfo.getLineNumber());
+            blameLogin = its.getUserLogin(blamedUserInfo);
         }catch (VersionControlServiceException e){
             return new TicketInfo(ticketNumber, "Can not do blame for this line!" , ticketURL);
         }catch (IssueTrackerException e){

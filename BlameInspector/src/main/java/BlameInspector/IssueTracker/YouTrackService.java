@@ -1,6 +1,6 @@
 package blameinspector.issuetracker;
 
-import blameinspector.vcs.VersionControlService;
+import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.json.JSONException;
 import org.w3c.dom.Document;
@@ -82,6 +82,7 @@ public class YouTrackService extends IssueTrackerService {
         putRestRequest(url, null);
     }
 
+
     private void putRestRequest(final String url, final String auth) throws IOException {
         URL obj = new URL(url);
         HttpURLConnection httpCon = (HttpURLConnection) obj.openConnection();
@@ -106,10 +107,9 @@ public class YouTrackService extends IssueTrackerService {
     }
 
     @Override
-    public String getUserLogin(final VersionControlService vcs, final String file, final String className,
-                               final int number) throws IOException, JSONException, VersionControlServiceException, IssueTrackerException {
+    public String getUserLogin(final BlamedUserInfo blamedUserInfo) throws IOException, JSONException, VersionControlServiceException, IssueTrackerException {
         try{
-            return vcs.getBlamedUserEmail(file, className, number);
+            return blamedUserInfo.getUserEmail();
         }catch (Exception e){
             throw new IssueTrackerException(e, "Can not get blame!");
         }
