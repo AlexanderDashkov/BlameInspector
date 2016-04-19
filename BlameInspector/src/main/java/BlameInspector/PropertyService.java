@@ -61,6 +61,7 @@ public class PropertyService {
             boolean found = false;
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
+                if (!element.hasAttribute(NAME_ATTR)) throw new PropertyServiceException("No name Attribute in project tag!");
                 if (element.getAttribute(NAME_ATTR).equals(projectName)) {
                     versionControl = getContentByTag(element, VERSION_CONTROL_TAG);
                     userName = getContentByTag(element, USER_NAME_TAG);

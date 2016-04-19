@@ -74,7 +74,7 @@ public class GitHubService extends IssueTrackerService {
             }
             throw new IssueTrackerException("Not enough info got from VCS");
         } catch (IOException | NullPointerException e) {
-                throw new IssueTrackerException(e, "Can not get blame!");
+                throw new IssueTrackerException(true, "Can not get blame!");
         }
     }
 

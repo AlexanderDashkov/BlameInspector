@@ -92,8 +92,8 @@ public class BlameInspector {
         }catch (VersionControlServiceException e){
             return new TicketInfo(ticketNumber, "Can not do blame for this line!" , ticketURL);
         }catch (IssueTrackerException e){
-            if (e.getMessage().equals("Can not get blame!")){
-                return new TicketInfo(ticketNumber, "Can not get blame!", ticketURL);
+            if (e.isCannotGetBlame()){
+                return new TicketInfo(ticketNumber, e.getMessage(), ticketURL);
             }
             throw new BlameInspectorException(e);
         } catch (Exception e){

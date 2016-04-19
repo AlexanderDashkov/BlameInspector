@@ -1,7 +1,5 @@
 package blameinspector;
 
-import com.jmolly.stacktraceparser.NStackTrace;
-import com.jmolly.stacktraceparser.StackTraceParser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -54,25 +52,6 @@ public class AppTest
         return new TestSuite( AppTest.class );
     }
 
-    private void testParse(final String text, final String fileName, final String errorLine){
-//        try {
-//            String file = new BlameInspector(null, null).parseIssueBody(text, 1).getFileName();
-//            assertEquals(file, fileName);
-//        }catch (TicketCorruptedException e){
-//            assertEquals(e.getMessage(), errorLine);
-//        }
-    }
-
-
-    public void testParseNoException() {
-        String text = "I've got no exception just error!";
-        testParse(text, null, "No StackTrace found in current ticket!");
-    }
-
-
-    public void testParseBrokenException(){
-        testParse(Storage.test1, null, "StackTrace is corrupted!");
-    }
 
     public void testSimpleTicket() throws IOException, GitAPIException, JSONException, SVNException, SAXException, ParserConfigurationException, PropertyServiceException {
         ticketChecker("1","JaneSmithSenior");
@@ -126,14 +105,7 @@ public class AppTest
         System.setOut(sysOut);
     }
 
-    public void testOptimiserStackTrace(){
-        try {
-            NStackTrace stackTrace = StackTraceParser.parse(Storage.test2);
-            assertEquals(stackTrace.getTrace().getFrames().get(0).getLocation(), "(SourceFile:110)");
-        } catch (RecognitionException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, SVNException, SAXException, ParserConfigurationException, PropertyServiceException {
         Main.main(new String[]{"-p", this.projectName,"-t" ,ticketNumber, "-f"});

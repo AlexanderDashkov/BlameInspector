@@ -6,8 +6,7 @@
          <vcs>git</vcs>
          <pathToRepo>C:\Users\александр\Desktop\Jane's Repo\BlameWhoTest</pathToRepo>
          <projectName>BlameWhoTest</projectName>
-         <issueTracker>https://github.com/JackSmithJunior/BlameWhoTest</issueTracker>
-         <userName>USERNAME</userName>
          <password>PASSWORD</password>
+         <userName>USERNAME</userName>
     </project>
 </projects>
