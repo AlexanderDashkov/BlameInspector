@@ -49,57 +49,69 @@ public class BlameInspector {
     public TicketInfo handleTicket(final int ticketNumber) throws TicketCorruptedException,
             BlameInspectorException, VersionControlServiceException {
         TraceInfo traceInfo = null;
-        String issueBody;
+        String issueBody = null;
         String ticketURL = its.ticketUrl(ticketNumber);
+        String exceptionMessage = null;
         try {
            issueBody = its.getIssueBody(ticketNumber);
         }catch (Exception e){
-            return new TicketInfo(ticketNumber, "Can not access ticket with such number!",
-                    ticketURL) ;
+            exceptionMessage = "Can not access ticket with such number!";
         }
-        String body = standartizeStackTrace(issueBody);
-        while (traceInfo == null || traceInfo.getClassName() == null && body.length() != 0) {
-            issueBody = body;
-            issueBody = correctStackTrace(issueBody);
-            body = issueBody;
-            while (traceInfo == null || traceInfo.getClassName() == null && issueBody.length()!=0) {
-                try {
-                    traceInfo = parseIssueBody(issueBody, ticketNumber);
-                    if(issueBody.length() <= 1) break;
-                    issueBody = issueBody.substring(1);
-                } catch (TicketCorruptedException e) {
-                    if (e.getMessage().equals(NO_ENTRY)){
-                        return new TicketInfo(ticketNumber, NO_ENTRY, ticketURL);
+        if(issueBody != null) {
+            String body = standartizeStackTrace(issueBody);
+            outerwhile:
+            while (traceInfo == null || traceInfo.getClassName() == null && body.length() != 0) {
+                issueBody = body;
+                issueBody = correctStackTrace(issueBody);
+                body = issueBody;
+                while (traceInfo == null || traceInfo.getClassName() == null && issueBody.length() != 0) {
+                    try {
+                        traceInfo = parseIssueBody(issueBody, ticketNumber);
+                        if (issueBody.length() <= 1) break;
+                        issueBody = issueBody.substring(1);
+                    } catch (TicketCorruptedException e) {
+                        if (e.getMessage().equals(NO_ENTRY)) {
+                            exceptionMessage = NO_ENTRY;
+                            break outerwhile;
+                        }
+                        String words[] = issueBody.split("\\s+");
+                        if (words.length > 1 && issueBody.length() > (words[0].length() + 1)) {
+                            issueBody = issueBody.substring(words[0].length() + 1);
+                            continue;
+                        } else {
+                            exceptionMessage = NO_STACKTRACE;
+                            break outerwhile;
+                        }
+                    } catch (Exception e) {
+                        throw new BlameInspectorException(e);
                     }
-                    String words[]  = issueBody.split("\\s+");
-                    if (words.length > 1 && issueBody.length() > (words[0].length() + 1)) {
-                        issueBody = issueBody.substring(words[0].length() + 1);
-                        continue;
-                    }else {
-                        return new TicketInfo(ticketNumber, NO_STACKTRACE, ticketURL);
-                    }
-                } catch (Exception e) {
-                    throw new BlameInspectorException(e);
                 }
             }
         }
-        if (traceInfo == null){
-            return new TicketInfo(ticketNumber, NO_STACKTRACE, ticketURL);
+        if (traceInfo == null && exceptionMessage == null){
+            exceptionMessage = NO_STACKTRACE;
         }
         try {
-            BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(), traceInfo.getClassName(), traceInfo.getLineNumber());
-            blameLogin = its.getUserLogin(blamedUserInfo);
+            if(exceptionMessage == null){
+               BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(), traceInfo.getClassName(), traceInfo.getLineNumber());
+               blameLogin = its.getUserLogin(blamedUserInfo);
+            }
         }catch (VersionControlServiceException e){
-            return new TicketInfo(ticketNumber, "Can not do blame for this line!" , ticketURL);
+            exceptionMessage = "Can not do blame for this line!";
         }catch (IssueTrackerException e){
             if (e.isCannotGetBlame()){
-                return new TicketInfo(ticketNumber, e.getMessage(), ticketURL);
+                exceptionMessage = e.getMessage();
+            }else{
+                throw new BlameInspectorException(e);
             }
-            throw new BlameInspectorException(e);
         } catch (Exception e){
             throw new BlameInspectorException(e);
         }
-        return new TicketInfo(ticketNumber, blameLogin , ticketURL, its.assigneeUrl(blameLogin));
+        if(exceptionMessage == null){
+            return new TicketInfo(ticketNumber, blameLogin , ticketURL, its.assigneeUrl(blameLogin));
+        } else {
+            return new TicketInfo(ticketNumber, exceptionMessage, ticketURL);
+        }
     }
 
     private String standartizeStackTrace(final String text){
