@@ -12,24 +12,24 @@ public class TicketInfo {
 
     private String errorType;
 
-    private void init(final int ticketNumber, final boolean assigned, final String ticketUrl){
+    private void init(final int ticketNumber, final boolean assigned, final String ticketUrl) {
         this.ticketNumber = ticketNumber;
         this.assigned = assigned;
         this.ticketUrl = ticketUrl;
     }
 
-    public TicketInfo(final int ticketNumber, final String assignee, final String ticketUrl, final String assigneeUrl){
+    public TicketInfo(final int ticketNumber, final String assignee, final String ticketUrl, final String assigneeUrl) {
         init(ticketNumber, true, ticketUrl);
         this.assignee = assignee;
         this.assigneeUrl = assigneeUrl;
     }
 
-    public TicketInfo(final int ticketNumber, final String e, final String ticketUrl){
+    public TicketInfo(final int ticketNumber, final String e, final String ticketUrl) {
         init(ticketNumber, false, ticketUrl);
         this.errorType = e;
     }
 
-    public boolean isAssigned(){
+    public boolean isAssigned() {
         return this.assigned;
     }
 

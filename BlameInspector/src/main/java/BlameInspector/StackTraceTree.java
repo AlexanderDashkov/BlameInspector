@@ -10,27 +10,18 @@ public class StackTraceTree {
 
     private Node root;
     private String projectName;
+    private int size;
 
-    public StackTraceTree(final String projectName){
+    public StackTraceTree(final String projectName) {
         root = new Node(null);
         this.projectName = projectName;
+        size = 0;
     }
 
-    /*
-    * @param ticketNumber number of ticket to be searched in tree
-    * @return Node which contains this ticket StackTrace final frame
-    */
-    public Node getTicket(final int ticketNumber){
-       Node currentNode = root;
-       while (currentNode.tickets.size() > 1){
-           for (Node child: currentNode.getChildren()){
-               if (child.getTickets().contains(ticketNumber)){
-                   currentNode = child;
-               }
-           }
-       }
-       return currentNode;
+    public int size() {
+        return size;
     }
+
 
     /*
     * @param stackTrace stackTrace of ticket to be added to the tree
@@ -38,17 +29,17 @@ public class StackTraceTree {
     * @return true, if exactly such StackTrace hasn't mentioned yet,
     * false otherwise
     */
-    public boolean addTicket(final NStackTrace stackTrace, final int ticketNumber){
+    public boolean addTicket(final NStackTrace stackTrace, final int ticketNumber) {
         List<NFrame> frames = stackTrace.getTrace().getFrames();
         Node currentNode = root;
         for (int i = 0; i < frames.size(); i++) {
             NFrame frame = frames.get(i);
-            currentNode.addTicket(ticketNumber);
-            if (currentNode.isFinal){
-                if (i < frames.size()){
+            if (currentNode.isFinal) {
+                if (i + 1 < frames.size()) {
                     currentNode.addChild(new Node(frame));
-                }else{
-                    currentNode.addTicket(ticketNumber);
+                } else {
+                    currentNode.addDuplicate(ticketNumber);
+                    size++;
                     return false;
                 }
             }
@@ -58,64 +49,80 @@ public class StackTraceTree {
                     break;
                 }
             }
+            currentNode.addChild(new Node(frame));
+            currentNode = currentNode.children.get(currentNode.children.size() - 1);
         }
         return true;
     }
 
-    public ArrayList<Integer> getDuplicates(){
-        return null;
+    public ArrayList<ArrayList<Integer>> getDuplicates() {
+        return getDuplicates(root);
     }
 
-    public void storeTree(){}
-    public void readTree(){}
+    private ArrayList<ArrayList<Integer>> getDuplicates(Node currentRoot) {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        for (Node child : currentRoot.children) {
+            if (child.isFinal) {
+                result.add(child.getDuplicates());
+            } else {
+                result.addAll(getDuplicates(child));
+            }
+        }
+        return result;
+    }
+
+    public void storeTree() {
+    }
+
+    public void readTree() {
+    }
 
 
-    private static class Node{
+    private static class Node {
         private boolean isFinal;
         private NFrame frame;
-        private ArrayList<Integer> tickets;
+        private ArrayList<Integer> duplicates;
         private ArrayList<Node> children;
 
-        private void init(){
-            tickets = new ArrayList<>();
+        private void init() {
+            duplicates = new ArrayList<>();
             children = new ArrayList<>();
+            isFinal = true;
         }
 
-        public Node(final NFrame frame){
+        public Node(final NFrame frame) {
             init();
-            this.isFinal = true;
             this.frame = frame;
         }
 
-        public Node(final NFrame frame, final int ticket){
+        public Node(final NFrame frame, final int ticket) {
             init();
-            this.isFinal = false;
             this.frame = frame;
-            this.tickets.add(ticket);
+            this.duplicates.add(ticket);
         }
 
-        public void addChild(final Node child){
+        public void addChild(final Node child) {
             isFinal = false;
             children.add(child);
         }
 
-        public void addTicket(final int ticketNumber){
-            tickets.add(ticketNumber);
+        public void addDuplicate(final int ticketNumber) {
+            duplicates.add(ticketNumber);
         }
 
         public boolean isFinal() {
             return isFinal;
         }
 
-        public boolean isSimilar(final NFrame ticketFrame){
+        public boolean isSimilar(final NFrame ticketFrame) {
             boolean isMethodSimilar = ticketFrame.getMethodName().equals(frame.getMethodName());
             boolean isClassSimilar = ticketFrame.getClassName().equals(frame.getClassName());
             boolean isLocSimilar = ticketFrame.getLocation().equals(frame.getLocation());
             return isMethodSimilar && isClassSimilar && isLocSimilar;
         }
 
-        public ArrayList<Integer> getTickets() {
-            return tickets;
+        public ArrayList<Integer> getDuplicates() {
+            return duplicates;
         }
 
         public ArrayList<Node> getChildren() {

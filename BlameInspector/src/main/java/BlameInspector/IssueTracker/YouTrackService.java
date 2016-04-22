@@ -37,7 +37,7 @@ public class YouTrackService extends IssueTrackerService {
                            final String itsUrl) {
         super(username, password, repoOwner, projectName);
         ASSIGNEE_URL = "";
-        String [] urlParam = itsUrl.split(SLASH);
+        String[] urlParam = itsUrl.split(SLASH);
         this.itsUrl = urlParam[0] + SLASH + SLASH + urlParam[2] + SLASH + REST_API + SLASH + ISSUE + SLASH + projectName;
     }
 
@@ -65,9 +65,9 @@ public class YouTrackService extends IssueTrackerService {
 
         String issueBody = "";
         Element element = (Element) doc.getElementsByTagName(ISSUE).item(0);
-        for (int i = 0; i < element.getElementsByTagName(FIELD_TAG).getLength(); i++ ){
+        for (int i = 0; i < element.getElementsByTagName(FIELD_TAG).getLength(); i++) {
             Element e = (Element) element.getElementsByTagName(FIELD_TAG).item(i);
-            if (e.getAttribute(NAME_ATTR).equals(DESCR_VALUE)){
+            if (e.getAttribute(NAME_ATTR).equals(DESCR_VALUE)) {
                 issueBody = e.getTextContent().trim();
                 return issueBody;
             }
@@ -77,7 +77,7 @@ public class YouTrackService extends IssueTrackerService {
 
     @Override
     public void setIssueAssignee(final String blameLogin) throws IOException, JSONException {
-        String command  = "command=Assignee " + blameLogin;
+        String command = "command=Assignee " + blameLogin;
         String url = itsUrl + "-" + issueNumber + "/execute?" + command;
         putRestRequest(url, null);
     }
@@ -87,7 +87,7 @@ public class YouTrackService extends IssueTrackerService {
         URL obj = new URL(url);
         HttpURLConnection httpCon = (HttpURLConnection) obj.openConnection();
 
-        if (auth != null){
+        if (auth != null) {
             httpCon.setRequestProperty("Authorization", auth);
         }
         httpCon.setDoOutput(true);
@@ -108,14 +108,14 @@ public class YouTrackService extends IssueTrackerService {
 
     @Override
     public String getUserLogin(final BlamedUserInfo blamedUserInfo) throws IOException, JSONException, VersionControlServiceException, IssueTrackerException {
-        try{
+        try {
             if (blamedUserInfo.getUserEmail() != null) {
                 return blamedUserInfo.getUserEmail();
-            } else if (blamedUserInfo.getUserName() != null){
+            } else if (blamedUserInfo.getUserName() != null) {
                 return blamedUserInfo.getUserName();
             }
             throw new Exception();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new IssueTrackerException(true, "Can not get blame!");
         }
     }

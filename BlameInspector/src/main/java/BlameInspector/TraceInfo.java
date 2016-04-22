@@ -12,26 +12,26 @@ public class TraceInfo {
     public TraceInfo(final String className,
                      final String methodName,
                      final String fileName,
-                     final int lineNumber){
+                     final int lineNumber) {
         this.className = className;
         this.methodName = methodName;
         this.lineNumber = lineNumber;
         this.fileName = fileName;
     }
 
-    public int getLineNumber(){
+    public int getLineNumber() {
         return lineNumber;
     }
 
-    public String getClassName(){
+    public String getClassName() {
         return className;
     }
 
-    public String getMethodName(){
+    public String getMethodName() {
         return methodName;
     }
 
-    public String getFileName(){
+    public String getFileName() {
         return fileName;
     }
 }

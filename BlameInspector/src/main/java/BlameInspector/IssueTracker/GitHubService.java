@@ -27,7 +27,6 @@ public class GitHubService extends IssueTrackerService {
     private static final String GITHUB_SEARCH_EMAIL_URL = "https://api.github.com/search/users?q={0}+in:email";
 
 
-
     public GitHubService(final String userName,
                          final String password,
                          final String repositoryOwner,
@@ -65,16 +64,16 @@ public class GitHubService extends IssueTrackerService {
             VersionControlServiceException,
             IssueTrackerException {
         try {
-            if (blamedUserInfo.getUserCommitId() !=  null && commitService.getCommit(repository, blamedUserInfo.getUserCommitId()).getAuthor() != null) {
-               return commitService.getCommit(repository, blamedUserInfo.getUserCommitId()).getAuthor().getLogin();
-            } else  if (blamedUserInfo.getUserEmail() != null ){
-                return  blamedUserInfo.getUserEmail();
-            }else if (blamedUserInfo.getUserName() != null) {
+            if (blamedUserInfo.getUserCommitId() != null && commitService.getCommit(repository, blamedUserInfo.getUserCommitId()).getAuthor() != null) {
+                return commitService.getCommit(repository, blamedUserInfo.getUserCommitId()).getAuthor().getLogin();
+            } else if (blamedUserInfo.getUserEmail() != null) {
+                return blamedUserInfo.getUserEmail();
+            } else if (blamedUserInfo.getUserName() != null) {
                 return blamedUserInfo.getUserName();
             }
             throw new IssueTrackerException("Not enough info got from VCS");
         } catch (IOException e) {
-                throw new IssueTrackerException(true, "Can not get blame!");
+            throw new IssueTrackerException(true, "Can not get blame!");
         }
     }
 

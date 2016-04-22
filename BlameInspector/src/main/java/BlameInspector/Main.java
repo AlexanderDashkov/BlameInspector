@@ -43,12 +43,12 @@ public class Main {
     private static boolean isDebug;
 
 
-    public static void main(final String [] args) {
+    public static void main(final String[] args) {
         try {
             processComandLine(args);
             processConfigFile();
             processTickets();
-        }catch (Exception e){
+        } catch (Exception e) {
             printExceptionData(e);
             System.exit(0);
         }
@@ -60,28 +60,31 @@ public class Main {
             if (endBound == -1) {
                 endBound = blameInspector.getNumberOfTickets();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             printExceptionData(e);
         }
-        for (int i = startBound; i <= endBound; i++){
+        for (int i = startBound; i <= endBound; i++) {
             try {
                 evaluateTicket(i);
-                if (!isInteractive){
+                if (!isInteractive) {
                     if (isSettingAssignee) blameInspector.setAssignee();
                 } else {
                     Scanner in = new Scanner(System.in);
                     System.out.println("Set assignee on that ticket?(y/n)");
-                    if (in.next().equals("y")){
+                    if (in.next().equals("y")) {
                         blameInspector.setAssignee();
                     }
                 }
                 blameInspector.refresh();
-            } catch (TicketCorruptedException e){
+            } catch (TicketCorruptedException e) {
                 continue;
             }
         }
-        for (IReportPrinter reportPrinter : reportPrinters){
-                reportPrinter.flush();
+        for (IReportPrinter reportPrinter : reportPrinters) {
+            //if (reportPrinter instanceof ReportHtml){
+            //    ((ReportHtml) reportPrinter).printDuplicates(blameInspector.getDuplicates());
+            //}
+            reportPrinter.flush();
         }
     }
 
@@ -89,7 +92,7 @@ public class Main {
         propertyService = new PropertyService(projectName, "config.properties");
     }
 
-    public static void processComandLine(final String [] args) throws FileNotFoundException, UnsupportedEncodingException {
+    public static void processComandLine(final String[] args) throws FileNotFoundException, UnsupportedEncodingException {
         Option projectNameOption = new Option(PROJECT_IDENT, "project", true, "project name");
         projectNameOption.setArgs(1);
         projectNameOption.setArgName("project");
@@ -98,7 +101,7 @@ public class Main {
         Option generateReport = new Option(GENERATE_HTML_IDENT, false, "generate html report");
         generateReport.setArgs(0);
         debugOption.setArgs(0);
-        OptionGroup ticketNumbersGroup  = new OptionGroup();
+        OptionGroup ticketNumbersGroup = new OptionGroup();
         Option allTicketsOption = new Option(ALL_IDENT, "all", false, "all ticket evaluating");
         allTicketsOption.setArgs(0);
         Option ticketNumberOption = new Option(TICKET_IDENT, "ticket", true, "ticket number");
@@ -148,7 +151,8 @@ public class Main {
                 helpFormatter.printHelp("BlameInspector", header, options, footer, true);
                 System.exit(0);
             }
-        } catch (ParseException e) {}
+        } catch (ParseException e) {
+        }
 
 
         try {
@@ -158,16 +162,16 @@ public class Main {
             System.out.println("Type -help for help");
             System.exit(0);
         }
-        if (args.length == 0){
+        if (args.length == 0) {
             System.out.println("No arguments provided, type -help for help");
             System.exit(0);
         }
         isDebug = false;
-        if (cmdLine.hasOption("-X")){
+        if (cmdLine.hasOption("-X")) {
             isDebug = true;
         }
         projectName = cmdLine.getOptionValue(PROJECT_IDENT);
-        if (cmdLine.hasOption(RANGE_IDENT)){
+        if (cmdLine.hasOption(RANGE_IDENT)) {
             String bound[] = cmdLine.getOptionValues(RANGE_IDENT);
             startBound = Integer.parseInt(bound[0]);
             if (bound.length > 1) {
@@ -184,27 +188,27 @@ public class Main {
         }
         isSettingAssignee = false;
         isInteractive = false;
-        if (cmdLine.hasOption(FIX_IDENT)){
+        if (cmdLine.hasOption(FIX_IDENT)) {
             isSettingAssignee = true;
-        } else if (cmdLine.hasOption(INTER_IDENT)){
+        } else if (cmdLine.hasOption(INTER_IDENT)) {
             isInteractive = true;
         }
         reportPrinters = new ArrayList<>();
         reportPrinters.add(new ReportConsole());
-        if (cmdLine.hasOption(GENERATE_HTML_IDENT)){
-           reportPrinters.add(new ReportHtml());
+        if (cmdLine.hasOption(GENERATE_HTML_IDENT)) {
+            reportPrinters.add(new ReportHtml());
         }
     }
 
     public static void evaluateTicket(final int ticketNumber) throws TicketCorruptedException, BlameInspectorException, VersionControlServiceException {
-       TicketInfo ticketInfo =  blameInspector.handleTicket(ticketNumber);
-       for (IReportPrinter reportPrinter : reportPrinters){
+        TicketInfo ticketInfo = blameInspector.handleTicket(ticketNumber);
+        for (IReportPrinter reportPrinter : reportPrinters) {
             reportPrinter.printTicket(ticketInfo);
-       }
+        }
     }
 
 
-    public static void printExceptionData(final Exception e){
+    public static void printExceptionData(final Exception e) {
         System.out.println(e.getMessage());
         if (isDebug) {
             e.printStackTrace();

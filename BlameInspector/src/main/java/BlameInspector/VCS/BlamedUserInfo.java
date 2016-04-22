@@ -6,7 +6,7 @@ public class BlamedUserInfo {
     private String userEmail;
     private String userCommitId;
 
-    public BlamedUserInfo(final String userName, final String userEmail, final String userCommitId){
+    public BlamedUserInfo(final String userName, final String userEmail, final String userCommitId) {
         this.userName = userName;
         this.userEmail = userEmail;
         this.userCommitId = userCommitId;

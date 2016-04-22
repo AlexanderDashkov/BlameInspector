@@ -29,13 +29,13 @@ public interface IHtmlStructureStorage {
             "    color: white;\n" +
             "}\n" +
             "h3 {" +
-            "color:#4050FF;"+
+            "color:#4050FF;" +
             "}\n" +
             "</style>\n" +
-            "<title>blameinspector Report file</title>"+
+            "<title>blameinspector Report file</title>" +
             "</head>\n" +
             "<body>\n" +
-            "<h3>blameinspector report.</h3>"+
+            "<h3>blameinspector report.</h3>" +
             "\n" +
             "<table id=\"t01\">\n" +
             "  <tr>\n" +
@@ -45,14 +45,15 @@ public interface IHtmlStructureStorage {
             "  </tr>\n";
     public final String HTML_END =
             "</table>\n" +
-            "\n" +
-             "<br> Summary. Tickets: All : {0}, Assigned : {1} </br>"+
-            "</body>\n" +
-            "</html>";
+                    "\n" +
+                    "<br> Summary. Tickets: All : {0}, Assigned : {1} </br>" +
+                    "</body>\n" +
+                    "</html>";
 
     public final String TABLE_ELEM = "  <tr>\n" +
             "    <td><a href=\"{0}\">Ticket # {1}</a></th>\n" +
             "    <td><a href=\"{2}\">{3}</a></th>    \n" +
             "    <td>{4}</th>\n" +
-            "  </tr>\n";;
+            "  </tr>\n";
+    ;
 }

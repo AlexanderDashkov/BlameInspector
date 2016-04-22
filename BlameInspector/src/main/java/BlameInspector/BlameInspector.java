@@ -11,6 +11,7 @@ import com.jmolly.stacktraceparser.StackTraceParser;
 import org.antlr.runtime.RecognitionException;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 public class BlameInspector {
@@ -35,14 +36,18 @@ public class BlameInspector {
     public BlameInspector(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
         stTree = new StackTraceTree(propertyService.getProjectName());
         vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
-                    propertyService.getPathToRepo(),
-                    propertyService.getIssueTracker());
+                propertyService.getPathToRepo(),
+                propertyService.getIssueTracker());
         its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
-                    propertyService.getPassword(),
-                    vcs.getRepositoryOwner(),
-                    propertyService.getProjectName(),
-                    propertyService.getIssueTracker());
+                propertyService.getPassword(),
+                vcs.getRepositoryOwner(),
+                propertyService.getProjectName(),
+                propertyService.getIssueTracker());
         numberOfTickets = its.getNumberOfTickets();
+    }
+
+    public ArrayList<ArrayList<Integer>> getDuplicates() {
+        return stTree.getDuplicates();
     }
 
     public TicketInfo handleTicket(final int ticketNumber) throws TicketCorruptedException,
@@ -52,11 +57,11 @@ public class BlameInspector {
         String ticketURL = its.ticketUrl(ticketNumber);
         String exceptionMessage = null;
         try {
-           issueBody = its.getIssueBody(ticketNumber);
-        }catch (Exception e){
+            issueBody = its.getIssueBody(ticketNumber);
+        } catch (Exception e) {
             exceptionMessage = "Can not access ticket with such number!";
         }
-        if(issueBody != null) {
+        if (issueBody != null) {
             String body = standartizeStackTrace(issueBody);
             outerwhile:
             while (traceInfo == null || traceInfo.getClassName() == null && body.length() != 0) {
@@ -87,34 +92,34 @@ public class BlameInspector {
                 }
             }
         }
-        if (traceInfo == null && exceptionMessage == null){
+        if (traceInfo == null && exceptionMessage == null) {
             exceptionMessage = NO_STACKTRACE;
         }
         try {
-            if(exceptionMessage == null){
-               BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(),
-                       traceInfo.getClassName(), traceInfo.getLineNumber());
-               blameLogin = its.getUserLogin(blamedUserInfo);
+            if (exceptionMessage == null) {
+                BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(),
+                        traceInfo.getClassName(), traceInfo.getLineNumber());
+                blameLogin = its.getUserLogin(blamedUserInfo);
             }
-        }catch (VersionControlServiceException e){
+        } catch (VersionControlServiceException e) {
             exceptionMessage = "Can not do blame for this line!";
-        }catch (IssueTrackerException e){
-            if (e.isCannotGetBlame()){
+        } catch (IssueTrackerException e) {
+            if (e.isCannotGetBlame()) {
                 exceptionMessage = e.getMessage();
-            }else{
+            } else {
                 throw new BlameInspectorException(e);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new BlameInspectorException(e);
         }
-        if(exceptionMessage == null){
-            return new TicketInfo(ticketNumber, blameLogin , ticketURL, its.assigneeUrl(blameLogin));
+        if (exceptionMessage == null) {
+            return new TicketInfo(ticketNumber, blameLogin, ticketURL, its.assigneeUrl(blameLogin));
         } else {
             return new TicketInfo(ticketNumber, exceptionMessage, ticketURL);
         }
     }
 
-    private String standartizeStackTrace(final String text){
+    private String standartizeStackTrace(final String text) {
         String stackTrace = text;
         stackTrace = stackTrace.replace(NBSP + ";", "");
         stackTrace = stackTrace.replace(LEFT_TAG_BRACKET, "<");
@@ -131,7 +136,7 @@ public class BlameInspector {
 
     public TraceInfo parseIssueBody(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
         String stackTrace = issueBody;
-        if (stackTrace.isEmpty() && !stackTrace.contains(AT)){
+        if (stackTrace.isEmpty() && !stackTrace.contains(AT)) {
             throw new TicketCorruptedException(NO_STACKTRACE);
         }
         return getTraceInfo(stackTrace, ticketNumber);
@@ -140,9 +145,9 @@ public class BlameInspector {
 
     public void setAssignee() throws IssueTrackerException {
         if (blameLogin == null) return;
-        try{
+        try {
             its.setIssueAssignee(blameLogin);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new IssueTrackerException(e);
         }
     }
@@ -154,22 +159,22 @@ public class BlameInspector {
         System.setOut(new PrintStream(new ByteArrayOutputStream()));
         System.setErr(new PrintStream(new ByteArrayOutputStream()));
         try {
-             stackTrace = StackTraceParser.parse(issueBody);
-        } catch (NoSuchElementException | RecognitionException e){
-             throw new TicketCorruptedException("StackTrace is corrupted!");
-        }finally {
+            stackTrace = StackTraceParser.parse(issueBody);
+        } catch (NoSuchElementException | RecognitionException e) {
+            throw new TicketCorruptedException("StackTrace is corrupted!");
+        } finally {
             System.setOut(sysOut);
             System.setErr(sysErr);
         }
-        String [] locationInfo;
-        if (stackTrace == null){
+        String[] locationInfo;
+        if (stackTrace == null) {
             throw new TicketCorruptedException(NO_STACKTRACE);
         }
-        for (NFrame currentFrame :  stackTrace.getTrace().getFrames()){
+        for (NFrame currentFrame : stackTrace.getTrace().getFrames()) {
             int size = currentFrame.getLocation().length();
-            if(currentFrame.getLocation().indexOf(":") == -1) continue;
+            if (currentFrame.getLocation().indexOf(":") == -1) continue;
             locationInfo = currentFrame.getLocation().substring(1, size - 1).split(":");
-            if (vcs.containsFile(locationInfo[0])){
+            if (vcs.containsFile(locationInfo[0])) {
                 stTree.addTicket(stackTrace, ticketNumber);
                 return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
                         locationInfo[0], Integer.parseInt(locationInfo[1]));
@@ -180,7 +185,7 @@ public class BlameInspector {
                 int lineNumber;
                 try {
                     lineNumber = Integer.parseInt(locationInfo[1]);
-                }catch (Exception e){
+                } catch (Exception e) {
                     lineNumber = getLine(path, currentFrame.getMethodName());
                 }
                 return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
@@ -189,7 +194,7 @@ public class BlameInspector {
         }
         if (stackTrace.getTrace().getFrames().size() == 0) {
             throw new TicketCorruptedException(NO_STACKTRACE);
-        }else{
+        } else {
             throw new TicketCorruptedException(NO_ENTRY);
         }
     }
@@ -200,17 +205,18 @@ public class BlameInspector {
         int lineNumber = 0;
         try {
             buf = new BufferedReader(new InputStreamReader(new DataInputStream(new FileInputStream(fileName))));
-            while ((line = buf.readLine()) != null)   {
+            while ((line = buf.readLine()) != null) {
                 lineNumber++;
                 if (line.contains(methodName)) {
                     return lineNumber;
                 }
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return -1;
     }
 
-    public void refresh(){
+    public void refresh() {
         blameLogin = null;
         its.refresh();
     }

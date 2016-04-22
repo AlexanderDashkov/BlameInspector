@@ -36,7 +36,6 @@ public class PropertyService {
     private String versionControl;
 
 
-
     public PropertyService(final String projectName, final String configFileName) throws PropertyServiceException {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -45,10 +44,10 @@ public class PropertyService {
             SchemaFactory schemaFactory =
                     SchemaFactory.newInstance(SCHEMA_FACTORY_W3);
 
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(classloader.getResourceAsStream(XML_SCHEMA))}));
+            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+            dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(classloader.getResourceAsStream(XML_SCHEMA))}));
 
-//            dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(XML_SCHEMA)}));
+            //dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(XML_SCHEMA)}));
 
             DocumentBuilder db = dbf.newDocumentBuilder();
             db.setErrorHandler(new SimpleErrorHandler());
@@ -61,7 +60,8 @@ public class PropertyService {
             boolean found = false;
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
-                if (!element.hasAttribute(NAME_ATTR)) throw new PropertyServiceException("No name Attribute in project tag!");
+                if (!element.hasAttribute(NAME_ATTR))
+                    throw new PropertyServiceException("No name Attribute in project tag!");
                 if (element.getAttribute(NAME_ATTR).equals(projectName)) {
                     versionControl = getContentByTag(element, VERSION_CONTROL_TAG);
                     userName = getContentByTag(element, USER_NAME_TAG);
@@ -75,9 +75,9 @@ public class PropertyService {
             if (!found) {
                 throw new PropertyServiceException("Project with such name wasn't found in file.");
             }
-        } catch (PropertyServiceException e){
+        } catch (PropertyServiceException e) {
             throw e;
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new PropertyServiceException(e);
         }
 
@@ -86,28 +86,28 @@ public class PropertyService {
     private String getContentByTag(final Element element, final String tag) throws PropertyServiceException {
         try {
             return element.getElementsByTagName(tag).item(0).getTextContent().trim();
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             throw new PropertyServiceException("No value in field!");
         }
     }
 
-    public String getProjectName(){
+    public String getProjectName() {
         return projectName;
     }
 
-    public String getUserName(){
+    public String getUserName() {
         return userName;
     }
 
-    public String getPassword(){
+    public String getPassword() {
         return password;
     }
 
-    public String getPathToRepo(){
+    public String getPathToRepo() {
         return pathToRepo;
     }
 
-    public String getIssueTracker(){
+    public String getIssueTracker() {
         return issueTracker;
     }
 

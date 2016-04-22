@@ -8,10 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 public class ReportHtml implements IReportPrinter {
 
-   private PrintWriter reportWriter;
+    private PrintWriter reportWriter;
 
 
     private int numberOfAllTickets;
@@ -28,7 +29,7 @@ public class ReportHtml implements IReportPrinter {
     @Override
     public void printTicket(final TicketInfo ticketInfo) {
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
-        if (ticketInfo.isAssigned()){
+        if (ticketInfo.isAssigned()) {
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
                     ticketNumber,
@@ -44,10 +45,19 @@ public class ReportHtml implements IReportPrinter {
         numberOfAllTickets++;
     }
 
+    public void printDuplicates(final ArrayList<ArrayList<Integer>> duplicates) {
+        for (ArrayList<Integer> dupl : duplicates) {
+            for (int ticket : dupl) {
+                reportWriter.write(ticket);
+            }
+            reportWriter.println();
+        }
+    }
+
     @Override
     public void flush() {
-            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_END,
-                    String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned)));
-            reportWriter.close();
+        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_END,
+                String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned)));
+        reportWriter.close();
     }
 }

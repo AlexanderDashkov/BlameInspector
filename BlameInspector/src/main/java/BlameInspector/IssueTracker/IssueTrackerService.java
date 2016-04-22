@@ -24,7 +24,7 @@ public abstract class IssueTrackerService {
     protected static String ASSIGNEE_URL;
 
     protected IssueTrackerService(final String userName, final String password,
-                                  final String repositoryOwner, final String repositoryName){
+                                  final String repositoryOwner, final String repositoryName) {
         this.repositoryOwner = repositoryOwner;
         this.repositoryName = repositoryName;
         this.userName = userName;
@@ -32,7 +32,9 @@ public abstract class IssueTrackerService {
     }
 
     public abstract String getIssueBody(int issueNumber) throws IOException, JSONException;
+
     public abstract void setIssueAssignee(final String blameLogin) throws IOException, JSONException;
+
     public abstract String getUserLogin(final BlamedUserInfo blamedUserInfo)
             throws IOException, JSONException, VersionControlServiceException, IssueTrackerException;
 
@@ -49,7 +51,7 @@ public abstract class IssueTrackerService {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-        if (auth != null){
+        if (auth != null) {
             con.setRequestProperty("Authorization", auth);
         }
         con.setRequestMethod("GET");
@@ -71,7 +73,7 @@ public abstract class IssueTrackerService {
         URL obj = new URL(url);
         HttpURLConnection httpCon = (HttpURLConnection) obj.openConnection();
 
-        if (auth != null){
+        if (auth != null) {
             httpCon.setRequestProperty("Authorization", auth);
         }
         httpCon.setDoOutput(true);

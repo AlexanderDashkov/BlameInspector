@@ -20,7 +20,7 @@ public class GitService extends VersionControlService {
     private Git git;
     private ObjectId commitID;
 
-    public GitService(final String pathToRepo, final String repoURL) throws IOException{
+    public GitService(final String pathToRepo, final String repoURL) throws IOException {
         filesInRepo = new HashMap<>();
         repositoryURL = repoURL;
         this.pathToRepo = pathToRepo;
@@ -33,7 +33,7 @@ public class GitService extends VersionControlService {
         treeWalk.addTree(tree);
         treeWalk.setRecursive(true);
         while (treeWalk.next()) {
-            if (!filesInRepo.containsKey(treeWalk.getNameString())){
+            if (!filesInRepo.containsKey(treeWalk.getNameString())) {
                 filesInRepo.put(treeWalk.getNameString(), new ArrayList<String>());
             }
             filesInRepo.get(treeWalk.getNameString()).add(treeWalk.getPathString());
@@ -50,9 +50,9 @@ public class GitService extends VersionControlService {
             cmd.setStartCommit(commitID);
             cmd.setFilePath(filePath);
             BlameResult blameResult = cmd.call();
-            String blameCommit  = blameResult.getSourceCommit(lineNumber - 1).getName();
+            String blameCommit = blameResult.getSourceCommit(lineNumber - 1).getName();
             return blameCommit;
-        }catch (Exception e){
+        } catch (Exception e) {
             //throw new VersionControlServiceException(e, e.getMessage());
             return null;
         }
@@ -60,7 +60,7 @@ public class GitService extends VersionControlService {
 
     @Override
     public String getBlamedUserEmail(final String fileName, final String className,
-                                     final int lineNumber){
+                                     final int lineNumber) {
         try {
             String filePath = getFilePath(fileName, className);
             BlameCommand cmd = new BlameCommand(git.getRepository());
@@ -73,14 +73,14 @@ public class GitService extends VersionControlService {
                 blamedUserEmail = chunkedEmail[0] + "@" + chunkedEmail[1];
             }
             return blamedUserEmail;
-        }catch (Exception e){
+        } catch (Exception e) {
             //throw new VersionControlServiceException(e, e.getMessage());
             return null;
         }
     }
 
-    public String getBlamedUserName(final String fileName, final String className, final int lineNumber){
-        try{
+    public String getBlamedUserName(final String fileName, final String className, final int lineNumber) {
+        try {
             String filePath = getFilePath(fileName, className);
             BlameCommand cmd = new BlameCommand(git.getRepository());
             cmd.setStartCommit(commitID);
@@ -88,7 +88,7 @@ public class GitService extends VersionControlService {
             BlameResult blameResult = cmd.call();
             String blamedUserName = blameResult.getSourceAuthor(lineNumber - 1).getName();
             return blamedUserName;
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

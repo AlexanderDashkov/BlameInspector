@@ -1,6 +1,6 @@
 package blameinspector;
 
-public class BlameInspectorException extends Exception{
+public class BlameInspectorException extends Exception {
 
 
     public BlameInspectorException(final Exception e) {

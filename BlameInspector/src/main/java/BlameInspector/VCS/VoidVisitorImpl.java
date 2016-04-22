@@ -15,24 +15,23 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
     private String methodName;
 
 
-    public VoidVisitorImpl(final String className, final String methodName){
+    public VoidVisitorImpl(final String className, final String methodName) {
         isClassFound = false;
         isMethodFound = false;
         this.className = className;
         this.methodName = methodName;
     }
 
-    public boolean isFound(){
+    public boolean isFound() {
         return isClassFound && isMethodFound;
     }
 
 
-
     @Override
     public void visit(ClassOrInterfaceDeclaration classOrInterfaceDeclaration, Object o) {
-        if (classOrInterfaceDeclaration.getName().equals(className)){
+        if (classOrInterfaceDeclaration.getName().equals(className)) {
             isClassFound = true;
-            for (BodyDeclaration member : classOrInterfaceDeclaration.getMembers()){
+            for (BodyDeclaration member : classOrInterfaceDeclaration.getMembers()) {
                 member.accept(this, null);
             }
         }
@@ -46,14 +45,14 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
 
     @Override
     public void visit(ConstructorDeclaration constructorDeclaration, Object o) {
-         if (constructorDeclaration.getName().equals(methodName)){
-             isMethodFound = true;
-         }
+        if (constructorDeclaration.getName().equals(methodName)) {
+            isMethodFound = true;
+        }
     }
 
     @Override
     public void visit(MethodDeclaration methodDeclaration, Object o) {
-        if (methodDeclaration.getName().equals(methodName)){
+        if (methodDeclaration.getName().equals(methodName)) {
             isMethodFound = true;
         }
 

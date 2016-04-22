@@ -22,8 +22,7 @@ import java.io.PrintStream;
  * Unit test for simple App.
  */
 public class AppTest
-        extends TestCase
-{
+        extends TestCase {
     private String projectName;
     private String repoOwner;
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -35,8 +34,8 @@ public class AppTest
      *
      * @param testName name of the test case
      */
-    public AppTest( String testName ) throws IOException {
-        super( testName );
+    public AppTest(String testName) throws IOException {
+        super(testName);
         this.projectName = "BlameWhoTest";
         this.repoOwner = "JackSmithJunior";
         sysOut = System.out;
@@ -47,19 +46,18 @@ public class AppTest
     /**
      * @return the suite of tests being tested
      */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    public static Test suite() {
+        return new TestSuite(AppTest.class);
     }
 
 
     public void testSimpleTicket() throws IOException, GitAPIException, JSONException, SVNException, SAXException, ParserConfigurationException, PropertyServiceException {
-        ticketChecker("1","JaneSmithSenior");
+        ticketChecker("1", "JaneSmithSenior");
     }
 
-    public void testCorruptedTicket(){
+    public void testCorruptedTicket() {
         System.setOut(new PrintStream(outContent));
-        Main.main(new String[] {"-p",this.projectName,"-t", "2"});
+        Main.main(new String[]{"-p", this.projectName, "-t", "2"});
         String response = outContent.toString();
         System.setOut(sysOut);
 //        assertEquals(response, "Ticket number: 2 Assignee: Ticket is corrupted!");
@@ -68,6 +66,7 @@ public class AppTest
     public void testPackageTicket() throws JSONException, GitAPIException, IOException, SVNException, SAXException, ParserConfigurationException, PropertyServiceException {
         ticketChecker("3", "JackSmithJunior");
     }
+
     public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, SVNException, SAXException, ParserConfigurationException, PropertyServiceException {
         ticketChecker("4", "JaneSmithSenior");
     }
@@ -85,7 +84,7 @@ public class AppTest
     }
 
     public void testComplexRealTicket() throws RecognitionException, IOException {
-         ticketCheckerOutterProjects("1757", "Guava", "Ticket # 1757. Assigned to cpovirk");
+        ticketCheckerOutterProjects("1757", "Guava", "Ticket # 1757. Assigned to cpovirk");
     }
 
     public void testNoEntryTicket() throws IOException {
@@ -93,7 +92,7 @@ public class AppTest
         ticketCheckerOutterProjects("2234", "Guava", "Ticket # 2234 was not assigned due to: No entry of exception found in current repository.");
     }
 
-    public void testNoEntryTicketCauseOfOptim() throws IOException{
+    public void testNoEntryTicketCauseOfOptim() throws IOException {
         ticketCheckerOutterProjects("1806", "Guava", "Ticket # 1806. Assigned to kevinb@google.com");
     }
 
@@ -106,9 +105,8 @@ public class AppTest
     }
 
 
-
     protected void ticketChecker(String ticketNumber, String blameLogin) throws IOException, GitAPIException, JSONException, SVNException, SAXException, ParserConfigurationException, PropertyServiceException {
-        Main.main(new String[]{"-p", this.projectName,"-t" ,ticketNumber, "-f"});
+        Main.main(new String[]{"-p", this.projectName, "-t", ticketNumber, "-f"});
 
 
         PropertyService propertyService = new PropertyService(projectName, "config.properties");

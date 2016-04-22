@@ -22,7 +22,7 @@ public class ReportConsole implements IReportPrinter {
     @Override
     public void printTicket(final TicketInfo ticketInfo) {
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
-        if (ticketInfo.isAssigned()){
+        if (ticketInfo.isAssigned()) {
             System.out.println(MessageFormat.format(TICKET_INFO,
                     ticketNumber,
                     ticketInfo.getAssignee()));
@@ -36,7 +36,7 @@ public class ReportConsole implements IReportPrinter {
 
     @Override
     public void flush() {
-       // System.out.println(MessageFormat.format(SUMMARY,
-       //         numberOfAllTickets, numberOfAssigned));
+        // System.out.println(MessageFormat.format(SUMMARY,
+        //         numberOfAllTickets, numberOfAssigned));
     }
 }

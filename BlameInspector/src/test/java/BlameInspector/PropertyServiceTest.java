@@ -26,8 +26,8 @@ public class PropertyServiceTest extends TestCase {
     private ArrayList<String> positiveTests;
     private ArrayList<Pair> negativeTests;
 
-    public PropertyServiceTest( String testName ) throws IOException {
-        super( testName );
+    public PropertyServiceTest(String testName) throws IOException {
+        super(testName);
         positiveTests = new ArrayList<>();
         negativeTests = new ArrayList<>();
         positiveTests.add("Basic.xml");
@@ -45,32 +45,32 @@ public class PropertyServiceTest extends TestCase {
         negativeTests.add(new Pair("Corrupted.xml", MISS_CLOSE_TAG));
     }
 
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    public static Test suite() {
+        return new TestSuite(AppTest.class);
     }
 
     public void testPositive() throws PropertyServiceException {
-        for (String fileName : positiveTests){
+        for (String fileName : positiveTests) {
             PropertyService propertyService = new PropertyService("BlameWhoTest", POSITIVE_PATH + fileName);
         }
     }
 
     public void testNegative() throws PropertyServiceException {
-        for (Pair test : negativeTests){
+        for (Pair test : negativeTests) {
             String message = null;
             try {
                 PropertyService propertyService = new PropertyService("BlameWhoTest", NEGATIVE_PATH + test.first);
-            }catch (PropertyServiceException e){
+            } catch (PropertyServiceException e) {
                 message = e.getMessage();
             }
             assertTrue(message.contains(test.second));
         }
     }
 
-    private class Pair{
+    private class Pair {
         private String first, second;
-        private Pair(final String a, final String b){
+
+        private Pair(final String a, final String b) {
             first = a;
             second = b;
         }

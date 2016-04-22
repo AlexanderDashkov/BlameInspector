@@ -36,21 +36,21 @@ public class SubversionService extends VersionControlService {
         list.setRevision(revision);
         list.addTarget(SvnTarget.fromFile(workingCopyLoc));
         list.setReceiver(new ISvnObjectReceiver<SVNDirEntry>() {
-            public void receive(final SvnTarget target, final SVNDirEntry object) throws SVNException{
+            public void receive(final SvnTarget target, final SVNDirEntry object) throws SVNException {
                 String dirName = object.getName();
                 try {
                     if (!dirName.equals("") && !dirName.equals("tags")) {
                         Files.walk(Paths.get(pathToRepo + "\\" + object.getRelativePath())).forEach(filePath -> {
                             if (Files.isRegularFile(filePath)) {
                                 File file = new File(String.valueOf(filePath));
-                                if (!filesInRepo.containsKey(file.getName())){
+                                if (!filesInRepo.containsKey(file.getName())) {
                                     filesInRepo.put(file.getName(), new ArrayList<String>());
                                 }
                                 filesInRepo.get(file.getName()).add(String.valueOf(filePath));
                             }
                         });
                     }
-                }catch (NoSuchFileException e){
+                } catch (NoSuchFileException e) {
                     return;
                 } catch (IOException e) {
                     nestedException = e;
@@ -59,7 +59,7 @@ public class SubversionService extends VersionControlService {
             }
         });
         list.run();
-        if (nestedException != null){
+        if (nestedException != null) {
             throw new VersionControlServiceException(nestedException, "Something wrong with svn dir!");
         }
     }
@@ -84,7 +84,7 @@ public class SubversionService extends VersionControlService {
                                      final int lineNumber) {
         try {
             return doBlame(fileName, className, lineNumber).getAuthor();
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
 
@@ -93,7 +93,7 @@ public class SubversionService extends VersionControlService {
     @Override
     public String getBlamedUserName(String fileName, String className, int lineNumber) {
         try {
-             return doBlame(fileName, className, lineNumber).getAuthor();
+            return doBlame(fileName, className, lineNumber).getAuthor();
         } catch (Exception e) {
             return null;
         }
@@ -102,8 +102,8 @@ public class SubversionService extends VersionControlService {
     @Override
     public String getBlamedUserCommit(final String fileName, final String className, final int lineNumber) {
         try {
-            return doBlame(fileName,className, lineNumber).getRevision();
-        } catch (Exception e){
+            return doBlame(fileName, className, lineNumber).getRevision();
+        } catch (Exception e) {
             return null;
         }
     }
@@ -173,7 +173,9 @@ public class SubversionService extends VersionControlService {
         public String getAuthor() {
             return author;
         }
-        public void handleEOF() {}
+
+        public void handleEOF() {
+        }
 
         public String getRevision() {
             return revision;

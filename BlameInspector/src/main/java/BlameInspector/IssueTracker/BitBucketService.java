@@ -48,7 +48,7 @@ public class BitBucketService extends IssueTrackerService {
                 this.repositoryName.toLowerCase(),
                 this.issueNumber);
         String blameLogin = "\"" + Login + "\"";
-        String data = "{\"responsible\":" + blameLogin  + " }";
+        String data = "{\"responsible\":" + blameLogin + " }";
         putRequest(url, data, basicAuth);
     }
 
@@ -67,8 +67,8 @@ public class BitBucketService extends IssueTrackerService {
     public String getUserLogin(final BlamedUserInfo blamedUserInfo) throws IOException, JSONException,
             VersionControlServiceException, IssueTrackerException {
         String blameEmail = null;
-        if (blamedUserInfo.getUserEmail() != null){
-           blameEmail = blamedUserInfo.getUserEmail();
+        if (blamedUserInfo.getUserEmail() != null) {
+            blameEmail = blamedUserInfo.getUserEmail();
         } else {
             throw new IssueTrackerException("not enough info from vcs!");
         }

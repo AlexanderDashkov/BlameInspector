@@ -19,31 +19,33 @@ public abstract class VersionControlService {
     public abstract String getBlamedUserCommit(final String fileName,
                                                final String className,
                                                final int lineNumber);
+
     public abstract String getBlamedUserEmail(final String fileName,
                                               final String className,
                                               final int lineNumber);
+
     public abstract String getBlamedUserName(final String fileName,
                                              final String className,
                                              final int lineNumber);
 
-    public String getRepositoryOwner(){
-        String []urlParts = repositoryURL.split("/");
+    public String getRepositoryOwner() {
+        String[] urlParts = repositoryURL.split("/");
         return repositoryURL.split("/")[urlParts.length - 2];
     }
 
-    public boolean containsFile(final String fileName){
+    public boolean containsFile(final String fileName) {
         return filesInRepo.containsKey(fileName);
     }
 
-    public String containsCode(final String className, final String methName){
+    public String containsCode(final String className, final String methName) {
         try {
             String[] clsNameArr = className.split("\\.");
             String clsName = clsNameArr[clsNameArr.length - 1];
-            if (clsName.contains("$")){
+            if (clsName.contains("$")) {
                 clsName = clsName.split("\\$")[1];
             }
             String methodName = methName;
-            if (methodName.equals("<init>") || methodName.equals("<clinit>")){
+            if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
                 methodName = clsName;
             }
             for (String path : getFilesByFolder(className)) {
@@ -52,35 +54,35 @@ public abstract class VersionControlService {
                 VoidVisitorImpl visitor = new VoidVisitorImpl(clsName, methodName);
                 compilationUnit.accept(visitor, null);
                 if (visitor.isFound()) {
-                   return path;
+                    return path;
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
         }
         return null;
     }
 
-    protected ArrayList<String> getFilesByFolder(final String className){
-       String [] folders = className.split("\\.");
-       ArrayList<String> result = new ArrayList<>();
-       String[] projectName = pathToRepo.split("\\\\");
-       String currentPath = pathToRepo + "\\" + projectName[projectName.length - 1]  +   "\\src\\";
-       outterloop:
-       for( int i = 0 ; i < folders.length - 1; i++){
-           File dir = new File(currentPath);
-           for (File file : dir.listFiles()){
-              if (file.getName().equals(folders[i])){
-                 currentPath += "\\" + folders[i];
-                 continue outterloop;
-              }
-           }
-       }
-       File dir = new File(currentPath);
-       for (File file : dir.listFiles()){
-           if (file.getName().contains(".java")) {
-               result.add(file.getPath());
-           }
-       }
+    protected ArrayList<String> getFilesByFolder(final String className) {
+        String[] folders = className.split("\\.");
+        ArrayList<String> result = new ArrayList<>();
+        String[] projectName = pathToRepo.split("\\\\");
+        String currentPath = pathToRepo + "\\" + projectName[projectName.length - 1] + "\\src\\";
+        outterloop:
+        for (int i = 0; i < folders.length - 1; i++) {
+            File dir = new File(currentPath);
+            for (File file : dir.listFiles()) {
+                if (file.getName().equals(folders[i])) {
+                    currentPath += "\\" + folders[i];
+                    continue outterloop;
+                }
+            }
+        }
+        File dir = new File(currentPath);
+        for (File file : dir.listFiles()) {
+            if (file.getName().contains(".java")) {
+                result.add(file.getPath());
+            }
+        }
         return result;
     }
 
@@ -90,15 +92,15 @@ public abstract class VersionControlService {
             return correctedPath;
         }
         String pathPart = className.split("$")[0].replace(".", "\\");
-        for (String path : filesInRepo.get(fileName)){
-            if (path.contains(pathPart + fileName)){
+        for (String path : filesInRepo.get(fileName)) {
+            if (path.contains(pathPart + fileName)) {
                 return path;
             }
         }
         return filesInRepo.get(fileName).get(0);
     }
 
-    public BlamedUserInfo getBlamedUserInfo(final String fileName, final String className, final int lineNumber){
+    public BlamedUserInfo getBlamedUserInfo(final String fileName, final String className, final int lineNumber) {
         return new BlamedUserInfo(getBlamedUserName(fileName, className, lineNumber),
                 getBlamedUserEmail(fileName, className, lineNumber),
                 getBlamedUserCommit(fileName, className, lineNumber));
