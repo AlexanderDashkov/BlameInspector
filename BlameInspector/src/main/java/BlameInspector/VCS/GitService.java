@@ -23,6 +23,7 @@ public class GitService extends VersionControlService {
     public GitService(final String pathToRepo, final String repoURL) throws IOException{
         filesInRepo = new HashMap<>();
         repositoryURL = repoURL;
+        this.pathToRepo = pathToRepo;
         git = Git.open(new File(pathToRepo + "/.git"));
         commitID = git.getRepository().resolve("HEAD");
         RevWalk walk = new RevWalk(git.getRepository());

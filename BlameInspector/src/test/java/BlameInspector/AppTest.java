@@ -94,7 +94,7 @@ public class AppTest
     }
 
     public void testNoEntryTicketCauseOfOptim() throws IOException{
-        ticketCheckerOutterProjects("1806", "Guava", "Ticket # 1806 was not assigned due to: No entry of exception found in current repository.");
+        ticketCheckerOutterProjects("1806", "Guava", "Ticket # 1806. Assigned to kevinb@google.com");
     }
 
     protected void ticketCheckerOutterProjects(String ticketNumber, String projectName, String result) throws IOException {

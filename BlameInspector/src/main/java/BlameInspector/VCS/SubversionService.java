@@ -27,6 +27,7 @@ public class SubversionService extends VersionControlService {
                              final String repoURL) throws SVNException, VersionControlServiceException {
         filesInRepo = new HashMap<>();
         this.repositoryURL = repoURL;
+        this.pathToRepo = pathToRepo;
         File workingCopyLoc = new File(pathToRepo);
         SVNRevision revision = SVNRevision.HEAD;
         SvnOperationFactory operationFactory = new SvnOperationFactory();

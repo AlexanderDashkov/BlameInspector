@@ -109,9 +109,14 @@ public class YouTrackService extends IssueTrackerService {
     @Override
     public String getUserLogin(final BlamedUserInfo blamedUserInfo) throws IOException, JSONException, VersionControlServiceException, IssueTrackerException {
         try{
-            return blamedUserInfo.getUserEmail();
+            if (blamedUserInfo.getUserEmail() != null) {
+                return blamedUserInfo.getUserEmail();
+            } else if (blamedUserInfo.getUserName() != null){
+                return blamedUserInfo.getUserName();
+            }
+            throw new Exception();
         }catch (Exception e){
-            throw new IssueTrackerException(e, "Can not get blame!");
+            throw new IssueTrackerException(true, "Can not get blame!");
         }
     }
 

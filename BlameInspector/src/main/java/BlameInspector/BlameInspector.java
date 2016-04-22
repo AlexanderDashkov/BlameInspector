@@ -10,8 +10,7 @@ import com.jmolly.stacktraceparser.NStackTrace;
 import com.jmolly.stacktraceparser.StackTraceParser;
 import org.antlr.runtime.RecognitionException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.NoSuchElementException;
 
 public class BlameInspector {
@@ -93,7 +92,8 @@ public class BlameInspector {
         }
         try {
             if(exceptionMessage == null){
-               BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(), traceInfo.getClassName(), traceInfo.getLineNumber());
+               BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(),
+                       traceInfo.getClassName(), traceInfo.getLineNumber());
                blameLogin = its.getUserLogin(blamedUserInfo);
             }
         }catch (VersionControlServiceException e){
@@ -174,12 +174,40 @@ public class BlameInspector {
                 return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
                         locationInfo[0], Integer.parseInt(locationInfo[1]));
             }
+            String path = vcs.containsCode(currentFrame.getClassName(), currentFrame.getMethodName());
+            if (path != null) {
+                stTree.addTicket(stackTrace, ticketNumber);
+                int lineNumber;
+                try {
+                    lineNumber = Integer.parseInt(locationInfo[1]);
+                }catch (Exception e){
+                    lineNumber = getLine(path, currentFrame.getMethodName());
+                }
+                return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
+                        path, lineNumber);
+            }
         }
         if (stackTrace.getTrace().getFrames().size() == 0) {
             throw new TicketCorruptedException(NO_STACKTRACE);
         }else{
             throw new TicketCorruptedException(NO_ENTRY);
         }
+    }
+
+    private static int getLine(final String fileName, final String methodName) {
+        BufferedReader buf = null;
+        String line;
+        int lineNumber = 0;
+        try {
+            buf = new BufferedReader(new InputStreamReader(new DataInputStream(new FileInputStream(fileName))));
+            while ((line = buf.readLine()) != null)   {
+                lineNumber++;
+                if (line.contains(methodName)) {
+                    return lineNumber;
+                }
+            }
+        } catch (Exception e) {}
+        return -1;
     }
 
     public void refresh(){

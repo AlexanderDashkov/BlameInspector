@@ -62,6 +62,10 @@ public class StackTraceTree {
         return true;
     }
 
+    public ArrayList<Integer> getDuplicates(){
+        return null;
+    }
+
     public void storeTree(){}
     public void readTree(){}
 
