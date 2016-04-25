@@ -2,8 +2,10 @@ package blameinspector.reportprinters;
 
 import blameinspector.TicketInfo;
 
+import java.util.ArrayList;
+
 public interface IReportPrinter {
-    void printTicket(final TicketInfo ticketInfo);
+    void printTickets(final ArrayList<TicketInfo> results);
 
     void flush();
 }

@@ -31,9 +31,12 @@ public class BlameInspector {
     private static IssueTrackerService its;
     private static int numberOfTickets;
 
+    private static ArrayList<TicketInfo> results;
+
     private String blameLogin;
 
     public BlameInspector(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
+        results = new ArrayList<>();
         stTree = new StackTraceTree(propertyService.getProjectName());
         vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
                 propertyService.getPathToRepo(),
@@ -50,7 +53,11 @@ public class BlameInspector {
         return stTree.getDuplicates();
     }
 
-    public TicketInfo handleTicket(final int ticketNumber) throws TicketCorruptedException,
+    public ArrayList<TicketInfo> getResults(){
+        return results;
+    }
+
+    public void handleTicket(final int ticketNumber) throws TicketCorruptedException,
             BlameInspectorException, VersionControlServiceException {
         TraceInfo traceInfo = null;
         String issueBody = null;
@@ -113,9 +120,9 @@ public class BlameInspector {
             throw new BlameInspectorException(e);
         }
         if (exceptionMessage == null) {
-            return new TicketInfo(ticketNumber, blameLogin, ticketURL, its.assigneeUrl(blameLogin));
+            results.add(new TicketInfo(ticketNumber, blameLogin, ticketURL, its.assigneeUrl(blameLogin)));
         } else {
-            return new TicketInfo(ticketNumber, exceptionMessage, ticketURL);
+            results.add(new TicketInfo(ticketNumber, exceptionMessage, ticketURL));
         }
     }
 

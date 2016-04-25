@@ -65,7 +65,7 @@ public class Main {
         }
         for (int i = startBound; i <= endBound; i++) {
             try {
-                evaluateTicket(i);
+                blameInspector.handleTicket(i);
                 if (!isInteractive) {
                     if (isSettingAssignee) blameInspector.setAssignee();
                 } else {
@@ -81,9 +81,7 @@ public class Main {
             }
         }
         for (IReportPrinter reportPrinter : reportPrinters) {
-            //if (reportPrinter instanceof ReportHtml){
-            //    ((ReportHtml) reportPrinter).printDuplicates(blameInspector.getDuplicates());
-            //}
+            reportPrinter.printTickets(blameInspector.getResults());
             reportPrinter.flush();
         }
     }
@@ -200,12 +198,6 @@ public class Main {
         }
     }
 
-    public static void evaluateTicket(final int ticketNumber) throws TicketCorruptedException, BlameInspectorException, VersionControlServiceException {
-        TicketInfo ticketInfo = blameInspector.handleTicket(ticketNumber);
-        for (IReportPrinter reportPrinter : reportPrinters) {
-            reportPrinter.printTicket(ticketInfo);
-        }
-    }
 
 
     public static void printExceptionData(final Exception e) {

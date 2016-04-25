@@ -27,7 +27,13 @@ public class ReportHtml implements IReportPrinter {
     }
 
     @Override
-    public void printTicket(final TicketInfo ticketInfo) {
+    public void printTickets(ArrayList<TicketInfo> results){
+        for (TicketInfo ticketInfo : results){
+            printTicket(ticketInfo);
+        }
+    }
+
+    private void printTicket(final TicketInfo ticketInfo) {
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
         if (ticketInfo.isAssigned()) {
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,

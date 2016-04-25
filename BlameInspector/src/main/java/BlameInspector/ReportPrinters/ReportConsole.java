@@ -4,6 +4,7 @@ package blameinspector.reportprinters;
 import blameinspector.TicketInfo;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 public class ReportConsole implements IReportPrinter {
 
@@ -20,7 +21,13 @@ public class ReportConsole implements IReportPrinter {
     }
 
     @Override
-    public void printTicket(final TicketInfo ticketInfo) {
+    public void printTickets(ArrayList<TicketInfo> results) {
+        for (TicketInfo ticketInfo : results){
+            printTicket(ticketInfo);
+        }
+    }
+
+    private void printTicket(final TicketInfo ticketInfo) {
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
         if (ticketInfo.isAssigned()) {
             System.out.println(MessageFormat.format(TICKET_INFO,
