@@ -41,7 +41,8 @@ public interface IHtmlStructureStorage {
             "  <tr>\n" +
             "    <th>Ticket Number</th>\n" +
             "    <th>Assignee </th>    \n" +
-            "    <th>Error, if occured </th>\n" +
+            "    <th>Errors, if occured </th>\n" +
+            "    <th>Duplicates, if exists </th>\n" +
             "  </tr>\n";
     public final String HTML_END =
             "</table>\n" +
@@ -52,8 +53,10 @@ public interface IHtmlStructureStorage {
 
     public final String TABLE_ELEM = "  <tr>\n" +
             "    <td><a href=\"{0}\">Ticket # {1}</a></th>\n" +
-            "    <td><a href=\"{2}\">{3}</a></th>    \n" +
+            "    <td>{2}</th> \n" +
+            "    <td>{3}</th>\n" +
             "    <td>{4}</th>\n" +
             "  </tr>\n";
     ;
+    public final String HREF_ELEM = "<a href=\"{0}\">{1}</a>";
 }

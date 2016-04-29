@@ -15,11 +15,11 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
     private String className;
     private ArrayList<String> methods;
 
-    public VoidVisitorImpl(){
+    public VoidVisitorImpl() {
         methods = new ArrayList<>();
     }
 
-    public ArrayList<String> getMethods(){
+    public ArrayList<String> getMethods() {
         return methods;
     }
 
@@ -40,12 +40,12 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
 
     @Override
     public void visit(ConstructorDeclaration constructorDeclaration, Object o) {
-        methods.add(className + DOT +constructorDeclaration.getName());
+        methods.add(className + DOT + constructorDeclaration.getName());
     }
 
     @Override
     public void visit(MethodDeclaration methodDeclaration, Object o) {
-       methods.add(className + DOT + methodDeclaration.getName());
+        methods.add(className + DOT + methodDeclaration.getName());
     }
 
 

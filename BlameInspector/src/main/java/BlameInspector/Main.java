@@ -173,7 +173,7 @@ public class Main {
             isDebug = true;
         }
         parseProjectSources = false;
-        if (cmdLine.hasOption(PARSE_PROJECT_IDENT)){
+        if (cmdLine.hasOption(PARSE_PROJECT_IDENT)) {
             parseProjectSources = true;
         }
         projectName = cmdLine.getOptionValue(PROJECT_IDENT);
@@ -205,7 +205,6 @@ public class Main {
             reportPrinters.add(new ReportHtml());
         }
     }
-
 
 
     public static void printExceptionData(final Exception e) {

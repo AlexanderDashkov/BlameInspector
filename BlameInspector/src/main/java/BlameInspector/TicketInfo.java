@@ -1,13 +1,16 @@
 package blameinspector;
 
 
+import java.util.ArrayList;
+
 public class TicketInfo {
 
     private boolean assigned;
     private int ticketNumber;
-    private String assignee;
+    private ArrayList<String> assignee;
 
-    private String assigneeUrl;
+    private ArrayList<String> assigneeUrl;
+    private ArrayList<Integer> dupplicates;
     private String ticketUrl;
 
     private String errorType;
@@ -18,10 +21,12 @@ public class TicketInfo {
         this.ticketUrl = ticketUrl;
     }
 
-    public TicketInfo(final int ticketNumber, final String assignee, final String ticketUrl, final String assigneeUrl) {
+    public TicketInfo(final int ticketNumber, final ArrayList<String> assignee, final String ticketUrl,
+                      final ArrayList<String> assigneeUrl, ArrayList<Integer> dupl) {
         init(ticketNumber, true, ticketUrl);
         this.assignee = assignee;
         this.assigneeUrl = assigneeUrl;
+        this.dupplicates = dupl;
     }
 
     public TicketInfo(final int ticketNumber, final String e, final String ticketUrl) {
@@ -37,7 +42,7 @@ public class TicketInfo {
         return ticketNumber;
     }
 
-    public String getAssignee() {
+    public ArrayList<String> getAssignee() {
         return assignee;
     }
 
@@ -45,11 +50,15 @@ public class TicketInfo {
         return errorType;
     }
 
-    public String getAssigneeUrl() {
+    public ArrayList<String> getAssigneeUrl() {
         return assigneeUrl;
     }
 
     public String getTicketUrl() {
         return ticketUrl;
+    }
+
+    public ArrayList<Integer> getDupplicates() {
+        return dupplicates;
     }
 }

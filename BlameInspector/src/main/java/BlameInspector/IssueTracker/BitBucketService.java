@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 
 public class BitBucketService extends IssueTrackerService {
@@ -54,7 +55,7 @@ public class BitBucketService extends IssueTrackerService {
 
 
     @Override
-    public String assigneeUrl(final String userName) {
+    public ArrayList<String> assigneeUrl(final ArrayList<String> userNames) {
         return null;
     }
 

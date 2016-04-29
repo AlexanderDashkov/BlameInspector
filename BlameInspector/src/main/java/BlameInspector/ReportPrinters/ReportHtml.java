@@ -27,8 +27,8 @@ public class ReportHtml implements IReportPrinter {
     }
 
     @Override
-    public void printTickets(ArrayList<TicketInfo> results){
-        for (TicketInfo ticketInfo : results){
+    public void printTickets(ArrayList<TicketInfo> results) {
+        for (TicketInfo ticketInfo : results) {
             printTicket(ticketInfo);
         }
     }
@@ -36,12 +36,24 @@ public class ReportHtml implements IReportPrinter {
     private void printTicket(final TicketInfo ticketInfo) {
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
         if (ticketInfo.isAssigned()) {
+            String assignees = "";
+            String link;
+            for (int i = 0; i < ticketInfo.getAssignee().size(); i++) {
+                link = "";
+                try {
+                    link = ticketInfo.getAssigneeUrl().get(i);
+                } catch (IndexOutOfBoundsException e) {
+                }
+                assignees += MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
+                        ticketInfo.getAssignee().get(i));
+                assignees += " ";
+            }
+            String dup = ticketInfo.getDupplicates().size() == 1 ? "No duplicates" : ticketInfo.getDupplicates().toString();
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
                     ticketNumber,
-                    ticketInfo.getAssigneeUrl(),
-                    ticketInfo.getAssignee(),
-                    "-"));
+                    assignees,
+                    "-", dup));
             numberOfAssigned++;
         } else {
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,

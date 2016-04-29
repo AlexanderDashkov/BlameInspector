@@ -89,21 +89,21 @@ public abstract class VersionControlService {
     }
 
     protected void indexMethods(final String filePath) throws VersionControlServiceException {
-        if (!filePath.contains(".java")){
+        if (!filePath.contains(".java")) {
             return;
         }
         try {
-            File file = new File(pathToRepo + "\\" +filePath.replace("/", "\\"));
+            File file = new File(pathToRepo + "\\" + filePath.replace("/", "\\"));
             CompilationUnit compilationUnit = JavaParser.parse(file);
             VoidVisitorImpl visitor = new VoidVisitorImpl();
             compilationUnit.accept(visitor, null);
-            String classPackage = compilationUnit.getPackage()!= null ?
-                    compilationUnit.getPackage().getName().toString() : "" ;
+            String classPackage = compilationUnit.getPackage() != null ?
+                    compilationUnit.getPackage().getName().toString() : "";
             for (String methodName : visitor.getMethods()) {
                 methodLocation.put(classPackage + "." + methodName,
                         filePath);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new VersionControlServiceException(e);
         }
     }
@@ -113,7 +113,7 @@ public abstract class VersionControlService {
             String correctedPath = fileName.replace(pathToRepo, "").substring(1).replace("\\", "/");
             return correctedPath;
         }
-        if (fileName.contains("/")){
+        if (fileName.contains("/")) {
             return fileName;
         }
         String pathPart = className.split("$")[0].replace(".", "\\");

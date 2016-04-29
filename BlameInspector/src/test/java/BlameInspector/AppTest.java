@@ -96,7 +96,7 @@ public class AppTest
         //ticketCheckerOutterProjects("1806", "Guava", "Ticket # 1806. Assigned to kevinb@google.com");
     }
 
-    public void testOptim(){
+    public void testOptim() {
         ByteArrayOutputStream myOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(myOut));
         Main.main(new String[]{"-p", "BlameWhoTest", "-t", "8", "-d"});

@@ -22,7 +22,7 @@ public class ReportConsole implements IReportPrinter {
 
     @Override
     public void printTickets(ArrayList<TicketInfo> results) {
-        for (TicketInfo ticketInfo : results){
+        for (TicketInfo ticketInfo : results) {
             printTicket(ticketInfo);
         }
     }
@@ -32,7 +32,7 @@ public class ReportConsole implements IReportPrinter {
         if (ticketInfo.isAssigned()) {
             System.out.println(MessageFormat.format(TICKET_INFO,
                     ticketNumber,
-                    ticketInfo.getAssignee()));
+                    ticketInfo.getAssignee().get(0)));
             numberOfAssigned++;
         } else {
             System.out.println(MessageFormat.format(TICKET_FAILED,

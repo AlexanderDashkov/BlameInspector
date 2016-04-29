@@ -29,23 +29,25 @@ public class StackTraceTree {
     * @return true, if exactly such StackTrace hasn't mentioned yet,
     * false otherwise
     */
-    public boolean addTicket(final NStackTrace stackTrace, final int ticketNumber) {
+    public ArrayList<Integer> addTicket(final NStackTrace stackTrace, final int ticketNumber) {
         List<NFrame> frames = stackTrace.getTrace().getFrames();
         Node currentNode = root;
+        Node prevNode = root;
         for (int i = 0; i < frames.size(); i++) {
-            Node prevNode = currentNode;
+            prevNode = currentNode;
             NFrame frame = frames.get(i);
+            if (i + 1 == frames.size()) {
+                currentNode.addDuplicate(ticketNumber);
+                size++;
+                return currentNode.getDuplicates();
+            }
             if (currentNode.isFinal) {
                 if (i + 1 < frames.size()) {
                     currentNode.addChild(new Node(frame));
                 } else {
                     currentNode.addDuplicate(ticketNumber);
                     size++;
-                    if (currentNode.getDuplicates().size() == 1){
-                        return true;
-                    }else {
-                        return false;
-                    }
+                    return currentNode.getDuplicates();
                 }
             }
             for (Node child : currentNode.getChildren()) {
@@ -59,7 +61,7 @@ public class StackTraceTree {
                 currentNode = currentNode.children.get(currentNode.children.size() - 1);
             }
         }
-        return true;
+        return prevNode.getDuplicates();
     }
 
     public ArrayList<ArrayList<Integer>> getDuplicates() {
@@ -124,6 +126,7 @@ public class StackTraceTree {
         }
 
         public boolean isSimilar(final NFrame ticketFrame) {
+            if (ticketFrame == null && frame == null) return true;
             boolean isMethodSimilar = ticketFrame.getMethodName().equals(frame.getMethodName());
             boolean isClassSimilar = ticketFrame.getClassName().equals(frame.getClassName());
             boolean isLocSimilar = ticketFrame.getLocation().equals(frame.getLocation());

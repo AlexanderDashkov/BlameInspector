@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 public abstract class IssueTrackerService {
 
@@ -38,8 +39,12 @@ public abstract class IssueTrackerService {
     public abstract String getUserLogin(final BlamedUserInfo blamedUserInfo)
             throws IOException, JSONException, VersionControlServiceException, IssueTrackerException;
 
-    public String assigneeUrl(String userName) {
-        return MessageFormat.format(ASSIGNEE_URL, userName);
+    public ArrayList<String> assigneeUrl(ArrayList<String> userNames) {
+        ArrayList<String> assigneeUrl = new ArrayList<>();
+        for (String assignee : userNames) {
+            assigneeUrl.add(MessageFormat.format(ASSIGNEE_URL, assignee));
+        }
+        return assigneeUrl;
     }
 
     public String ticketUrl(int issueNumber) {

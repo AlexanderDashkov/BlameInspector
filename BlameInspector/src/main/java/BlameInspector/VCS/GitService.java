@@ -44,9 +44,9 @@ public class GitService extends VersionControlService {
                     indexMethods(treeWalk.getPathString());
                 }
             }
-        }catch (VersionControlServiceException e){
+        } catch (VersionControlServiceException e) {
             throw e;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new VersionControlServiceException(e);
         }
     }

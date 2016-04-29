@@ -30,10 +30,12 @@ public class BlameInspector {
     private static VersionControlService vcs;
     private static IssueTrackerService its;
     private static int numberOfTickets;
+    private ArrayList<String> blameLogin;
+    private static ArrayList<Integer> duples;
 
     private static ArrayList<TicketInfo> results;
 
-    private String blameLogin;
+
     private static boolean isParsingCode;
 
     public BlameInspector(final PropertyService propertyService, boolean parseProjectSources) throws VersionControlServiceException, IssueTrackerException {
@@ -55,16 +57,17 @@ public class BlameInspector {
         return stTree.getDuplicates();
     }
 
-    public ArrayList<TicketInfo> getResults(){
+    public ArrayList<TicketInfo> getResults() {
         return results;
     }
 
     public void handleTicket(final int ticketNumber) throws TicketCorruptedException,
             BlameInspectorException, VersionControlServiceException {
-        TraceInfo traceInfo = null;
+        ArrayList<TraceInfo> traces = new ArrayList<>();
         String issueBody = null;
         String ticketURL = its.ticketUrl(ticketNumber);
         String exceptionMessage = null;
+        blameLogin = new ArrayList<>();
         try {
             issueBody = its.getIssueBody(ticketNumber);
         } catch (Exception e) {
@@ -73,13 +76,13 @@ public class BlameInspector {
         if (issueBody != null) {
             String body = standartizeStackTrace(issueBody);
             outerwhile:
-            while (traceInfo == null || traceInfo.getClassName() == null && body.length() != 0) {
+            while (traces.size() == 0 || traces.get(0) == null || traces.get(0).getClassName() == null && body.length() != 0) {
                 issueBody = body;
                 issueBody = correctStackTrace(issueBody);
                 body = issueBody;
-                while (traceInfo == null || traceInfo.getClassName() == null && issueBody.length() != 0) {
+                while (traces.size() == 0 || traces.get(0) == null || traces.get(0).getClassName() == null && issueBody.length() != 0) {
                     try {
-                        traceInfo = parseIssueBody(issueBody, ticketNumber);
+                        traces = parseIssueBody(issueBody, ticketNumber);
                         if (issueBody.length() <= 1) break;
                         issueBody = issueBody.substring(1);
                     } catch (TicketCorruptedException e) {
@@ -101,14 +104,16 @@ public class BlameInspector {
                 }
             }
         }
-        if (traceInfo == null && exceptionMessage == null) {
+        if ((traces.size() == 0 || traces.get(0) == null) && exceptionMessage == null) {
             exceptionMessage = NO_STACKTRACE;
         }
         try {
             if (exceptionMessage == null) {
-                BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(),
-                        traceInfo.getClassName(), traceInfo.getLineNumber());
-                blameLogin = its.getUserLogin(blamedUserInfo);
+                for (TraceInfo traceInfo : traces) {
+                    BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(),
+                            traceInfo.getClassName(), traceInfo.getLineNumber());
+                    blameLogin.add(its.getUserLogin(blamedUserInfo));
+                }
             }
         } catch (VersionControlServiceException e) {
             exceptionMessage = "Can not do blame for this line!";
@@ -122,7 +127,7 @@ public class BlameInspector {
             throw new BlameInspectorException(e);
         }
         if (exceptionMessage == null) {
-            results.add(new TicketInfo(ticketNumber, blameLogin, ticketURL, its.assigneeUrl(blameLogin)));
+            results.add(new TicketInfo(ticketNumber, blameLogin, ticketURL, its.assigneeUrl(blameLogin), duples));
         } else {
             results.add(new TicketInfo(ticketNumber, exceptionMessage, ticketURL));
         }
@@ -143,7 +148,7 @@ public class BlameInspector {
         return stackTrace;
     }
 
-    public TraceInfo parseIssueBody(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
+    public ArrayList<TraceInfo> parseIssueBody(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
         String stackTrace = issueBody;
         if (stackTrace.isEmpty() && !stackTrace.contains(AT)) {
             throw new TicketCorruptedException(NO_STACKTRACE);
@@ -155,13 +160,13 @@ public class BlameInspector {
     public void setAssignee() throws IssueTrackerException {
         if (blameLogin == null) return;
         try {
-            its.setIssueAssignee(blameLogin);
+            its.setIssueAssignee(blameLogin.get(0));
         } catch (Exception e) {
             throw new IssueTrackerException(e);
         }
     }
 
-    public static TraceInfo getTraceInfo(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
+    public static ArrayList<TraceInfo> getTraceInfo(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
         NStackTrace stackTrace;
         PrintStream sysOut = System.out;
         PrintStream sysErr = System.err;
@@ -179,30 +184,37 @@ public class BlameInspector {
         if (stackTrace == null) {
             throw new TicketCorruptedException(NO_STACKTRACE);
         }
+        ArrayList<TraceInfo> traces = new ArrayList<>();
         for (NFrame currentFrame : stackTrace.getTrace().getFrames()) {
             int size = currentFrame.getLocation().length();
             if (currentFrame.getLocation().indexOf(":") == -1) continue;
             locationInfo = currentFrame.getLocation().substring(1, size - 1).split(":");
             if (vcs.containsFile(locationInfo[0])) {
-                stTree.addTicket(stackTrace, ticketNumber);
-                return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
-                        locationInfo[0], Integer.parseInt(locationInfo[1]));
+                traces.add(new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
+                        locationInfo[0], Integer.parseInt(locationInfo[1])));
+                continue;
             }
-            if (!isParsingCode){
+            if (!isParsingCode) {
                 continue;
             }
             String path = vcs.containsMethod(currentFrame.getClassName() + "." + currentFrame.getMethodName());
             if (path != null) {
-                stTree.addTicket(stackTrace, ticketNumber);
                 int lineNumber;
                 try {
                     lineNumber = Integer.parseInt(locationInfo[1]);
                 } catch (Exception e) {
                     lineNumber = getLine(path, currentFrame.getMethodName());
                 }
-                return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
-                        path, lineNumber);
+                traces.add(new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
+                        path, lineNumber));
+                continue;
             }
+        }
+        if (traces.size() > 0) {
+            if (stackTrace.getTrace().getFrames().size() > 0) {
+                duples = stTree.addTicket(stackTrace, ticketNumber);
+            }
+            return traces;
         }
         if (stackTrace.getTrace().getFrames().size() == 0) {
             throw new TicketCorruptedException(NO_STACKTRACE);
