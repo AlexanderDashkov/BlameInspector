@@ -30,4 +30,53 @@ public interface Storage {
             "  System.out?.println(this)}{code}Exception in thread \"main\" " +
             "java.lang.ClassFormatError: " +
             "Duplicate method name&signature in class file demo/namespace";
+
+
+    String testDuplicate1 = "Exception in thread \"main\" java.lang.ArithmeticException: / by zero\n" +
+            "at SampleClassOne.invokeJaneException(SampleClassOne.java:14)\n" +
+            "at Main.main(Main.java:12)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n" +
+            "at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n" +
+            "at java.lang.reflect.Method.invoke(Method.java:483)\n" +
+            "at com.intellij.rt.execution.application.AppMain.main(AppMain.java:134)";
+    String testDuplicate2 = "Exception in thread \"main\" java.lang.RuntimeException\n" +
+            "at ru.sample.SampleClassTwo.packageExceptionMethod(SampleClassTwo.java:9)\n" +
+            "at Main.main(Main.java:10)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n" +
+            "at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n" +
+            "at java.lang.reflect.Method.invoke(Method.java:483)\n" +
+            "at com.intellij.rt.execution.application.AppMain.main(AppMain.java:134)";
+    String testDuplicate3 = "Exception in thread \"main\" java.nio.file.NoSuchFileException: fileToDelete_jdk7.txt\n" +
+            "at sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:79)\n" +
+            "at sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:97)\n" +
+            "at sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:102)\n" +
+            "at sun.nio.fs.WindowsFileSystemProvider.implDelete(WindowsFileSystemProvider.java:269)\n" +
+            "at sun.nio.fs.AbstractFileSystemProvider.delete(AbstractFileSystemProvider.java:103)\n" +
+            "at java.nio.file.Files.delete(Files.java:1126)\n" +
+            "at SampleClassOne.invokeJackException(SampleClassOne.java:16)\n" +
+            "at Main.main(Main.java:13)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n" +
+            "at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n" +
+            "at java.lang.reflect.Method.invoke(Method.java:483)\n" +
+            "at com.intellij.rt.execution.application.AppMain.main(AppMain.java:134)";
+    String testDuplicate4 = "Exception in thread \"main\" java.lang.ArithmeticException: / by zero\n" +
+            "at SampleClassOne.invokeJaneException(SampleClassOne.java:14)\n" +
+            "at Main.main(Main.java:12)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n" +
+            "at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n" +
+            "at java.lang.reflect.Method.invoke(Method.java:483)\n" +
+            "at com.intellij.rt.execution.application.AppMain.main(AppMain.java:134)";
+    String testDuplicate5 = "Exception in thread \"main\" java.lang.RuntimeException\n" +
+            "at ru.sample.SampleClassTwo.packageExceptionMethod(SampleClassTwo.java:9)\n" +
+            "at Main.main(Main.java:10)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" +
+            "at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n" +
+            "at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n" +
+            "at java.lang.reflect.Method.invoke(Method.java:483)\n" +
+            "at com.intellij.rt.execution.application.AppMain.main(AppMain.java:134)";
+
 }

@@ -33,6 +33,7 @@ public class StackTraceTree {
         List<NFrame> frames = stackTrace.getTrace().getFrames();
         Node currentNode = root;
         for (int i = 0; i < frames.size(); i++) {
+            Node prevNode = currentNode;
             NFrame frame = frames.get(i);
             if (currentNode.isFinal) {
                 if (i + 1 < frames.size()) {
@@ -40,7 +41,11 @@ public class StackTraceTree {
                 } else {
                     currentNode.addDuplicate(ticketNumber);
                     size++;
-                    return false;
+                    if (currentNode.getDuplicates().size() == 1){
+                        return true;
+                    }else {
+                        return false;
+                    }
                 }
             }
             for (Node child : currentNode.getChildren()) {
@@ -49,8 +54,10 @@ public class StackTraceTree {
                     break;
                 }
             }
-            currentNode.addChild(new Node(frame));
-            currentNode = currentNode.children.get(currentNode.children.size() - 1);
+            if (prevNode == currentNode) {
+                currentNode.addChild(new Node(frame));
+                currentNode = currentNode.children.get(currentNode.children.size() - 1);
+            }
         }
         return true;
     }
@@ -63,7 +70,9 @@ public class StackTraceTree {
         ArrayList<ArrayList<Integer>> result = new ArrayList<>();
         for (Node child : currentRoot.children) {
             if (child.isFinal) {
-                result.add(child.getDuplicates());
+                if (child.getDuplicates().size() != 1) {
+                    result.add(child.getDuplicates());
+                }
             } else {
                 result.addAll(getDuplicates(child));
             }

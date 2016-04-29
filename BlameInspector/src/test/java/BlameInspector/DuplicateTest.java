@@ -1,8 +1,11 @@
 package blameinspector;
 
+import com.jmolly.stacktraceparser.NStackTrace;
+import com.jmolly.stacktraceparser.StackTraceParser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.antlr.runtime.RecognitionException;
 
 import java.io.IOException;
 
@@ -20,7 +23,20 @@ public class DuplicateTest extends TestCase{
     }
 
     public void testDuplicatesFromBlameWhoTest(){
+        StackTraceTree stackTraceTree = new StackTraceTree("BlameWhoTest");
+        assertTrue(stackTraceTree.addTicket(parseTicket(Storage.testDuplicate1), 1));
+        assertTrue(stackTraceTree.addTicket(parseTicket(Storage.testDuplicate2), 2));
+        assertTrue(stackTraceTree.addTicket(parseTicket(Storage.testDuplicate3), 3));
+        assertTrue(!stackTraceTree.addTicket(parseTicket(Storage.testDuplicate4), 4));
+        assertTrue(!stackTraceTree.addTicket(parseTicket(Storage.testDuplicate5), 5));
+    }
 
+    private NStackTrace parseTicket(final String testString){
+        try {
+            return StackTraceParser.parse(testString);
+        } catch (RecognitionException e) {
+            return null;
+        }
     }
 
 }
