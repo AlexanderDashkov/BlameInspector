@@ -24,8 +24,9 @@ public class SubversionService extends VersionControlService {
 
 
     public SubversionService(final String pathToRepo,
-                             final String repoURL) throws SVNException, VersionControlServiceException {
+                             final String repoURL, final boolean isParsingCode) throws SVNException, VersionControlServiceException {
         filesInRepo = new HashMap<>();
+        methodLocation = new HashMap<>();
         this.repositoryURL = repoURL;
         this.pathToRepo = pathToRepo;
         File workingCopyLoc = new File(pathToRepo);
@@ -47,6 +48,12 @@ public class SubversionService extends VersionControlService {
                                     filesInRepo.put(file.getName(), new ArrayList<String>());
                                 }
                                 filesInRepo.get(file.getName()).add(String.valueOf(filePath));
+                                try {
+                                    indexMethods(String.valueOf(filePath));
+                                }catch (Exception e){
+                                    nestedException = e;
+                                    return;
+                                }
                             }
                         });
                     }

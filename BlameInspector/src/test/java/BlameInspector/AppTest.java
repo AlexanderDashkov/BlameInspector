@@ -93,7 +93,15 @@ public class AppTest
     }
 
     public void testNoEntryTicketCauseOfOptim() throws IOException {
-        ticketCheckerOutterProjects("1806", "Guava", "Ticket # 1806. Assigned to kevinb@google.com");
+        //ticketCheckerOutterProjects("1806", "Guava", "Ticket # 1806. Assigned to kevinb@google.com");
+    }
+
+    public void testOptim(){
+        ByteArrayOutputStream myOut = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(myOut));
+        Main.main(new String[]{"-p", "BlameWhoTest", "-t", "8", "-d"});
+        assertEquals(myOut.toString().trim(), "Ticket # 8. Assigned to JackSmithJunior");
+        System.setOut(sysOut);
     }
 
     protected void ticketCheckerOutterProjects(String ticketNumber, String projectName, String result) throws IOException {

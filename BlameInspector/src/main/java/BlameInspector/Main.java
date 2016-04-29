@@ -36,11 +36,13 @@ public class Main {
     private static final String HELP_IDENT = "help";
     private static final String SHOW_IDENT = "s";
     private static final String ALL_IDENT = "a";
+    private static final String PARSE_PROJECT_IDENT = "d";
 
     private static String projectName;
     private static int startBound, endBound;
     private static boolean isInteractive, isSettingAssignee;
     private static boolean isDebug;
+    private static boolean parseProjectSources;
 
 
     public static void main(final String[] args) {
@@ -56,7 +58,7 @@ public class Main {
 
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException {
         try {
-            blameInspector = new BlameInspector(propertyService);
+            blameInspector = new BlameInspector(propertyService, parseProjectSources);
             if (endBound == -1) {
                 endBound = blameInspector.getNumberOfTickets();
             }
@@ -96,6 +98,7 @@ public class Main {
         projectNameOption.setArgName("project");
         projectNameOption.setRequired(true);
         Option debugOption = new Option(DEBUG_IDENT, false, "debug mode");
+        Option deepOption = new Option(PARSE_PROJECT_IDENT, false, "parse project source files");
         Option generateReport = new Option(GENERATE_HTML_IDENT, false, "generate html report");
         generateReport.setArgs(0);
         debugOption.setArgs(0);
@@ -127,6 +130,7 @@ public class Main {
         options.addOptionGroup(ticketNumbersGroup);
         options.addOptionGroup(fixKeys);
         options.addOption(debugOption);
+        options.addOption(deepOption);
         options.addOption(generateReport);
         options.addOption(helpOption);
 
@@ -141,7 +145,7 @@ public class Main {
                 Comparator<Option> comparator = new Comparator<Option>() {
                     @Override
                     public int compare(final Option o1, final Option o2) {
-                        String optsOrder = "ptrafisgXh";
+                        String optsOrder = "ptrafisgXdh";
                         return optsOrder.indexOf(o1.getOpt()) - optsOrder.indexOf(o2.getOpt());
                     }
                 };
@@ -167,6 +171,10 @@ public class Main {
         isDebug = false;
         if (cmdLine.hasOption("-X")) {
             isDebug = true;
+        }
+        parseProjectSources = false;
+        if (cmdLine.hasOption(PARSE_PROJECT_IDENT)){
+            parseProjectSources = true;
         }
         projectName = cmdLine.getOptionValue(PROJECT_IDENT);
         if (cmdLine.hasOption(RANGE_IDENT)) {

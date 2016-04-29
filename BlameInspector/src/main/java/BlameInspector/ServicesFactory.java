@@ -38,13 +38,14 @@ public class ServicesFactory {
 
     public static VersionControlService getVersionControlService(final String versionControl,
                                                                  final String pathToRepo,
-                                                                 final String issueTracker)
+                                                                 final String issueTracker,
+                                                                 final boolean isParsingCode)
             throws VersionControlServiceException {
         try {
             if (versionControl.equals(GIT)) {
-                return new GitService(pathToRepo, issueTracker);
+                return new GitService(pathToRepo, issueTracker, isParsingCode);
             } else if (versionControl.equals(SVN)) {
-                return new SubversionService(pathToRepo, issueTracker);
+                return new SubversionService(pathToRepo, issueTracker, isParsingCode);
             }
             throw new VersionControlServiceException("Not found appropriate Version Control constructor.");
         } catch (VersionControlServiceException e) {

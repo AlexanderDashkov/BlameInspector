@@ -34,13 +34,15 @@ public class BlameInspector {
     private static ArrayList<TicketInfo> results;
 
     private String blameLogin;
+    private static boolean isParsingCode;
 
-    public BlameInspector(final PropertyService propertyService) throws VersionControlServiceException, IssueTrackerException {
+    public BlameInspector(final PropertyService propertyService, boolean parseProjectSources) throws VersionControlServiceException, IssueTrackerException {
+        isParsingCode = parseProjectSources;
         results = new ArrayList<>();
         stTree = new StackTraceTree(propertyService.getProjectName());
         vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
                 propertyService.getPathToRepo(),
-                propertyService.getIssueTracker());
+                propertyService.getIssueTracker(), parseProjectSources);
         its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
                 propertyService.getPassword(),
                 vcs.getRepositoryOwner(),
@@ -186,7 +188,10 @@ public class BlameInspector {
                 return new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
                         locationInfo[0], Integer.parseInt(locationInfo[1]));
             }
-            String path = vcs.containsCode(currentFrame.getClassName(), currentFrame.getMethodName());
+            if (!isParsingCode){
+                continue;
+            }
+            String path = vcs.containsMethod(currentFrame.getClassName() + "." + currentFrame.getMethodName());
             if (path != null) {
                 stTree.addTicket(stackTrace, ticketNumber);
                 int lineNumber;

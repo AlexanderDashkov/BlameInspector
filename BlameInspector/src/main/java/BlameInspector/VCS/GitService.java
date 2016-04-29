@@ -10,7 +10,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,23 +19,35 @@ public class GitService extends VersionControlService {
     private Git git;
     private ObjectId commitID;
 
-    public GitService(final String pathToRepo, final String repoURL) throws IOException {
+    public GitService(final String pathToRepo, final String repoURL, final boolean isParsingCode)
+            throws VersionControlServiceException {
+        this.isParsingCode = isParsingCode;
         filesInRepo = new HashMap<>();
+        methodLocation = new HashMap<>();
         repositoryURL = repoURL;
         this.pathToRepo = pathToRepo;
-        git = Git.open(new File(pathToRepo + "/.git"));
-        commitID = git.getRepository().resolve("HEAD");
-        RevWalk walk = new RevWalk(git.getRepository());
-        RevCommit commit = walk.parseCommit(commitID);
-        RevTree tree = commit.getTree();
-        TreeWalk treeWalk = new TreeWalk(git.getRepository());
-        treeWalk.addTree(tree);
-        treeWalk.setRecursive(true);
-        while (treeWalk.next()) {
-            if (!filesInRepo.containsKey(treeWalk.getNameString())) {
-                filesInRepo.put(treeWalk.getNameString(), new ArrayList<String>());
+        try {
+            git = Git.open(new File(pathToRepo + "/.git"));
+            commitID = git.getRepository().resolve("HEAD");
+            RevWalk walk = new RevWalk(git.getRepository());
+            RevCommit commit = walk.parseCommit(commitID);
+            RevTree tree = commit.getTree();
+            TreeWalk treeWalk = new TreeWalk(git.getRepository());
+            treeWalk.addTree(tree);
+            treeWalk.setRecursive(true);
+            while (treeWalk.next()) {
+                if (!filesInRepo.containsKey(treeWalk.getNameString())) {
+                    filesInRepo.put(treeWalk.getNameString(), new ArrayList<String>());
+                }
+                filesInRepo.get(treeWalk.getNameString()).add(treeWalk.getPathString());
+                if (isParsingCode) {
+                    indexMethods(treeWalk.getPathString());
+                }
             }
-            filesInRepo.get(treeWalk.getNameString()).add(treeWalk.getPathString());
+        }catch (VersionControlServiceException e){
+            throw e;
+        }catch (Exception e){
+            throw new VersionControlServiceException(e);
         }
     }
 
