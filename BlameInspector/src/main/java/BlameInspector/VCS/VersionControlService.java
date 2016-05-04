@@ -39,30 +39,30 @@ public abstract class VersionControlService {
         return filesInRepo.containsKey(fileName);
     }
 
-//    public String containsCode(final String className, final String methName) {
-//        try {
-//            String[] clsNameArr = className.split("\\.");
-//            String clsName = clsNameArr[clsNameArr.length - 1];
-//            if (clsName.contains("$")) {
-//                clsName = clsName.split("\\$")[1];
-//            }
-//            String methodName = methName;
-//            if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
-//                methodName = clsName;
-//            }
-//            for (String path : getFilesByFolder(className)) {
-//                File file = new File(path);
-//                CompilationUnit compilationUnit = JavaParser.parse(file);
-//                VoidVisitorImpl visitor = new VoidVisitorImpl(clsName, methodName);
-//                compilationUnit.accept(visitor, null);
-//                if (visitor.isFound()) {
-//                    return path;
-//                }
-//            }
-//        } catch (Exception e) {
-//        }
-//        return null;
-//    }
+    public String containsCode(final String className, final String methName) {
+        try {
+            String[] clsNameArr = className.split("\\.");
+            String clsName = clsNameArr[clsNameArr.length - 1];
+            if (clsName.contains("$")) {
+                clsName = clsName.split("\\$")[1];
+            }
+            String methodName = methName;
+            if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
+                methodName = clsName;
+            }
+            for (String path : getFilesByFolder(className)) {
+                File file = new File(path);
+                CompilationUnit compilationUnit = JavaParser.parse(file);
+                VoidVisitorImpl visitor = new VoidVisitorImpl(clsName, methodName);
+                compilationUnit.accept(visitor, null);
+                if (visitor.isFound()) {
+                    return path;
+                }
+            }
+        } catch (Exception e) {
+        }
+        return null;
+    }
 
     protected ArrayList<String> getFilesByFolder(final String className) {
         String[] folders = className.split("\\.");
@@ -88,25 +88,26 @@ public abstract class VersionControlService {
         return result;
     }
 
-    protected void indexMethods(final String filePath) throws VersionControlServiceException {
-        if (!filePath.contains(".java")) {
-            return;
-        }
-        try {
-            File file = new File(pathToRepo + "\\" + filePath.replace("/", "\\"));
-            CompilationUnit compilationUnit = JavaParser.parse(file);
-            VoidVisitorImpl visitor = new VoidVisitorImpl();
-            compilationUnit.accept(visitor, null);
-            String classPackage = compilationUnit.getPackage() != null ?
-                    compilationUnit.getPackage().getName().toString() : "";
-            for (String methodName : visitor.getMethods()) {
-                methodLocation.put(classPackage + "." + methodName,
-                        filePath);
-            }
-        } catch (Exception e) {
-            throw new VersionControlServiceException(e);
-        }
-    }
+//    protected void indexMethods(final String filePath) throws VersionControlServiceException {
+//        if (!filePath.endsWith(".java")) {
+//            return;
+//        }
+//        try {
+//            File file = new File(pathToRepo + "\\" + filePath.replace("/", "\\"));
+//            CompilationUnit compilationUnit = JavaParser.parse(file);
+//            VoidVisitorImpl visitor = new VoidVisitorImpl();
+//            compilationUnit.accept(visitor, null);
+//            String classPackage = compilationUnit.getPackage() != null ?
+//                    compilationUnit.getPackage().getName().toString() : "";
+//            for (String methodName : visitor.getMethods()) {
+//                methodLocation.put(classPackage + "." + methodName,
+//                        filePath);
+//            }
+//        }catch (Exception e) {
+//            System.err.println(filePath);
+//            return;
+//        }
+//    }
 
     protected String getFilePath(final String fileName, final String className) throws IOException {
         if (fileName.contains("\\")) {

@@ -92,6 +92,8 @@ public class StackTraceTree {
     private static class Node {
         private boolean isFinal;
         private NFrame frame;
+        private int lineNumber;
+        private String fileName;
         private ArrayList<Integer> duplicates;
         private ArrayList<Node> children;
 

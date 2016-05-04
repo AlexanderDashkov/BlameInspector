@@ -30,6 +30,11 @@ public class BitBucketService extends IssueTrackerService {
     }
 
     @Override
+    public String assignee(int number) {
+        return null;
+    }
+
+    @Override
     public String getIssueBody(final int issueNumber) throws JSONException, IOException {
         this.issueNumber = issueNumber;
         String url = MessageFormat.format(BITBUCKET_ISSUE,

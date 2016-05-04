@@ -44,6 +44,11 @@ public class GitHubService extends IssueTrackerService {
         this.numberOfTickets = repositoryService.getRepository(repositoryOwner, repositoryName).getOpenIssues();
     }
 
+    @Override
+    public String assignee(int number) throws IOException {
+        return issueService.getIssue(repositoryOwner, repositoryName, number).getAssignee().getLogin();
+    }
+
 
     @Override
     public String getIssueBody(final int issueNumber) throws IOException {

@@ -40,12 +40,12 @@ public class GitService extends VersionControlService {
                     filesInRepo.put(treeWalk.getNameString(), new ArrayList<String>());
                 }
                 filesInRepo.get(treeWalk.getNameString()).add(treeWalk.getPathString());
-                if (isParsingCode) {
-                    indexMethods(treeWalk.getPathString());
-                }
+            //    if (isParsingCode) {
+            //        indexMethods(treeWalk.getPathString());
+            //    }
             }
-        } catch (VersionControlServiceException e) {
-            throw e;
+//        } catch (VersionControlServiceException e) {
+//            throw e;
         } catch (Exception e) {
             throw new VersionControlServiceException(e);
         }

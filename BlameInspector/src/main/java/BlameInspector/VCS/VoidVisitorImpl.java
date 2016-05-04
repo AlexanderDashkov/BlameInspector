@@ -13,10 +13,20 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
     public static final String DOT = ".";
 
     private String className;
+    private String methodName;
+    private boolean classFound;
+    private boolean methodFound;
     private ArrayList<String> methods;
 
-    public VoidVisitorImpl() {
-        methods = new ArrayList<>();
+    public VoidVisitorImpl(final String className, final String methodName) {
+        this.className = className;
+        this.methodName = methodName;
+        this.classFound = false;
+        this.methodFound = false;
+    }
+
+    public boolean isFound(){
+        return classFound && methodFound;
     }
 
     public ArrayList<String> getMethods() {
@@ -26,6 +36,9 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
     @Override
     public void visit(ClassOrInterfaceDeclaration classOrInterfaceDeclaration, Object o) {
         className = classOrInterfaceDeclaration.getName();
+        if (className.equals(this.className)){
+            classFound = true;
+        }
         for (BodyDeclaration member : classOrInterfaceDeclaration.getMembers()) {
             member.accept(this, null);
         }
@@ -40,11 +53,17 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
 
     @Override
     public void visit(ConstructorDeclaration constructorDeclaration, Object o) {
+        if (constructorDeclaration.getName().equals(methodName)){
+            methodFound = true;
+        }
         methods.add(className + DOT + constructorDeclaration.getName());
     }
 
     @Override
     public void visit(MethodDeclaration methodDeclaration, Object o) {
+        if (methodDeclaration.getName().equals(methodName)){
+            methodFound = true;
+        }
         methods.add(className + DOT + methodDeclaration.getName());
     }
 

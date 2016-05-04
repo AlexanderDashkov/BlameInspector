@@ -27,7 +27,9 @@ public class YouTrackService extends IssueTrackerService {
 
     private static final String FIELD_TAG = "field";
     private static final String DESCR_VALUE = "description";
+    private static final String ASSGN_VALUE = "Assignee";
     private static final String NAME_ATTR = "name";
+    private static final String VAL_TAG = "value";
 
     private String itsUrl;
     private int issueNumber;
@@ -118,6 +120,39 @@ public class YouTrackService extends IssueTrackerService {
         } catch (Exception e) {
             throw new IssueTrackerException(true, "Can not get blame!");
         }
+    }
+
+    public String assignee(final int issueNumber) throws IOException {
+        String result = getRequest(itsUrl + DASH + issueNumber, null);
+        String path = itsUrl + DASH + issueNumber;
+        DocumentBuilder db = null;
+        try {
+            db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new IOException(e);
+        }
+        InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(result));
+
+        Document doc = null;
+        try {
+            doc = db.parse(is);
+        } catch (SAXException e) {
+            throw new IOException(e);
+        }
+
+        doc.getDocumentElement().normalize();
+
+        String assignee = "";
+        Element element = (Element) doc.getElementsByTagName(ISSUE).item(0);
+        for (int i = 0; i < element.getElementsByTagName(FIELD_TAG).getLength(); i++) {
+            Element e = (Element) element.getElementsByTagName(FIELD_TAG).item(i);
+            if (e.getAttribute(NAME_ATTR).equals(ASSGN_VALUE)) {
+                assignee = e.getElementsByTagName(VAL_TAG).item(0).getTextContent().trim();
+                return assignee;
+            }
+        }
+        return null;
     }
 
     @Override

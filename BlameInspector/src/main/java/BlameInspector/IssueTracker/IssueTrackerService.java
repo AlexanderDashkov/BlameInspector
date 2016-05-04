@@ -32,6 +32,8 @@ public abstract class IssueTrackerService {
         this.password = password;
     }
 
+    public abstract String assignee(final int number) throws IOException;
+
     public abstract String getIssueBody(int issueNumber) throws IOException, JSONException;
 
     public abstract void setIssueAssignee(final String blameLogin) throws IOException, JSONException;

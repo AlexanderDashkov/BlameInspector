@@ -53,6 +53,19 @@ public class BlameInspector {
         numberOfTickets = its.getNumberOfTickets();
     }
 
+    public boolean isAssigned(final int ticketNumber){
+        try {
+            return its.assignee(ticketNumber) != null;
+        }catch (IOException | NullPointerException e){
+            return false;
+        }
+
+    }
+
+    public String properAssignee(final int ticketNumber) throws IOException {
+         return its.assignee(ticketNumber);
+    }
+
     public ArrayList<ArrayList<Integer>> getDuplicates() {
         return stTree.getDuplicates();
     }
@@ -197,7 +210,8 @@ public class BlameInspector {
             if (!isParsingCode) {
                 continue;
             }
-            String path = vcs.containsMethod(currentFrame.getClassName() + "." + currentFrame.getMethodName());
+            //String path = vcs.containsMethod(currentFrame.getClassName() + "." + currentFrame.getMethodName());
+            String path = vcs.containsCode(currentFrame.getClassName(), currentFrame.getMethodName());
             if (path != null) {
                 int lineNumber;
                 try {

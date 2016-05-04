@@ -48,12 +48,12 @@ public class SubversionService extends VersionControlService {
                                     filesInRepo.put(file.getName(), new ArrayList<String>());
                                 }
                                 filesInRepo.get(file.getName()).add(String.valueOf(filePath));
-                                try {
-                                    indexMethods(String.valueOf(filePath));
-                                } catch (Exception e) {
-                                    nestedException = e;
-                                    return;
-                                }
+//                                try {
+//                                    indexMethods(String.valueOf(filePath));
+//                                } catch (Exception e) {
+//                                    nestedException = e;
+//                                    return;
+//                                }
                             }
                         });
                     }
