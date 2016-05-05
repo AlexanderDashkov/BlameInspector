@@ -145,7 +145,7 @@ public class BlameInspector {
             throw new BlameInspectorException(e);
         }
         if (exceptionMessage == null) {
-            results.add(new TicketInfo(ticketNumber, blameLogin, ticketURL, its.assigneeUrl(blameLogin), duples));
+            results.add(new TicketInfo(ticketNumber, blameLogin, ticketURL, its.assigneeUrl(blameLogin), duples, traces));
         } else {
             results.add(new TicketInfo(ticketNumber, exceptionMessage, ticketURL));
         }
@@ -209,12 +209,13 @@ public class BlameInspector {
             locationInfo = currentFrame.getLocation().substring(1, size - 1).split(":");
             if (vcs.containsFile(locationInfo[0])) {
                 traces.add(new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
-                        locationInfo[0], Integer.parseInt(locationInfo[1])));
+                        locationInfo[0], Integer.parseInt(locationInfo[1]), currentFrame));
                 continue;
             }
             if (!isParsingCode) {
                 continue;
             }
+            System.out.println("handle ticket " + ticketNumber + "!");
             //System.out.println("class and method :" + currentFrame.getClassName() + " " + currentFrame.getMethodName());
             //String path = vcs.containsMethod(currentFrame.getClassName() + "." + currentFrame.getMethodName());
             String path = vcs.containsCode(currentFrame.getClassName(), currentFrame.getMethodName());
@@ -226,7 +227,7 @@ public class BlameInspector {
                     lineNumber = getLine(path, currentFrame.getMethodName());
                 }
                 traces.add(new TraceInfo(currentFrame.getClassName(), currentFrame.getMethodName(),
-                        path, lineNumber));
+                        path, lineNumber, currentFrame));
                 continue;
             }
         }

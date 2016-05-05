@@ -2,6 +2,8 @@ package blameinspector.reportprinters;
 
 
 import blameinspector.TicketInfo;
+import blameinspector.TraceInfo;
+import com.jmolly.stacktraceparser.NFrame;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,17 +50,37 @@ public class ReportHtml implements IReportPrinter {
                         ticketInfo.getAssignee().get(i));
                 assignees += " ";
             }
+            String deepStackTrace = "";
+            int i = 0;
+            for (TraceInfo traceInfo : ticketInfo.getStackTrace()){
+                link = "";
+                String assignee = "";
+                try {
+                    link = ticketInfo.getAssigneeUrl().get(i);
+                    assignee = ticketInfo.getAssignee().get(i);
+                } catch (IndexOutOfBoundsException e) {
+                }
+                try {
+                    NFrame frame = traceInfo.getFrame();
+                    deepStackTrace += String.format("%1$80s" ,frame.toPrettyString() + frame.getLocation())
+                            + MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
+                            assignee) + "<br>";
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                i++;
+            }
             String dup = ticketInfo.getDupplicates().size() == 1 ? "No duplicates" : ticketInfo.getDupplicates().toString();
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
                     ticketNumber,
-                    assignees,
+                    deepStackTrace,
                     "-", dup));
             numberOfAssigned++;
         } else {
-            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
-                    ticketInfo.getTicketUrl(),
-                    ticketNumber, "-", "none", ticketInfo.getErrorType()));
+            //reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
+            //        ticketInfo.getTicketUrl(),
+            //        ticketNumber, "-", ticketInfo.getErrorType(), "none"));
         }
         numberOfAllTickets++;
     }

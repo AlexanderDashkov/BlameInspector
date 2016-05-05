@@ -8,6 +8,7 @@ public class TicketInfo {
     private boolean assigned;
     private int ticketNumber;
     private ArrayList<String> assignee;
+    private ArrayList<TraceInfo> stackTrace;
 
     private ArrayList<String> assigneeUrl;
     private ArrayList<Integer> dupplicates;
@@ -15,18 +16,21 @@ public class TicketInfo {
 
     private String errorType;
 
-    private void init(final int ticketNumber, final boolean assigned, final String ticketUrl) {
+    private void init(final int ticketNumber, final boolean assigned,
+                      final String ticketUrl) {
         this.ticketNumber = ticketNumber;
         this.assigned = assigned;
         this.ticketUrl = ticketUrl;
     }
 
     public TicketInfo(final int ticketNumber, final ArrayList<String> assignee, final String ticketUrl,
-                      final ArrayList<String> assigneeUrl, ArrayList<Integer> dupl) {
+                      final ArrayList<String> assigneeUrl, ArrayList<Integer> dupl,
+                      final ArrayList<TraceInfo> stackTrace) {
         init(ticketNumber, true, ticketUrl);
         this.assignee = assignee;
         this.assigneeUrl = assigneeUrl;
         this.dupplicates = dupl;
+        this.stackTrace = stackTrace;
     }
 
     public TicketInfo(final int ticketNumber, final String e, final String ticketUrl) {
@@ -60,5 +64,9 @@ public class TicketInfo {
 
     public ArrayList<Integer> getDupplicates() {
         return dupplicates;
+    }
+
+    public ArrayList<TraceInfo> getStackTrace(){
+        return stackTrace;
     }
 }
