@@ -74,6 +74,7 @@ public class GitService extends VersionControlService {
                                      final int lineNumber) {
         try {
             String filePath = getFilePath(fileName, className);
+            //System.out.println("fileName :" + fileName + " filePath : " + filePath);
             BlameCommand cmd = new BlameCommand(git.getRepository());
             cmd.setStartCommit(commitID);
             cmd.setFilePath(filePath);

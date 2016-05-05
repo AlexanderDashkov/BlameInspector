@@ -23,6 +23,7 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
         this.methodName = methodName;
         this.classFound = false;
         this.methodFound = false;
+        methods = new ArrayList<>();
     }
 
     public boolean isFound(){
@@ -30,7 +31,7 @@ public class VoidVisitorImpl extends VoidVisitorAdapter {
     }
 
     public ArrayList<String> getMethods() {
-        return methods;
+        return this.methods;
     }
 
     @Override

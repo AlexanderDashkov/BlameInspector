@@ -1,5 +1,7 @@
 package blameinspector;
 
+import blameinspector.issuetracker.IssueTrackerException;
+import blameinspector.vcs.VersionControlServiceException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -100,7 +102,7 @@ public class AppTest
         ByteArrayOutputStream myOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(myOut));
         Main.main(new String[]{"-p", "BlameWhoTest", "-t", "8", "-d"});
-        assertEquals(myOut.toString().trim(), "Ticket # 8. Assigned to JackSmithJunior");
+        assertEquals(myOut.toString().trim(), "Ticket # 8. Assigned to JaneSmithSenior");
         System.setOut(sysOut);
     }
 
@@ -110,6 +112,39 @@ public class AppTest
         Main.main(new String[]{"-p", projectName, "-t", ticketNumber});
         assertEquals(myOut.toString().trim(), result);
         System.setOut(sysOut);
+    }
+
+
+    protected void expertTest() throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, BlameInspectorException, TicketCorruptedException, IOException {
+        PropertyService propertyService = new PropertyService("Kotlin", "config.properties");
+        BlameInspector blameInspector = new BlameInspector(propertyService, true);
+        int endBound  = 8;
+        int allAmount = 0;
+        int correctedAssigned = 0;
+        for (int i = 1; i < endBound; i++){
+            blameInspector.handleTicket(i);
+        }
+        int i = 1;
+        for (TicketInfo ticketInfo : blameInspector.getResults()){
+            if (blameInspector.isAssigned(i)){
+                if (ticketInfo != null && ticketInfo.getAssignee()!=null && ticketInfo.getAssignee().get(0) != null){
+                    allAmount++;
+                    String surname;
+                    try {
+                        surname = ticketInfo.getAssignee().get(0).split(".")[0].toLowerCase();
+                    }catch (ArrayIndexOutOfBoundsException e){
+                        surname = ticketInfo.getAssignee().get(0).toLowerCase();
+                    }
+                    if (blameInspector.properAssignee(i).toLowerCase().contains(surname)){
+                        correctedAssigned++;
+                    }
+                }
+            }
+            i++;
+        }
+        double percent = correctedAssigned / allAmount;
+        System.out.println(percent);
+        assertTrue(percent > 0.05);
     }
 
 

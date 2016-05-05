@@ -125,6 +125,11 @@ public class BlameInspector {
                 for (TraceInfo traceInfo : traces) {
                     BlamedUserInfo blamedUserInfo = vcs.getBlamedUserInfo(traceInfo.getFileName(),
                             traceInfo.getClassName(), traceInfo.getLineNumber());
+                    //System.out.println("blamedUserInfo : "  + blamedUserInfo.getUserName() + " " +
+                    //        blamedUserInfo.getUserEmail() + " " + blamedUserInfo.getUserCommitId());
+                    if (!blamedUserInfo.isUseful() && !blameLogin.isEmpty()){
+                       break;
+                    }
                     blameLogin.add(its.getUserLogin(blamedUserInfo));
                 }
             }
@@ -210,6 +215,7 @@ public class BlameInspector {
             if (!isParsingCode) {
                 continue;
             }
+            //System.out.println("class and method :" + currentFrame.getClassName() + " " + currentFrame.getMethodName());
             //String path = vcs.containsMethod(currentFrame.getClassName() + "." + currentFrame.getMethodName());
             String path = vcs.containsCode(currentFrame.getClassName(), currentFrame.getMethodName());
             if (path != null) {

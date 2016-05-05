@@ -23,4 +23,8 @@ public class BlamedUserInfo {
     public String getUserCommitId() {
         return userCommitId;
     }
+
+    public boolean isUseful(){
+        return userName != null || userEmail != null || userCommitId != null;
+    }
 }

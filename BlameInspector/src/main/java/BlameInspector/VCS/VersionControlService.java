@@ -16,6 +16,8 @@ public abstract class VersionControlService {
     protected String repositoryURL;
     protected boolean isParsingCode;
 
+    private static final String SOURCE_DIR = "src";
+
     protected String pathToRepo;
 
     public abstract String getBlamedUserCommit(final String fileName,
@@ -39,6 +41,24 @@ public abstract class VersionControlService {
         return filesInRepo.containsKey(fileName);
     }
 
+    private ArrayList<String> findSourceDir(final String path){
+        File dir = new File(path);
+        ArrayList<String> result = new ArrayList<>();
+        for (File file : dir.listFiles()){
+            if (file.isDirectory() && file.getName().equals(SOURCE_DIR)){
+                result.add(file.getPath());
+            }
+        }
+        if (result.size() == 0){
+            for (File file : dir.listFiles()){
+                if (file.isDirectory()) {
+                    result.addAll(findSourceDir(file.getPath()));
+                }
+            }
+        }
+        return result;
+    }
+
     public String containsCode(final String className, final String methName) {
         try {
             String[] clsNameArr = className.split("\\.");
@@ -52,14 +72,22 @@ public abstract class VersionControlService {
             }
             for (String path : getFilesByFolder(className)) {
                 File file = new File(path);
+                String fullQualifiedMethodName = className + "." + methodName;
+                if (methodLocation.containsKey(fullQualifiedMethodName)){
+                    return methodLocation.get(fullQualifiedMethodName);
+                }
                 CompilationUnit compilationUnit = JavaParser.parse(file);
                 VoidVisitorImpl visitor = new VoidVisitorImpl(clsName, methodName);
                 compilationUnit.accept(visitor, null);
+                for (String mName : visitor.getMethods()){
+                    methodLocation.put(className + "." + mName, path);
+                }
                 if (visitor.isFound()) {
                     return path;
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -67,22 +95,23 @@ public abstract class VersionControlService {
     protected ArrayList<String> getFilesByFolder(final String className) {
         String[] folders = className.split("\\.");
         ArrayList<String> result = new ArrayList<>();
-        String[] projectName = pathToRepo.split("\\\\");
-        String currentPath = pathToRepo + "\\" + projectName[projectName.length - 1] + "\\src\\";
-        outterloop:
-        for (int i = 0; i < folders.length - 1; i++) {
-            File dir = new File(currentPath);
-            for (File file : dir.listFiles()) {
-                if (file.getName().equals(folders[i])) {
-                    currentPath += "\\" + folders[i];
-                    continue outterloop;
+        for (String currentPath : findSourceDir(pathToRepo)) {
+            currentPath += File.separator;
+            outterloop:
+            for (int i = 0; i < folders.length - 1; i++) {
+                File dir = new File(currentPath);
+                for (File file : dir.listFiles()) {
+                    if (file.getName().equals(folders[i])) {
+                        currentPath += File.separator + folders[i];
+                        continue outterloop;
+                    }
                 }
             }
-        }
-        File dir = new File(currentPath);
-        for (File file : dir.listFiles()) {
-            if (file.getName().contains(".java")) {
-                result.add(file.getPath());
+            File dir = new File(currentPath);
+            for (File file : dir.listFiles()) {
+                if (file.getName().contains(".java")) {
+                    result.add(file.getPath());
+                }
             }
         }
         return result;
@@ -117,7 +146,7 @@ public abstract class VersionControlService {
         if (fileName.contains("/")) {
             return fileName;
         }
-        String pathPart = className.split("$")[0].replace(".", "\\");
+        String pathPart = className.split("$")[0].replace(".", File.separator);
         for (String path : filesInRepo.get(fileName)) {
             if (path.contains(pathPart + fileName)) {
                 return path;
