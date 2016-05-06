@@ -117,16 +117,16 @@ public class AppTest
 
     protected void expertTest() throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, BlameInspectorException, TicketCorruptedException, IOException {
         PropertyService propertyService = new PropertyService("Kotlin", "config.properties");
-        BlameInspector blameInspector = new BlameInspector(propertyService, true);
+        Manager manager = new Manager(propertyService, true);
         int endBound  = 8;
         int allAmount = 0;
         int correctedAssigned = 0;
         for (int i = 1; i < endBound; i++){
-            blameInspector.handleTicket(i);
+            manager.handleTicket(i);
         }
         int i = 1;
-        for (TicketInfo ticketInfo : blameInspector.getResults()){
-            if (blameInspector.isAssigned(i)){
+        for (TicketInfo ticketInfo : manager.getResults()){
+            if (manager.isAssigned(i)){
                 if (ticketInfo != null && ticketInfo.getAssignee()!=null && ticketInfo.getAssignee().get(0) != null){
                     allAmount++;
                     String surname;
@@ -135,7 +135,7 @@ public class AppTest
                     }catch (ArrayIndexOutOfBoundsException e){
                         surname = ticketInfo.getAssignee().get(0).toLowerCase();
                     }
-                    if (blameInspector.properAssignee(i).toLowerCase().contains(surname)){
+                    if (manager.properAssignee(i).toLowerCase().contains(surname)){
                         correctedAssigned++;
                     }
                 }

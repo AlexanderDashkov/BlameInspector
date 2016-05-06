@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    private static BlameInspector blameInspector;
+    private static Manager manager;
     private static PropertyService propertyService;
     private static ArrayList<IReportPrinter> reportPrinters;
 
@@ -58,32 +58,32 @@ public class Main {
 
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException {
         try {
-            blameInspector = new BlameInspector(propertyService, parseProjectSources);
+            manager = new Manager(propertyService, parseProjectSources);
             if (endBound == -1) {
-                endBound = blameInspector.getNumberOfTickets();
+                endBound = manager.getNumberOfTickets();
             }
         } catch (Exception e) {
             printExceptionData(e);
         }
         for (int i = startBound; i <= endBound; i++) {
             try {
-                blameInspector.handleTicket(i);
+                manager.handleTicket(i);
                 if (!isInteractive) {
-                    if (isSettingAssignee) blameInspector.setAssignee();
+                    if (isSettingAssignee) manager.setAssignee();
                 } else {
                     Scanner in = new Scanner(System.in);
                     System.out.println("Set assignee on that ticket?(y/n)");
                     if (in.next().equals("y")) {
-                        blameInspector.setAssignee();
+                        manager.setAssignee();
                     }
                 }
-                blameInspector.refresh();
+                manager.refresh();
             } catch (TicketCorruptedException e) {
                 continue;
             }
         }
         for (IReportPrinter reportPrinter : reportPrinters) {
-            reportPrinter.printTickets(blameInspector.getResults());
+            reportPrinter.printTickets(manager.getResults());
             reportPrinter.flush();
         }
     }

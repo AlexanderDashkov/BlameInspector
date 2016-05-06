@@ -95,7 +95,9 @@ public abstract class VersionControlService {
     protected ArrayList<String> getFilesByFolder(final String className) {
         String[] folders = className.split("\\.");
         ArrayList<String> result = new ArrayList<>();
-        for (String currentPath : findSourceDir(pathToRepo)) {
+        String rootPath = pathToRepo.endsWith(File.separator) ?
+                pathToRepo.substring(0,pathToRepo.length() - 1) : pathToRepo;
+        for (String currentPath : findSourceDir(rootPath)) {
             currentPath += File.separator;
             outterloop:
             for (int i = 0; i < folders.length - 1; i++) {

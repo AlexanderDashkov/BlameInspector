@@ -38,18 +38,7 @@ public class ReportHtml implements IReportPrinter {
     private void printTicket(final TicketInfo ticketInfo) {
         String ticketNumber = String.valueOf(ticketInfo.getTicketNumber());
         if (ticketInfo.isAssigned()) {
-            String assignees = "";
             String link;
-            for (int i = 0; i < ticketInfo.getAssignee().size(); i++) {
-                link = "";
-                try {
-                    link = ticketInfo.getAssigneeUrl().get(i);
-                } catch (IndexOutOfBoundsException e) {
-                }
-                assignees += MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
-                        ticketInfo.getAssignee().get(i));
-                assignees += " ";
-            }
             String deepStackTrace = "";
             int i = 0;
             for (TraceInfo traceInfo : ticketInfo.getStackTrace()){
@@ -62,14 +51,15 @@ public class ReportHtml implements IReportPrinter {
                 }
                 try {
                     NFrame frame = traceInfo.getFrame();
-                    deepStackTrace += String.format("%1$80s" ,frame.toPrettyString() + frame.getLocation())
-                            + MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
-                            assignee) + "<br>";
+                    deepStackTrace += String.format("%-150s" ,frame.toPrettyString() + frame.getLocation())
+                            + String.format("%40s%n", MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
+                            assignee));
                 }catch (Exception e){
                     e.printStackTrace();
                 }
                 i++;
             }
+            deepStackTrace = deepStackTrace.replace(" ", "&nbsp");
             String dup = ticketInfo.getDupplicates().size() == 1 ? "No duplicates" : ticketInfo.getDupplicates().toString();
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),

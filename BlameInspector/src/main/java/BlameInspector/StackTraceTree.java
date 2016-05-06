@@ -1,7 +1,6 @@
 package blameinspector;
 
 import com.jmolly.stacktraceparser.NFrame;
-import com.jmolly.stacktraceparser.NStackTrace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ public class StackTraceTree {
     private int size;
 
     public StackTraceTree(final String projectName) {
-        root = new Node(null);
+        root = new Node();
         this.projectName = projectName;
         size = 0;
     }
@@ -29,13 +28,14 @@ public class StackTraceTree {
     * @return true, if exactly such StackTrace hasn't mentioned yet,
     * false otherwise
     */
-    public ArrayList<Integer> addTicket(final NStackTrace stackTrace, final int ticketNumber) {
-        List<NFrame> frames = stackTrace.getTrace().getFrames();
+    public ArrayList<Integer> addTicket(final ArrayList<TraceInfo> stackTrace, final int ticketNumber) {
+        List<TraceInfo> frames = stackTrace;
         Node currentNode = root;
         Node prevNode = root;
         for (int i = 0; i < frames.size(); i++) {
             prevNode = currentNode;
-            NFrame frame = frames.get(i);
+            TraceInfo traceInfo = frames.get(i);
+            NFrame frame = frames.get(i).getFrame();
             if (i + 1 == frames.size()) {
                 currentNode.addDuplicate(ticketNumber);
                 size++;
@@ -43,7 +43,7 @@ public class StackTraceTree {
             }
             if (currentNode.isFinal) {
                 if (i + 1 < frames.size()) {
-                    currentNode.addChild(new Node(frame));
+                    currentNode.addChild(new Node(frame, traceInfo.getFileName(), traceInfo.getLineNumber()));
                 } else {
                     currentNode.addDuplicate(ticketNumber);
                     size++;
@@ -51,13 +51,13 @@ public class StackTraceTree {
                 }
             }
             for (Node child : currentNode.getChildren()) {
-                if (child.isSimilar(frame)) {
+                if (child.isSimilar(frame, traceInfo)) {
                     currentNode = child;
                     break;
                 }
             }
             if (prevNode == currentNode) {
-                currentNode.addChild(new Node(frame));
+                currentNode.addChild(new Node(frame, traceInfo.getFileName(), traceInfo.getLineNumber()));
                 currentNode = currentNode.children.get(currentNode.children.size() - 1);
             }
         }
@@ -103,9 +103,17 @@ public class StackTraceTree {
             isFinal = true;
         }
 
-        public Node(final NFrame frame) {
+        public Node(){
+            init();
+            this.frame = null;
+        }
+
+        public Node(final NFrame frame, final String fileName,
+                    final int lineNumber) {
             init();
             this.frame = frame;
+            this.fileName = fileName;
+            this.lineNumber = lineNumber;
         }
 
         public Node(final NFrame frame, final int ticket) {
@@ -127,12 +135,14 @@ public class StackTraceTree {
             return isFinal;
         }
 
-        public boolean isSimilar(final NFrame ticketFrame) {
+        public boolean isSimilar(final NFrame ticketFrame,final TraceInfo traceInfo) {
             if (ticketFrame == null && frame == null) return true;
-            boolean isMethodSimilar = ticketFrame.getMethodName().equals(frame.getMethodName());
-            boolean isClassSimilar = ticketFrame.getClassName().equals(frame.getClassName());
-            boolean isLocSimilar = ticketFrame.getLocation().equals(frame.getLocation());
-            return isMethodSimilar && isClassSimilar && isLocSimilar;
+            return traceInfo.getLineNumber() == lineNumber &&
+                    traceInfo.getFileName().toLowerCase().equals(fileName.toLowerCase());
+//            boolean isMethodSimilar = ticketFrame.getMethodName().equals(frame.getMethodName());
+//            boolean isClassSimilar = ticketFrame.getClassName().equals(frame.getClassName());
+//            boolean isLocSimilar = ticketFrame.getLocation().equals(frame.getLocation());
+//            return isMethodSimilar && isClassSimilar && isLocSimilar;
         }
 
         public ArrayList<Integer> getDuplicates() {

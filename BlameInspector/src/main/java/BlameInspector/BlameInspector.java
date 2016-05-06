@@ -38,18 +38,11 @@ public class BlameInspector {
 
     private static boolean isParsingCode;
 
-    public BlameInspector(final PropertyService propertyService, boolean parseProjectSources) throws VersionControlServiceException, IssueTrackerException {
+    public BlameInspector(VersionControlService vcs, IssueTrackerService its, boolean parseProjectSources) throws VersionControlServiceException, IssueTrackerException {
         isParsingCode = parseProjectSources;
         results = new ArrayList<>();
-        stTree = new StackTraceTree(propertyService.getProjectName());
-        vcs = ServicesFactory.getVersionControlService(propertyService.getVersionControl(),
-                propertyService.getPathToRepo(),
-                propertyService.getIssueTracker(), parseProjectSources);
-        its = ServicesFactory.getIssueTrackerService(propertyService.getUserName(),
-                propertyService.getPassword(),
-                vcs.getRepositoryOwner(),
-                propertyService.getProjectName(),
-                propertyService.getIssueTracker());
+        this.vcs = vcs;
+        this.its = its;
         numberOfTickets = its.getNumberOfTickets();
     }
 
@@ -74,7 +67,7 @@ public class BlameInspector {
         return results;
     }
 
-    public void handleTicket(final int ticketNumber) throws TicketCorruptedException,
+    public TicketInfo handleTicket(final int ticketNumber) throws TicketCorruptedException,
             BlameInspectorException, VersionControlServiceException {
         ArrayList<TraceInfo> traces = new ArrayList<>();
         String issueBody = null;
@@ -144,11 +137,15 @@ public class BlameInspector {
         } catch (Exception e) {
             throw new BlameInspectorException(e);
         }
+        TicketInfo ticketInfo;
         if (exceptionMessage == null) {
-            results.add(new TicketInfo(ticketNumber, blameLogin, ticketURL, its.assigneeUrl(blameLogin), duples, traces));
+            ticketInfo = new TicketInfo(ticketNumber, blameLogin, ticketURL,
+                    its.assigneeUrl(blameLogin), null, traces);
         } else {
-            results.add(new TicketInfo(ticketNumber, exceptionMessage, ticketURL));
+            ticketInfo = new TicketInfo(ticketNumber, exceptionMessage, ticketURL);
         }
+        results.add(ticketInfo);
+        return ticketInfo;
     }
 
     private String standartizeStackTrace(final String text) {
@@ -215,7 +212,7 @@ public class BlameInspector {
             if (!isParsingCode) {
                 continue;
             }
-            System.out.println("handle ticket " + ticketNumber + "!");
+            //System.out.println("handle ticket " + ticketNumber + "!");
             //System.out.println("class and method :" + currentFrame.getClassName() + " " + currentFrame.getMethodName());
             //String path = vcs.containsMethod(currentFrame.getClassName() + "." + currentFrame.getMethodName());
             String path = vcs.containsCode(currentFrame.getClassName(), currentFrame.getMethodName());
@@ -232,9 +229,6 @@ public class BlameInspector {
             }
         }
         if (traces.size() > 0) {
-            if (stackTrace.getTrace().getFrames().size() > 0) {
-                duples = stTree.addTicket(stackTrace, ticketNumber);
-            }
             return traces;
         }
         if (stackTrace.getTrace().getFrames().size() == 0) {

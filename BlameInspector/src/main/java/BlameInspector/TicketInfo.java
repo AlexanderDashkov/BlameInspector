@@ -38,6 +38,10 @@ public class TicketInfo {
         this.errorType = e;
     }
 
+    public void setDupplicates(ArrayList<Integer> dupplicates){
+        this.dupplicates = dupplicates;
+    }
+
     public boolean isAssigned() {
         return this.assigned;
     }
