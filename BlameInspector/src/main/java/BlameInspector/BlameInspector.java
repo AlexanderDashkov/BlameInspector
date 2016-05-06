@@ -69,6 +69,7 @@ public class BlameInspector {
 
     public TicketInfo handleTicket(final int ticketNumber) throws TicketCorruptedException,
             BlameInspectorException, VersionControlServiceException {
+        //System.out.println("ticket resolving :" + ticketNumber);
         ArrayList<TraceInfo> traces = new ArrayList<>();
         String issueBody = null;
         String ticketURL = its.ticketUrl(ticketNumber);

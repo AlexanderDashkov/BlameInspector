@@ -18,10 +18,16 @@ public class GitService extends VersionControlService {
 
     private Git git;
     private ObjectId commitID;
+    private HashMap<String, HashMap<Integer, String>> blameEmails;
+    private HashMap<String, HashMap<Integer, String>> blameNames;
+    private HashMap<String, HashMap<Integer, String>> blameCommitsID;
 
     public GitService(final String pathToRepo, final String repoURL, final boolean isParsingCode)
             throws VersionControlServiceException {
         this.isParsingCode = isParsingCode;
+        this.blameNames = new HashMap<>();
+        this.blameEmails = new HashMap<>();
+        this.blameCommitsID = new HashMap<>();
         filesInRepo = new HashMap<>();
         methodLocation = new HashMap<>();
         repositoryURL = repoURL;
@@ -56,12 +62,21 @@ public class GitService extends VersionControlService {
     public String getBlamedUserCommit(final String fileName, final String className,
                                       final int lineNumber) {
         try {
+            if (blameCommitsID.containsKey(fileName)){
+                if (blameCommitsID.get(fileName).containsKey(lineNumber)){
+                    return blameCommitsID.get(fileName).get(lineNumber);
+                }
+            }
             String filePath = getFilePath(fileName, className);
             BlameCommand cmd = new BlameCommand(git.getRepository());
             cmd.setStartCommit(commitID);
             cmd.setFilePath(filePath);
             BlameResult blameResult = cmd.call();
             String blameCommit = blameResult.getSourceCommit(lineNumber - 1).getName();
+            if (!blameCommitsID.containsKey(fileName)){
+                blameCommitsID.put(fileName, new HashMap<>());
+            }
+            blameCommitsID.get(fileName).put(lineNumber, blameCommit);
             return blameCommit;
         } catch (Exception e) {
             //throw new VersionControlServiceException(e, e.getMessage());
@@ -73,6 +88,11 @@ public class GitService extends VersionControlService {
     public String getBlamedUserEmail(final String fileName, final String className,
                                      final int lineNumber) {
         try {
+            if (blameEmails.containsKey(fileName)){
+                if (blameEmails.get(fileName).containsKey(lineNumber)){
+                    return blameEmails.get(fileName).get(lineNumber);
+                }
+            }
             String filePath = getFilePath(fileName, className);
             //System.out.println("fileName :" + fileName + " filePath : " + filePath);
             BlameCommand cmd = new BlameCommand(git.getRepository());
@@ -84,6 +104,10 @@ public class GitService extends VersionControlService {
                 String chunkedEmail[] = blamedUserEmail.split("@");
                 blamedUserEmail = chunkedEmail[0] + "@" + chunkedEmail[1];
             }
+            if (!blameEmails.containsKey(fileName)){
+                blameEmails.put(fileName, new HashMap<>());
+            }
+            blameEmails.get(fileName).put(lineNumber, blamedUserEmail);
             return blamedUserEmail;
         } catch (Exception e) {
             //throw new VersionControlServiceException(e, e.getMessage());
@@ -93,12 +117,21 @@ public class GitService extends VersionControlService {
 
     public String getBlamedUserName(final String fileName, final String className, final int lineNumber) {
         try {
+            if (blameNames.containsKey(fileName)){
+                if (blameNames.get(fileName).containsKey(lineNumber)){
+                    return blameNames.get(fileName).get(lineNumber);
+                }
+            }
             String filePath = getFilePath(fileName, className);
             BlameCommand cmd = new BlameCommand(git.getRepository());
             cmd.setStartCommit(commitID);
             cmd.setFilePath(filePath);
             BlameResult blameResult = cmd.call();
             String blamedUserName = blameResult.getSourceAuthor(lineNumber - 1).getName();
+            if (!blameNames.containsKey(fileName)){
+                blameNames.put(fileName, new HashMap<>());
+            }
+            blameNames.get(fileName).put(lineNumber, blamedUserName);
             return blamedUserName;
         } catch (Exception e) {
             return null;

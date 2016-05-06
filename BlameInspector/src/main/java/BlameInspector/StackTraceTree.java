@@ -136,7 +136,7 @@ public class StackTraceTree {
         }
 
         public boolean isSimilar(final NFrame ticketFrame,final TraceInfo traceInfo) {
-            if (ticketFrame == null && frame == null) return true;
+            //if (ticketFrame == null && frame == null) return true;
             return traceInfo.getLineNumber() == lineNumber &&
                     traceInfo.getFileName().toLowerCase().equals(fileName.toLowerCase());
 //            boolean isMethodSimilar = ticketFrame.getMethodName().equals(frame.getMethodName());

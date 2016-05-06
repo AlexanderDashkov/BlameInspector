@@ -39,6 +39,7 @@ public class YouTrackService extends IssueTrackerService {
                            final String itsUrl) {
         super(username, password, repoOwner, projectName);
         ASSIGNEE_URL = "";
+        ISSUE_URL = "https://youtrack.jetbrains.com/issue/" + projectName + "-";
         String[] urlParam = itsUrl.split(SLASH);
         this.itsUrl = urlParam[0] + SLASH + SLASH + urlParam[2] + SLASH + REST_API + SLASH + ISSUE + SLASH + projectName;
     }
