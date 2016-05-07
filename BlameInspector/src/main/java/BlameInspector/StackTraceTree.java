@@ -32,6 +32,20 @@ public class StackTraceTree {
         List<TraceInfo> frames = stackTrace;
         Node currentNode = root;
         Node prevNode = root;
+        if (frames.size() == 1){
+            for (Node node: currentNode.getChildren()){
+                if (node.isSimilar(frames.get(0).getFrame(), frames.get(0))){
+                    size++;
+                    node.addDuplicate(ticketNumber);
+                    return node.getDuplicates();
+                }
+            }
+            currentNode.addChild(new Node(frames.get(0).getFrame(),
+                    frames.get(0).getFileName(), frames.get(0).getLineNumber()));
+            currentNode = currentNode.getChildren().get(currentNode.getChildren().size() - 1);
+            currentNode.addDuplicate(ticketNumber);
+            return currentNode.getDuplicates();
+        }
         for (int i = 0; i < frames.size(); i++) {
             prevNode = currentNode;
             TraceInfo traceInfo = frames.get(i);

@@ -132,6 +132,8 @@ public class BlameInspector {
         } catch (IssueTrackerException e) {
             if (e.isCannotGetBlame()) {
                 exceptionMessage = e.getMessage();
+            } else if(e.getMessage().equals("Not enough info got from VCS")){
+                exceptionMessage = e.getMessage();
             } else {
                 throw new BlameInspectorException(e);
             }

@@ -3,6 +3,7 @@ package blameinspector.reportprinters;
 
 import blameinspector.TicketInfo;
 import blameinspector.TraceInfo;
+import blameinspector.issuetracker.IssueTrackerService;
 import com.jmolly.stacktraceparser.NFrame;
 
 import java.io.File;
@@ -15,18 +16,22 @@ import java.util.ArrayList;
 public class ReportHtml implements IReportPrinter {
 
     private PrintWriter reportWriter;
+    private String projectName;
+    private IssueTrackerService its;
 
 
     private int numberOfAllTickets;
     private int numberOfAssigned;
 
-    public ReportHtml() throws FileNotFoundException, UnsupportedEncodingException {
+    public ReportHtml(final String projectName) throws FileNotFoundException, UnsupportedEncodingException {
         File reportFile = new File("report.html");
         reportWriter = new PrintWriter(reportFile, "UTF-8");
-        reportWriter.print(IHtmlStructureStorage.HTML_START);
+        reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
+        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName)));
         numberOfAllTickets = 0;
         numberOfAssigned = 0;
     }
+
 
     @Override
     public void printTickets(ArrayList<TicketInfo> results) {
@@ -60,12 +65,30 @@ public class ReportHtml implements IReportPrinter {
                 i++;
             }
             deepStackTrace = deepStackTrace.replace(" ", "&nbsp");
-            String dup = ticketInfo.getDupplicates().size() == 1 ? "No duplicates" : ticketInfo.getDupplicates().toString();
+            String dupU = "";
+            String dupR = "";
+            if (ticketInfo.getDupplicates().size() == 1){
+                dupU = "No duplicates";
+                dupR = "No duplicates";
+            }else {
+                for (int number :ticketInfo.getDupplicates()){
+                    String assignee = "";
+                    try{
+                        assignee = its.assignee(number);
+                    }catch (Exception e){}
+                    if (assignee != ""){
+                        dupR += MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, its.ticketUrl(number), number) + " ";
+                    }else {
+                        dupU += MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, its.ticketUrl(number), number) + " ";
+                    }
+                }
+            }
+            //String dup = ticketInfo.getDupplicates().size() == 1 ? "No duplicates" : ticketInfo.getDupplicates().toString();
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
                     ticketNumber,
                     deepStackTrace,
-                    "-", dup));
+                    "-", dupU, dupR));
             numberOfAssigned++;
         } else {
             //reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
@@ -89,5 +112,17 @@ public class ReportHtml implements IReportPrinter {
         reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_END,
                 String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned)));
         reportWriter.close();
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public void setIts(IssueTrackerService its) {
+        this.its = its;
     }
 }

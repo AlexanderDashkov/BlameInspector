@@ -69,4 +69,8 @@ public class Manager {
     public BlameInspector getBlameInspector(){
         return blameInspector;
     }
+
+    public IssueTrackerService getIssueTrackerService(){
+        return issueTrackerService;
+    }
 }

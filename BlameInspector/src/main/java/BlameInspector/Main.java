@@ -59,6 +59,9 @@ public class Main {
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException {
         try {
             manager = new Manager(propertyService, parseProjectSources);
+            if (reportPrinters.size() > 1){
+                ((ReportHtml)reportPrinters.get(1)).setIts(manager.getIssueTrackerService());
+            }
             if (endBound == -1) {
                 endBound = manager.getNumberOfTickets();
             }
@@ -202,7 +205,8 @@ public class Main {
         reportPrinters = new ArrayList<>();
         reportPrinters.add(new ReportConsole());
         if (cmdLine.hasOption(GENERATE_HTML_IDENT)) {
-            reportPrinters.add(new ReportHtml());
+            ReportHtml reportHtml = new ReportHtml(projectName);
+            reportPrinters.add(reportHtml);
         }
     }
 

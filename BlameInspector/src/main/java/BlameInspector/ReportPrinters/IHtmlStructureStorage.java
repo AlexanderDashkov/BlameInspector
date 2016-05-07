@@ -3,7 +3,7 @@ package blameinspector.reportprinters;
 
 public interface IHtmlStructureStorage {
 
-    public final String HTML_START = "<!DOCTYPE html>\n" +
+    public final String HTML_HEAD = "<!DOCTYPE html>\n" +
             "<html>\n" +
             "<head>\n" +
             "<style>\n" +
@@ -34,15 +34,16 @@ public interface IHtmlStructureStorage {
             "</style>\n" +
             "<title>blameinspector Report file</title>" +
             "</head>\n" +
-            "<body>\n" +
-            "<h3>blameinspector report.</h3>" +
+            "<body>\n";
+    public final String  HTML_START = "<h3>{0} project report.</h3>" +
             "\n" +
             "<table id=\"t01\">\n" +
             "  <tr>\n" +
             "    <th>Ticket Number</th>\n" +
             "    <th>Assignee </th>    \n" +
             "    <th>Errors, if occured </th>\n" +
-            "    <th>Duplicates, if exists </th>\n" +
+            "    <th>Duplicates unresolved </th>\n" +
+            "    <th>Duplicates resolved </th>\n" +
             "  </tr>\n";
     public final String HTML_END =
             "</table>\n" +
@@ -56,6 +57,7 @@ public interface IHtmlStructureStorage {
             "    <td>{2}</th> \n" +
             "    <td>{3}</th>\n" +
             "    <td>{4}</th>\n" +
+            "    <td>{5}</th>\n" +
             "  </tr>\n";
     ;
     public final String HREF_ELEM = "<a href=\"{0}\">{1}</a>";
