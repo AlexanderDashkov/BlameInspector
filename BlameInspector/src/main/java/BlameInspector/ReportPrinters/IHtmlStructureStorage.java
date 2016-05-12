@@ -40,10 +40,12 @@ public interface IHtmlStructureStorage {
             "<table id=\"t01\">\n" +
             "  <tr>\n" +
             "    <th>Ticket Number</th>\n" +
-            "    <th>Assignee </th>    \n" +
+            "    <th>StackTrace </th>    \n" +
+            "    <th>Assignees by stackTrace </th>    \n" +
             "    <th>Errors, if occured </th>\n" +
             "    <th>Duplicates unresolved </th>\n" +
             "    <th>Duplicates resolved </th>\n" +
+            "    <th>Duplicates assignees </th>\n" +
             "  </tr>\n";
     public final String HTML_END =
             "</table>\n" +
@@ -53,11 +55,13 @@ public interface IHtmlStructureStorage {
                     "</html>";
 
     public final String TABLE_ELEM = "  <tr>\n" +
-            "    <td><a href=\"{0}\">Ticket # {1}</a></th>\n" +
-            "    <td>{2}</th> \n" +
-            "    <td>{3}</th>\n" +
+            "    <td><a href=\"{0}\" id = \"{1}\">Ticket # {2}</a></th>\n" +
+            "    <td>{3}</th> \n" +
             "    <td>{4}</th>\n" +
             "    <td>{5}</th>\n" +
+            "    <td>{6}</th>\n" +
+            "    <td>{7}</th>\n" +
+            "    <td>{8}</th>\n" +
             "  </tr>\n";
     ;
     public final String HREF_ELEM = "<a href=\"{0}\">{1}</a>";

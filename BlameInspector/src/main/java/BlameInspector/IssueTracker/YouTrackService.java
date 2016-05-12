@@ -150,6 +150,7 @@ public class YouTrackService extends IssueTrackerService {
             Element e = (Element) element.getElementsByTagName(FIELD_TAG).item(i);
             if (e.getAttribute(NAME_ATTR).equals(ASSGN_VALUE)) {
                 assignee = e.getElementsByTagName(VAL_TAG).item(0).getTextContent().trim();
+                //System.out.println("assignee :" + assignee);
                 return assignee;
             }
         }

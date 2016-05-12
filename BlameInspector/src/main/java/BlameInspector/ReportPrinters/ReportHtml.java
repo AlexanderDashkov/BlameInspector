@@ -45,6 +45,7 @@ public class ReportHtml implements IReportPrinter {
         if (ticketInfo.isAssigned()) {
             String link;
             String deepStackTrace = "";
+            String assignees = "";
             int i = 0;
             for (TraceInfo traceInfo : ticketInfo.getStackTrace()){
                 link = "";
@@ -56,9 +57,9 @@ public class ReportHtml implements IReportPrinter {
                 }
                 try {
                     NFrame frame = traceInfo.getFrame();
-                    deepStackTrace += String.format("%-150s" ,frame.toPrettyString() + frame.getLocation())
-                            + String.format("%40s%n", MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
-                            assignee));
+                    deepStackTrace += frame.toPrettyString() + frame.getLocation();
+                    assignees +=  MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
+                            assignee) + "\n";
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -67,6 +68,7 @@ public class ReportHtml implements IReportPrinter {
             deepStackTrace = deepStackTrace.replace(" ", "&nbsp");
             String dupU = "";
             String dupR = "";
+            String dupAssignees = "";
             if (ticketInfo.getDupplicates().size() == 1){
                 dupU = "No duplicates";
                 dupR = "No duplicates";
@@ -75,20 +77,38 @@ public class ReportHtml implements IReportPrinter {
                     String assignee = "";
                     try{
                         assignee = its.assignee(number);
-                    }catch (Exception e){}
-                    if (assignee != ""){
-                        dupR += MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, its.ticketUrl(number), number) + " ";
-                    }else {
-                        dupU += MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, its.ticketUrl(number), number) + " ";
+                        ticketInfo.addAssignee(assignee);
+                    }catch (Exception e){
                     }
+                    if (assignee != "" && assignee!=null){
+                        dupR += MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, "#t"+String.valueOf(number) , number) + " ";
+                    }else {
+                        dupU += MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, "#t"+String.valueOf(number) , number) + " ";
+                    }
+                }
+            }
+            String topAssignee = ticketInfo.getTopAssignee().toLowerCase();
+            //System.out.println("topAssignee : " + topAssignee);
+            for (int number :ticketInfo.getDupplicates()) {
+                String assignee = "";
+                try {
+                    assignee = its.assignee(number);
+                    if (topAssignee.contains(assignee.toLowerCase())){
+                        dupAssignees += "<b>" + assignee + "</b>\n";
+                    }else {
+                        dupAssignees += assignee + "\n";
+                    }
+                } catch (Exception e) {
                 }
             }
             //String dup = ticketInfo.getDupplicates().size() == 1 ? "No duplicates" : ticketInfo.getDupplicates().toString();
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
+                    "t" + String.valueOf(ticketNumber),
                     ticketNumber,
                     deepStackTrace,
-                    "-", dupU, dupR));
+                    assignees,
+                    "-", dupU, dupR, dupAssignees));
             numberOfAssigned++;
         } else {
             //reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,

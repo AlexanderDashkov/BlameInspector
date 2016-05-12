@@ -2,6 +2,7 @@ package blameinspector;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TicketInfo {
 
@@ -13,6 +14,7 @@ public class TicketInfo {
     private ArrayList<String> assigneeUrl;
     private ArrayList<Integer> dupplicates;
     private String ticketUrl;
+    private HashMap<String, Integer> assigneePoints;
 
     private String errorType;
 
@@ -21,6 +23,7 @@ public class TicketInfo {
         this.ticketNumber = ticketNumber;
         this.assigned = assigned;
         this.ticketUrl = ticketUrl;
+        assigneePoints = new HashMap<String, Integer>();
     }
 
     public TicketInfo(final int ticketNumber, final ArrayList<String> assignee, final String ticketUrl,
@@ -28,6 +31,9 @@ public class TicketInfo {
                       final ArrayList<TraceInfo> stackTrace) {
         init(ticketNumber, true, ticketUrl);
         this.assignee = assignee;
+        for (String as : assignee){
+            assigneePoints.put(as, 1);
+        }
         this.assigneeUrl = assigneeUrl;
         this.dupplicates = dupl;
         this.stackTrace = stackTrace;
@@ -36,6 +42,26 @@ public class TicketInfo {
     public TicketInfo(final int ticketNumber, final String e, final String ticketUrl) {
         init(ticketNumber, false, ticketUrl);
         this.errorType = e;
+    }
+
+    public void addAssignee(final String as){
+        int points = 0;
+        if (assigneePoints.containsKey(as.toLowerCase())){
+            points = assigneePoints.get(as);
+        }
+        assigneePoints.put(as, ++points);
+    }
+
+    public String getTopAssignee(){
+        int max = 0;
+        String result = null;
+        for (String as : assigneePoints.keySet()){
+            if (max < assigneePoints.get(as)){
+                max = assigneePoints.get(as);
+                result = as;
+            }
+        }
+        return result;
     }
 
     public void setDupplicates(ArrayList<Integer> dupplicates){
