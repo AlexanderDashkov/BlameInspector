@@ -17,6 +17,7 @@ public interface IHtmlStructureStorage {
             "th, td {\n" +
             "    padding: 5px;\n" +
             "    text-align: left;\n" +
+            "    vertical-align: top;\n" +
             "}\n" +
             "table#t01 tr:nth-child(even) {\n" +
             "    background-color: #eee;\n" +

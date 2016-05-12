@@ -57,7 +57,7 @@ public class ReportHtml implements IReportPrinter {
                 }
                 try {
                     NFrame frame = traceInfo.getFrame();
-                    deepStackTrace += frame.toPrettyString() + frame.getLocation();
+                    deepStackTrace += frame.toPrettyString() + frame.getLocation() + "<br>";
                     assignees +=  MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
                             assignee) + "\n";
                 }catch (Exception e){

@@ -95,6 +95,7 @@ public class GitService extends VersionControlService {
             }
             String filePath = getFilePath(fileName, className);
             //System.out.println("fileName :" + fileName + " filePath : " + filePath);
+            filePath = filePath.replace(this.pathToRepo, "");
             BlameCommand cmd = new BlameCommand(git.getRepository());
             cmd.setStartCommit(commitID);
             cmd.setFilePath(filePath);
