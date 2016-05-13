@@ -37,12 +37,14 @@ public class Main {
     private static final String SHOW_IDENT = "s";
     private static final String ALL_IDENT = "a";
     private static final String PARSE_PROJECT_IDENT = "d";
+    private static final String STORED_RES_IDENT = "o";
 
     private static String projectName;
     private static int startBound, endBound;
     private static boolean isInteractive, isSettingAssignee;
     private static boolean isDebug;
     private static boolean parseProjectSources;
+    private static boolean useDb;
 
 
     public static void main(final String[] args) {
@@ -58,7 +60,7 @@ public class Main {
 
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException {
         try {
-            manager = new Manager(propertyService, parseProjectSources);
+            manager = new Manager(propertyService, parseProjectSources, useDb);
             if (reportPrinters.size() > 1){
                 ((ReportHtml)reportPrinters.get(1)).setIts(manager.getIssueTrackerService());
             }
@@ -85,6 +87,7 @@ public class Main {
                 continue;
             }
         }
+        manager.storeData();
         for (IReportPrinter reportPrinter : reportPrinters) {
             reportPrinter.printTickets(manager.getResults());
             reportPrinter.flush();
@@ -119,6 +122,8 @@ public class Main {
         ticketNumbersGroup.addOption(ticketsRangeOption);
         ticketNumbersGroup.addOption(allTicketsOption);
         ticketNumbersGroup.setRequired(true);
+        Option isUsingDbOption = new Option(STORED_RES_IDENT, "stored", false, "is using stored data");
+        isUsingDbOption.setArgs(0);
         OptionGroup fixKeys = new OptionGroup();
         fixKeys.addOption(new Option(FIX_IDENT, "fix", false, "set assignee automatically"));
         fixKeys.addOption(new Option(SHOW_IDENT, "show", false, "just print assignee, no setting (default)"));
@@ -136,6 +141,7 @@ public class Main {
         options.addOption(deepOption);
         options.addOption(generateReport);
         options.addOption(helpOption);
+        options.addOption(isUsingDbOption);
 
 
         CommandLineParser cmdLineParser = new PosixParser();
@@ -207,6 +213,10 @@ public class Main {
         if (cmdLine.hasOption(GENERATE_HTML_IDENT)) {
             ReportHtml reportHtml = new ReportHtml(projectName);
             reportPrinters.add(reportHtml);
+        }
+        useDb = false;
+        if (cmdLine.hasOption(STORED_RES_IDENT)){
+            useDb = true;
         }
     }
 

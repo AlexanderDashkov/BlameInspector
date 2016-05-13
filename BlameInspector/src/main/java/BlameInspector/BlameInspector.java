@@ -14,7 +14,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
-public class BlameInspector {
+public class BlameInspector implements Serializable{
 
     private final String AT = "at ";
     private final String RIGHT_BRACKET = ")";
@@ -22,13 +22,14 @@ public class BlameInspector {
     private final String RIGHT_TAG_BRACKET = "&gt;";
     private final String NBSP = "&nbsp";
     private final String NL = "\n";
+    private static final long serialVersionUID = 1L;
 
     private static final String NO_STACKTRACE = "No StackTrace found in current ticket!";
     private static final String NO_ENTRY = "No entry of exception found in current repository.";
 
-    private static StackTraceTree stTree;
-    private static VersionControlService vcs;
-    private static IssueTrackerService its;
+    private transient static StackTraceTree stTree;
+    private transient static VersionControlService vcs;
+    private transient static IssueTrackerService its;
     private static int numberOfTickets;
     private ArrayList<String> blameLogin;
     private static ArrayList<Integer> duples;
@@ -53,6 +54,10 @@ public class BlameInspector {
             return false;
         }
 
+    }
+
+    public void setResults(ArrayList<TicketInfo> results){
+        this.results = results;
     }
 
     public String properAssignee(final int ticketNumber) throws IOException {

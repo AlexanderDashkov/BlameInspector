@@ -2,10 +2,11 @@ package blameinspector;
 
 import com.jmolly.stacktraceparser.NFrame;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StackTraceTree {
+public class StackTraceTree implements Serializable {
 
     private Node root;
     private String projectName;
@@ -103,9 +104,9 @@ public class StackTraceTree {
     }
 
 
-    private static class Node {
+    private static class Node implements Serializable {
         private boolean isFinal;
-        private NFrame frame;
+//        private NFrame frame;
         private int lineNumber;
         private String fileName;
         private ArrayList<Integer> duplicates;
@@ -119,20 +120,20 @@ public class StackTraceTree {
 
         public Node(){
             init();
-            this.frame = null;
+//            this.frame = null;
         }
 
         public Node(final NFrame frame, final String fileName,
                     final int lineNumber) {
             init();
-            this.frame = frame;
+//            this.frame = frame;
             this.fileName = fileName;
             this.lineNumber = lineNumber;
         }
 
         public Node(final NFrame frame, final int ticket) {
             init();
-            this.frame = frame;
+//            this.frame = frame;
             this.duplicates.add(ticket);
         }
 

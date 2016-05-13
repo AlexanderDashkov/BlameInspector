@@ -117,7 +117,7 @@ public class AppTest
 
     protected void expertTest() throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, BlameInspectorException, TicketCorruptedException, IOException {
         PropertyService propertyService = new PropertyService("Kotlin", "config.properties");
-        Manager manager = new Manager(propertyService, true);
+        Manager manager = new Manager(propertyService, true, false);
         int endBound  = 8;
         int allAmount = 0;
         int correctedAssigned = 0;

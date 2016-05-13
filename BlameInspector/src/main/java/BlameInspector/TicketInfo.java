@@ -1,10 +1,11 @@
 package blameinspector;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class TicketInfo {
+public class TicketInfo implements Serializable {
 
     private boolean assigned;
     private int ticketNumber;

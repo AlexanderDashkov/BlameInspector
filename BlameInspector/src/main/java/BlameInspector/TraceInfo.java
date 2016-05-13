@@ -2,15 +2,18 @@ package blameinspector;
 
 import com.jmolly.stacktraceparser.NFrame;
 
+import java.io.Serializable;
+
 /**
  * Created by Alexander on 26.02.2016.
  */
-public class TraceInfo {
+public class TraceInfo implements Serializable{
     private String className;
     private String methodName;
     private String fileName;
     private int lineNumber;
-    private NFrame frame;
+    private transient NFrame frame;
+    private String stackTraceLine;
 
     public TraceInfo(final String className,
                      final String methodName,
@@ -20,6 +23,7 @@ public class TraceInfo {
         this.className = className;
         this.methodName = methodName;
         this.lineNumber = lineNumber;
+        this.stackTraceLine = frame.toPrettyString() + frame.getLocation();
         this.fileName = fileName;
         this.frame = frame;
     }
@@ -38,6 +42,10 @@ public class TraceInfo {
 
     public NFrame getFrame(){
         return frame;
+    }
+
+    public String getStackTraceLine(){
+        return stackTraceLine;
     }
 
     public String getFileName() {

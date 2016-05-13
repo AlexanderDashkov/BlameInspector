@@ -4,16 +4,13 @@ import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.json.JSONException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 
-public abstract class IssueTrackerService {
+public abstract class IssueTrackerService implements Serializable {
 
     protected String userName;
     protected String repositoryName;

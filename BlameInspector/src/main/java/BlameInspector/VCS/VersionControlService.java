@@ -6,10 +6,11 @@ import com.github.antlrjavaparser.api.CompilationUnit;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class VersionControlService {
+public abstract class VersionControlService implements Serializable {
 
     protected HashMap<String, ArrayList<String>> filesInRepo;
     protected HashMap<String, String> methodLocation;

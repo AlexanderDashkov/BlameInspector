@@ -4,7 +4,6 @@ package blameinspector.reportprinters;
 import blameinspector.TicketInfo;
 import blameinspector.TraceInfo;
 import blameinspector.issuetracker.IssueTrackerService;
-import com.jmolly.stacktraceparser.NFrame;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,8 +55,7 @@ public class ReportHtml implements IReportPrinter {
                 } catch (IndexOutOfBoundsException e) {
                 }
                 try {
-                    NFrame frame = traceInfo.getFrame();
-                    deepStackTrace += frame.toPrettyString() + frame.getLocation() + "<br>";
+                    deepStackTrace += traceInfo.getStackTraceLine() + "<br>";
                     assignees +=  MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
                             assignee) + "\n";
                 }catch (Exception e){
