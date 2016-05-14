@@ -16,9 +16,8 @@ import org.tmatesoft.svn.core.SVNException;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
+import java.text.MessageFormat;
 
 /**
  * Unit test for simple App.
@@ -31,6 +30,8 @@ public class AppTest
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
     private final PrintStream sysOut;
 
+    private int counter;
+
     /**
      * Create the test case
      *
@@ -38,6 +39,7 @@ public class AppTest
      */
     public AppTest(String testName) throws IOException {
         super(testName);
+        counter = 0;
         this.projectName = "BlameWhoTest";
         this.repoOwner = "JackSmithJunior";
         sysOut = System.out;
@@ -54,7 +56,7 @@ public class AppTest
 
 
     public void testSimpleTicket() throws IOException, GitAPIException, JSONException, SVNException, SAXException, ParserConfigurationException, PropertyServiceException {
-    //    ticketChecker("1", "JaneSmithSenior");
+        ticketChecker("1", "JaneSmithSenior");
     }
 
     public void testCorruptedTicket() {
@@ -70,7 +72,7 @@ public class AppTest
     }
 
     public void testThirdLibraryException() throws JSONException, GitAPIException, IOException, SVNException, SAXException, ParserConfigurationException, PropertyServiceException {
-    //    ticketChecker("4", "JaneSmithSenior");
+        ticketChecker("4", "JaneSmithSenior");
     }
 
     public void testComplexTicket() throws ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException, PropertyServiceException {
@@ -104,6 +106,35 @@ public class AppTest
         Main.main(new String[]{"-p", "BlameWhoTest", "-t", "8", "-d"});
         assertEquals(myOut.toString().trim(), "Ticket # 8. Assigned to JaneSmithSenior");
         System.setOut(sysOut);
+    }
+
+    public void testPerformanceSmall() throws IssueTrackerException, PropertyServiceException, BlameInspectorException, VersionControlServiceException, FileNotFoundException, UnsupportedEncodingException {
+        PropertyService propertyService = new PropertyService("BlameWhoTest", "config.properties");
+        Manager manager = new Manager(propertyService, false, false);
+        performanceTester("BlameWhoTest", manager, 1, 8);
+    }
+
+    public void testPerformanceMedium() throws IssueTrackerException, PropertyServiceException, BlameInspectorException, VersionControlServiceException, FileNotFoundException, UnsupportedEncodingException {
+        PropertyService propertyService = new PropertyService("Kotlin", "config.properties");
+        Manager manager = new Manager(propertyService, false, false);
+        performanceTester("Kotlin", manager, 1249, 1290);
+    }
+
+    protected void performanceTester(String projectName, Manager manager, int start,int end) throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, BlameInspectorException, FileNotFoundException, UnsupportedEncodingException {
+        manager.setNThread(1);
+        long startTime1 = System.currentTimeMillis();
+        manager.proccesTickets(start, end);
+        long endTime1 = System.currentTimeMillis();
+        manager.setNThread(10);
+        long startTime2 = System.currentTimeMillis();
+        manager.proccesTickets(start, end);
+        long endTime2 = System.currentTimeMillis();
+        PrintWriter writer = new PrintWriter(projectName + "PerformanceResults.txt", "UTF-8");
+        writer.println(projectName + " from " + start + " to "+  end +  " :");
+        writer.println(MessageFormat.format("Single: {0} \n Multi: {1}",
+                String.valueOf(endTime1 - startTime1),
+                String.valueOf(endTime2 - startTime2)));
+        writer.close();
     }
 
     protected void ticketCheckerOutterProjects(String ticketNumber, String projectName, String result) throws IOException {
@@ -161,8 +192,16 @@ public class AppTest
         IssueService service = new IssueService(client);
         Issue issue = service.getIssue(repoOwner,
                 this.projectName, Integer.parseInt(ticketNumber));
-        assertEquals(issue.getAssignee().getLogin(), blameLogin);
-        issue.setAssignee(new User().setLogin(""));
-        service.editIssue(repoOwner, this.projectName, issue);
+        try {
+            assertEquals(issue.getAssignee().getLogin(), blameLogin);
+            issue.setAssignee(new User().setLogin(""));
+            service.editIssue(repoOwner, this.projectName, issue);
+        }catch (NullPointerException e){
+            System.out.println("Something went wrong with github.");
+            counter++;
+            if (counter==5){
+                e.printStackTrace();
+            }
+        }
     }
 }

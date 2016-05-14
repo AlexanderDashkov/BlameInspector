@@ -61,8 +61,8 @@ public class Main {
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException {
         try {
             manager = new Manager(propertyService, parseProjectSources, useDb);
-            if (reportPrinters.size() > 1){
-                ((ReportHtml)reportPrinters.get(1)).setIts(manager.getIssueTrackerService());
+            if (reportPrinters.size() > 1) {
+                ((ReportHtml) reportPrinters.get(1)).setIts(manager.getIssueTrackerService());
             }
             if (endBound == -1) {
                 endBound = manager.getNumberOfTickets();
@@ -70,28 +70,25 @@ public class Main {
         } catch (Exception e) {
             printExceptionData(e);
         }
-        for (int i = startBound; i <= endBound; i++) {
-            try {
-                manager.handleTicket(i);
-                if (!isInteractive) {
-                    if (isSettingAssignee) manager.setAssignee();
-                } else {
-                    Scanner in = new Scanner(System.in);
-                    System.out.println("Set assignee on that ticket?(y/n)");
-                    if (in.next().equals("y")) {
-                        manager.setAssignee();
-                    }
-                }
-                manager.refresh();
-            } catch (TicketCorruptedException e) {
-                continue;
-            }
-        }
+        manager.proccesTickets(startBound, endBound);
         manager.storeData();
         for (IReportPrinter reportPrinter : reportPrinters) {
             reportPrinter.printTickets(manager.getResults());
             reportPrinter.flush();
         }
+    }
+
+    public static boolean setAssignee() {
+        if (!isInteractive) {
+            if (isSettingAssignee) return true;
+        } else {
+            Scanner in = new Scanner(System.in);
+            System.out.println("Set assignee on that ticket?(y/n)");
+            if (in.next().equals("y")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void processConfigFile() throws PropertyServiceException {
@@ -215,7 +212,7 @@ public class Main {
             reportPrinters.add(reportHtml);
         }
         useDb = false;
-        if (cmdLine.hasOption(STORED_RES_IDENT)){
+        if (cmdLine.hasOption(STORED_RES_IDENT)) {
             useDb = true;
         }
     }
