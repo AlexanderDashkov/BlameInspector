@@ -13,6 +13,7 @@ import org.antlr.runtime.RecognitionException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 public class BlameInspector implements Serializable{
 
@@ -22,6 +23,7 @@ public class BlameInspector implements Serializable{
     private final String RIGHT_TAG_BRACKET = "&gt;";
     private final String NBSP = "&nbsp";
     private final String NL = "\n";
+    private final Pattern STACKTRACE_PATTERN = Pattern.compile(".+\\(.+\\.(java|kt):\\d+\\)");
     private static final long serialVersionUID = 1L;
 
     private static final String NO_STACKTRACE = "No StackTrace found in current ticket!";
@@ -44,7 +46,9 @@ public class BlameInspector implements Serializable{
         results = new ArrayList<>();
         this.vcs = vcs;
         this.its = its;
-        numberOfTickets = its.getNumberOfTickets();
+        if (its != null) {
+            numberOfTickets = its.getNumberOfTickets();
+        }
     }
 
     public boolean isAssigned(final int ticketNumber){
@@ -54,6 +58,10 @@ public class BlameInspector implements Serializable{
             return false;
         }
 
+    }
+
+    public boolean isStartingStackTrace(final String line){
+        return STACKTRACE_PATTERN.matcher(line).matches();
     }
 
     public void setResults(ArrayList<TicketInfo> results){
@@ -189,7 +197,7 @@ public class BlameInspector implements Serializable{
         }
     }
 
-    public static ArrayList<TraceInfo> getTraceInfo(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
+    public synchronized static NStackTrace getParsedStackTrace(final String issueBody) throws TicketCorruptedException {
         NStackTrace stackTrace;
         PrintStream sysOut = System.out;
         PrintStream sysErr = System.err;
@@ -203,6 +211,11 @@ public class BlameInspector implements Serializable{
             System.setOut(sysOut);
             System.setErr(sysErr);
         }
+        return stackTrace;
+    }
+
+    public static ArrayList<TraceInfo> getTraceInfo(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
+        NStackTrace stackTrace = getParsedStackTrace(issueBody);
         String[] locationInfo;
         if (stackTrace == null) {
             throw new TicketCorruptedException(NO_STACKTRACE);

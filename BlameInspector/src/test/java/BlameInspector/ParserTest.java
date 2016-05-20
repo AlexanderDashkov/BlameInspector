@@ -1,6 +1,8 @@
 package blameinspector;
 
 
+import blameinspector.issuetracker.IssueTrackerException;
+import blameinspector.vcs.VersionControlServiceException;
 import com.jmolly.stacktraceparser.NStackTrace;
 import com.jmolly.stacktraceparser.StackTraceParser;
 import junit.framework.TestCase;
@@ -15,6 +17,15 @@ public class ParserTest extends TestCase {
         super(testName);
     }
 
+    public void testRegExp() throws VersionControlServiceException, IssueTrackerException {
+        BlameInspector blamer = new BlameInspector(null, null, false);
+        assertTrue(blamer.isStartingStackTrace("SampleClassOne.invokeJaneException(SampleClassOne.java:14)"));
+        assertTrue(blamer.isStartingStackTrace("org.jetbrains.jet.codegen.CompilationErrorHandler$1.reportException(CompilationErrorHandler.java:11)"));
+        assertTrue(blamer.isStartingStackTrace("org.jetbrains.jet.codegen.CompilationErrorHandler$1.reportException(CompilationErrorHandler.kt:11)"));
+        assertTrue(!blamer.isStartingStackTrace("time is 1:20"));
+        assertTrue(!blamer.isStartingStackTrace("postedAtTime 1:20"));
+    }
+
     public void testOptimiserStackTrace() {
         try {
             NStackTrace stackTrace = StackTraceParser.parse(Storage.test2);
@@ -23,6 +34,7 @@ public class ParserTest extends TestCase {
             e.printStackTrace();
         }
     }
+
 
 
     public void testParseNoException() {

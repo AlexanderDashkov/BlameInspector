@@ -17,20 +17,31 @@ public class ReportHtml implements IReportPrinter {
     private PrintWriter reportWriter;
     private String projectName;
     private IssueTrackerService its;
+    private String htmlResult;
 
 
     private int numberOfAllTickets;
     private int numberOfAssigned;
 
     public ReportHtml(final String projectName) throws FileNotFoundException, UnsupportedEncodingException {
+        htmlResult = "";
         File reportFile = new File("report.html");
         reportWriter = new PrintWriter(reportFile, "UTF-8");
         reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
+        htmlResult += IHtmlStructureStorage.HTML_HEAD;
         reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName)));
+        htmlResult+= MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName));
         numberOfAllTickets = 0;
         numberOfAssigned = 0;
     }
 
+    public void setWriter(PrintWriter writer){
+        this.reportWriter = writer;
+    }
+
+    public String getHtmlResult(){
+        return htmlResult;
+    }
 
     @Override
     public void printTickets(ArrayList<TicketInfo> results) {
@@ -67,7 +78,7 @@ public class ReportHtml implements IReportPrinter {
             String dupU = "";
             String dupR = "";
             String dupAssignees = "";
-            if (ticketInfo.getDupplicates().size() == 1){
+            if (ticketInfo.getDupplicates() == null || ticketInfo.getDupplicates().size() == 1){
                 dupU = "No duplicates";
                 dupR = "No duplicates";
             }else {
@@ -87,26 +98,30 @@ public class ReportHtml implements IReportPrinter {
             }
             String topAssignee = ticketInfo.getTopAssignee().toLowerCase();
             //System.out.println("topAssignee : " + topAssignee);
-            for (int number :ticketInfo.getDupplicates()) {
-                String assignee = "";
-                try {
-                    assignee = its.assignee(number);
-                    if (topAssignee.contains(assignee.toLowerCase())){
-                        dupAssignees += "<b>" + assignee + "</b>\n";
-                    }else {
-                        dupAssignees += assignee + "\n";
+            if (ticketInfo.getDupplicates() != null) {
+                for (int number : ticketInfo.getDupplicates()) {
+                    String assignee = "";
+                    try {
+                        assignee = its.assignee(number);
+                        if (topAssignee.contains(assignee.toLowerCase())) {
+                            dupAssignees += "<b>" + assignee + "</b>\n";
+                        } else {
+                            dupAssignees += assignee + "\n";
+                        }
+                    } catch (Exception e) {
                     }
-                } catch (Exception e) {
                 }
             }
             //String dup = ticketInfo.getDupplicates().size() == 1 ? "No duplicates" : ticketInfo.getDupplicates().toString();
-            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
+            String output = MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
                     ticketInfo.getTicketUrl(),
                     "t" + String.valueOf(ticketNumber),
                     ticketNumber,
                     deepStackTrace,
                     assignees,
-                    "-", dupU, dupR, dupAssignees));
+                    "-", dupU, dupR, dupAssignees);
+            reportWriter.print(output);
+            htmlResult += output;
             numberOfAssigned++;
         } else {
             //reportWriter.print(MessageFormat.format(IHtmlStructureStorage.TABLE_ELEM,
@@ -120,6 +135,7 @@ public class ReportHtml implements IReportPrinter {
         for (ArrayList<Integer> dupl : duplicates) {
             for (int ticket : dupl) {
                 reportWriter.write(ticket);
+                htmlResult += ticket;
             }
             reportWriter.println();
         }
@@ -127,8 +143,10 @@ public class ReportHtml implements IReportPrinter {
 
     @Override
     public void flush() {
-        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_END,
-                String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned)));
+        String output = MessageFormat.format(IHtmlStructureStorage.HTML_END,
+                String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned));
+        reportWriter.print(output);
+        htmlResult += output;
         reportWriter.close();
     }
 

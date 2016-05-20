@@ -3,9 +3,10 @@ package blameinspector;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
-public class TicketInfo implements Serializable {
+public class TicketInfo implements Serializable, Comparator<TicketInfo>, Comparable<TicketInfo> {
 
     private boolean assigned;
     private int ticketNumber;
@@ -99,5 +100,15 @@ public class TicketInfo implements Serializable {
 
     public ArrayList<TraceInfo> getStackTrace(){
         return stackTrace;
+    }
+
+    @Override
+    public int compareTo(TicketInfo o) {
+        return this.ticketNumber > o.ticketNumber ? 1 : this.ticketNumber == o.ticketNumber ? 0 : -1;
+    }
+
+    @Override
+    public int compare(TicketInfo o1, TicketInfo o2) {
+        return o1.ticketNumber - o2.ticketNumber;
     }
 }

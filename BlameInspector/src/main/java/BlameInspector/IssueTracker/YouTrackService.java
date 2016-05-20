@@ -123,6 +123,11 @@ public class YouTrackService extends IssueTrackerService {
         }
     }
 
+    @Override
+    public boolean isUpToDate() {
+        return true;
+    }
+
     public String assignee(final int issueNumber) throws IOException {
         String result = getRequest(itsUrl + DASH + issueNumber, null);
         String path = itsUrl + DASH + issueNumber;

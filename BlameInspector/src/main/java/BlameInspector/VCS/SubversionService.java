@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SubversionService extends VersionControlService {
 
@@ -26,7 +27,7 @@ public class SubversionService extends VersionControlService {
     public SubversionService(final String pathToRepo,
                              final String repoURL, final boolean isParsingCode) throws SVNException, VersionControlServiceException {
         filesInRepo = new HashMap<>();
-        methodLocation = new HashMap<>();
+        methodLocation = new ConcurrentHashMap<>();
         this.repositoryURL = repoURL;
         this.pathToRepo = pathToRepo;
         File workingCopyLoc = new File(pathToRepo);

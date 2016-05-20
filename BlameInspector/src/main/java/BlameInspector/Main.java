@@ -8,6 +8,7 @@ import blameinspector.vcs.VersionControlServiceException;
 import org.apache.commons.cli.*;
 
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,6 +39,8 @@ public class Main {
     private static final String ALL_IDENT = "a";
     private static final String PARSE_PROJECT_IDENT = "d";
     private static final String STORED_RES_IDENT = "o";
+    private static final long timeDuration = 300_000;
+    private static final long sleepTime = 120_000;
 
     private static String projectName;
     private static int startBound, endBound;
@@ -52,13 +55,32 @@ public class Main {
             processComandLine(args);
             processConfigFile();
             processTickets();
+            printResults(null);
+
+
+//            Server server = new Server(8080);
+//
+//            ContextHandler context = new ContextHandler();
+//            context.setContextPath( "/BlameInspector" );
+//            context.setHandler( manager );
+//
+//            server.setHandler(context);
+//
+//            long startTime = System.currentTimeMillis();
+//            while (System.currentTimeMillis() - startTime > timeDuration){
+//                 System.out.println("in while");
+//                 Thread.sleep(sleepTime);
+//                 server.start();
+//            }
+//            server.join();
         } catch (Exception e) {
             printExceptionData(e);
             System.exit(0);
         }
+        //System.out.println("Finished properly!");
     }
 
-    public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException {
+    public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException, ManagerException {
         try {
             manager = new Manager(propertyService, parseProjectSources, useDb);
             if (reportPrinters.size() > 1) {
@@ -72,7 +94,13 @@ public class Main {
         }
         manager.proccesTickets(startBound, endBound);
         manager.storeData();
+    }
+
+    public static void printResults(PrintWriter writer){
         for (IReportPrinter reportPrinter : reportPrinters) {
+            if (writer != null && reportPrinter instanceof ReportHtml){
+                 ((ReportHtml) reportPrinter).setWriter(writer);
+            }
             reportPrinter.printTickets(manager.getResults());
             reportPrinter.flush();
         }
@@ -219,6 +247,7 @@ public class Main {
 
 
     public static void printExceptionData(final Exception e) {
+        System.out.println("Exception occured :");
         System.out.println(e.getMessage());
         if (isDebug) {
             e.printStackTrace();

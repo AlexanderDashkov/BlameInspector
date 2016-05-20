@@ -30,6 +30,11 @@ public class BitBucketService extends IssueTrackerService {
     }
 
     @Override
+    public boolean isUpToDate() {
+        return true;
+    }
+
+    @Override
     public String assignee(int number) {
         return null;
     }

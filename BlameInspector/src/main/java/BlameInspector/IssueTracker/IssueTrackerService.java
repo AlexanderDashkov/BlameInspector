@@ -29,6 +29,8 @@ public abstract class IssueTrackerService implements Serializable {
         this.password = password;
     }
 
+    public abstract boolean isUpToDate();
+
     public abstract String assignee(final int number) throws IOException;
 
     public abstract String getIssueBody(int issueNumber) throws IOException, JSONException;

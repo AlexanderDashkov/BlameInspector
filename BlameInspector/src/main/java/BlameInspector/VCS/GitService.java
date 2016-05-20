@@ -12,6 +12,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class GitService extends VersionControlService {
@@ -29,7 +30,7 @@ public class GitService extends VersionControlService {
         this.blameEmails = new HashMap<>();
         this.blameCommitsID = new HashMap<>();
         filesInRepo = new HashMap<>();
-        methodLocation = new HashMap<>();
+        methodLocation = new ConcurrentHashMap<>();
         repositoryURL = repoURL;
         this.pathToRepo = pathToRepo;
         try {

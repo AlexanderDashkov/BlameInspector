@@ -45,6 +45,11 @@ public class GitHubService extends IssueTrackerService {
     }
 
     @Override
+    public boolean isUpToDate() {
+        return true;
+    }
+
+    @Override
     public String assignee(int number) throws IOException {
         return issueService.getIssue(repositoryOwner, repositoryName, number).getAssignee().getLogin();
     }

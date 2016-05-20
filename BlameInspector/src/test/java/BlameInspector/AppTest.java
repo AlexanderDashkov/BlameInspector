@@ -108,19 +108,19 @@ public class AppTest
         System.setOut(sysOut);
     }
 
-    public void testPerformanceSmall() throws IssueTrackerException, PropertyServiceException, BlameInspectorException, VersionControlServiceException, FileNotFoundException, UnsupportedEncodingException {
+    public void testPerformanceSmall() throws IssueTrackerException, PropertyServiceException, BlameInspectorException, VersionControlServiceException, FileNotFoundException, UnsupportedEncodingException, ManagerException {
         PropertyService propertyService = new PropertyService("BlameWhoTest", "config.properties");
         Manager manager = new Manager(propertyService, false, false);
         performanceTester("BlameWhoTest", manager, 1, 8);
     }
 
-    public void testPerformanceMedium() throws IssueTrackerException, PropertyServiceException, BlameInspectorException, VersionControlServiceException, FileNotFoundException, UnsupportedEncodingException {
+    public void testPerformanceMedium() throws IssueTrackerException, PropertyServiceException, BlameInspectorException, VersionControlServiceException, FileNotFoundException, UnsupportedEncodingException, ManagerException {
         PropertyService propertyService = new PropertyService("Kotlin", "config.properties");
         Manager manager = new Manager(propertyService, false, false);
         performanceTester("Kotlin", manager, 1249, 1290);
     }
 
-    protected void performanceTester(String projectName, Manager manager, int start,int end) throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, BlameInspectorException, FileNotFoundException, UnsupportedEncodingException {
+    protected void performanceTester(String projectName, Manager manager, int start,int end) throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, BlameInspectorException, FileNotFoundException, UnsupportedEncodingException, ManagerException {
         manager.setNThread(1);
         long startTime1 = System.currentTimeMillis();
         manager.proccesTickets(start, end);

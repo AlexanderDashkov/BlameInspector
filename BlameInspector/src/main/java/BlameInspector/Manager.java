@@ -5,13 +5,19 @@ import blameinspector.issuetracker.IssueTrackerException;
 import blameinspector.issuetracker.IssueTrackerService;
 import blameinspector.vcs.VersionControlService;
 import blameinspector.vcs.VersionControlServiceException;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class Manager {
+public class Manager extends AbstractHandler {
 
     private static final String blameInspectorFile = "blameInspector.ser";
     private static final String itsFile = "its.ser";
@@ -69,8 +75,9 @@ public class Manager {
 
 
 
-    public void proccesTickets(int startBound, int endBound) throws VersionControlServiceException, BlameInspectorException, IssueTrackerException {
-        nThreads = (nThreads == 0) ? 2 : nThreads;
+    public void proccesTickets(int startBound, int endBound) throws VersionControlServiceException, BlameInspectorException, IssueTrackerException, ManagerException {
+        nThreads = (nThreads == 0) ? 10 : nThreads;
+        //System.out.println("number of threads : " + nThreads);
         ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
         List<FutureTask> taskList = new ArrayList<>();
         for (int i = startBound; i <= endBound; i++) {
@@ -103,9 +110,15 @@ public class Manager {
         }
         //System.out.println(result);
         executorService.shutdown();
+        try {
+            executorService.awaitTermination(200, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            throw new ManagerException(e);
+        }
     }
 
     public ArrayList<TicketInfo> getResults() {
+        Collections.sort(results);
         return results;
     }
 
@@ -177,5 +190,22 @@ public class Manager {
             // or throw manager exception
         }
         return null;
+    }
+
+    @Override
+    public void handle(String s, Request request, HttpServletRequest httpServletRequest, HttpServletResponse response) throws IOException, ServletException {
+        response.setContentType("text/html; charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        if (!issueTrackerService.isUpToDate()) {
+            PrintWriter out = response.getWriter();
+            try {
+                Main.processTickets();
+            } catch (Exception e) {
+                Main.printExceptionData(e);
+            }
+            Main.printResults(out);
+            request.setHandled(true);
+        }
     }
 }
