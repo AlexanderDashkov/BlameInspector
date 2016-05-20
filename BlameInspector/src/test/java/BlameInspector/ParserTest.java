@@ -22,6 +22,7 @@ public class ParserTest extends TestCase {
         assertTrue(blamer.isStartingStackTrace("SampleClassOne.invokeJaneException(SampleClassOne.java:14)"));
         assertTrue(blamer.isStartingStackTrace("org.jetbrains.jet.codegen.CompilationErrorHandler$1.reportException(CompilationErrorHandler.java:11)"));
         assertTrue(blamer.isStartingStackTrace("org.jetbrains.jet.codegen.CompilationErrorHandler$1.reportException(CompilationErrorHandler.kt:11)"));
+        assertTrue(blamer.isStartingStackTrace("SampleClassOne.invokeJaneException(SourceFile:14)"));
         assertTrue(!blamer.isStartingStackTrace("time is 1:20"));
         assertTrue(!blamer.isStartingStackTrace("postedAtTime 1:20"));
     }

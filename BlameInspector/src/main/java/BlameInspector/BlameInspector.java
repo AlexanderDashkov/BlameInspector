@@ -23,7 +23,7 @@ public class BlameInspector implements Serializable{
     private final String RIGHT_TAG_BRACKET = "&gt;";
     private final String NBSP = "&nbsp";
     private final String NL = "\n";
-    private final Pattern STACKTRACE_PATTERN = Pattern.compile(".+\\(.+\\.(java|kt):\\d+\\)");
+    private final Pattern STACKTRACE_PATTERN = Pattern.compile(".+\\(.+(\\.java|\\.kt)?:\\d+\\)$");
     private static final long serialVersionUID = 1L;
 
     private static final String NO_STACKTRACE = "No StackTrace found in current ticket!";
@@ -95,34 +95,53 @@ public class BlameInspector implements Serializable{
         }
         if (issueBody != null) {
             String body = standartizeStackTrace(issueBody);
-            outerwhile:
-            while (traces.size() == 0 || traces.get(0) == null || traces.get(0).getClassName() == null && body.length() != 0) {
-                issueBody = body;
-                issueBody = correctStackTrace(issueBody);
-                body = issueBody;
-                while (traces.size() == 0 || traces.get(0) == null || traces.get(0).getClassName() == null && issueBody.length() != 0) {
-                    try {
-                        traces = parseIssueBody(issueBody, ticketNumber);
-                        if (issueBody.length() <= 1) break;
-                        issueBody = issueBody.substring(1);
-                    } catch (TicketCorruptedException e) {
-                        if (e.getMessage().equals(NO_ENTRY)) {
-                            exceptionMessage = NO_ENTRY;
-                            break outerwhile;
-                        }
-                        String words[] = issueBody.split("\\s+");
-                        if (words.length > 1 && issueBody.length() > (words[0].length() + 1)) {
-                            issueBody = issueBody.substring(words[0].length() + 1);
-                            continue;
-                        } else {
-                            exceptionMessage = NO_STACKTRACE;
-                            break outerwhile;
-                        }
-                    } catch (Exception e) {
-                        throw new BlameInspectorException(e);
-                    }
+            // the insert of smart parsing of stacktrace using pattern
+            String lexems[] = body.split("\\s+");
+            String stackTrace = "";
+            for (int i = 1; i < lexems.length; i++){
+                if (isStartingStackTrace(lexems[i]) && lexems[i-1].equals("at")){
+                    stackTrace += AT + lexems[i] + "\n";
                 }
             }
+            //System.out.println("Stacktrace # " + ticketNumber + "is:");
+            //System.out.println(stackTrace);
+            if (stackTrace.isEmpty()){
+                exceptionMessage = NO_STACKTRACE;
+            }
+            try {
+                traces = parseIssueBody(stackTrace,ticketNumber);
+            } catch (TicketCorruptedException e){
+                exceptionMessage = e.getMessage();
+            }
+//            outerwhile:
+//            while (traces.size() == 0 || traces.get(0) == null || traces.get(0).getClassName() == null && body.length() != 0) {
+//                System.out.println("in while");
+//                issueBody = body;
+//                issueBody = correctStackTrace(issueBody);
+//                body = issueBody;
+//                while (traces.size() == 0 || traces.get(0) == null || traces.get(0).getClassName() == null && issueBody.length() != 0) {
+//                    try {
+//                        traces = parseIssueBody(issueBody, ticketNumber);
+//                        if (issueBody.length() <= 1) break;
+//                        issueBody = issueBody.substring(1);
+//                    } catch (TicketCorruptedException e) {
+//                        if (e.getMessage().equals(NO_ENTRY)) {
+//                            exceptionMessage = NO_ENTRY;
+//                            break outerwhile;
+//                        }
+//                        String words[] = issueBody.split("\\s+");
+//                        if (words.length > 1 && issueBody.length() > (words[0].length() + 1)) {
+//                            issueBody = issueBody.substring(words[0].length() + 1);
+//                            continue;
+//                        } else {
+//                            exceptionMessage = NO_STACKTRACE;
+//                            break outerwhile;
+//                        }
+//                    } catch (Exception e) {
+//                        throw new BlameInspectorException(e);
+//                    }
+//                }
+//            }
         }
         if ((traces.size() == 0 || traces.get(0) == null) && exceptionMessage == null) {
             exceptionMessage = NO_STACKTRACE;
