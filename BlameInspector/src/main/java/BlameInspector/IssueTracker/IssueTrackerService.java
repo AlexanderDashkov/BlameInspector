@@ -1,5 +1,6 @@
 package blameinspector.issuetracker;
 
+import blameinspector.TicketInfo;
 import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.json.JSONException;
@@ -9,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class IssueTrackerService implements Serializable {
 
@@ -29,7 +31,7 @@ public abstract class IssueTrackerService implements Serializable {
         this.password = password;
     }
 
-    public abstract boolean isUpToDate();
+    public abstract boolean isUpToDate(final List<TicketInfo> results);
 
     public abstract String assignee(final int number) throws IOException;
 

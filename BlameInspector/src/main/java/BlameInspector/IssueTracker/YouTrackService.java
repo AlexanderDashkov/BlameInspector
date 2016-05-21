@@ -1,5 +1,6 @@
 package blameinspector.issuetracker;
 
+import blameinspector.TicketInfo;
 import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.json.JSONException;
@@ -17,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 public class YouTrackService extends IssueTrackerService {
 
@@ -124,7 +126,7 @@ public class YouTrackService extends IssueTrackerService {
     }
 
     @Override
-    public boolean isUpToDate() {
+    public boolean isUpToDate(final List<TicketInfo> results) {
         return true;
     }
 

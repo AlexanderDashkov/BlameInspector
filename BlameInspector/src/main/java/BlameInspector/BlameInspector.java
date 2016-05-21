@@ -175,10 +175,14 @@ public class BlameInspector implements Serializable{
         TicketInfo ticketInfo;
         if (exceptionMessage == null) {
             ticketInfo = new TicketInfo(ticketNumber, blameLogin, ticketURL,
-                    its.assigneeUrl(blameLogin), null, traces);
+                    its.assigneeUrl(blameLogin), null, traces, issueBody);
         } else {
-            ticketInfo = new TicketInfo(ticketNumber, exceptionMessage, ticketURL);
+            ticketInfo = new TicketInfo(ticketNumber, exceptionMessage, ticketURL, issueBody);
         }
+        return addingResult(ticketInfo);
+    }
+
+    public synchronized TicketInfo addingResult(final TicketInfo ticketInfo){
         results.add(ticketInfo);
         return ticketInfo;
     }

@@ -19,10 +19,7 @@ import java.util.concurrent.*;
 
 public class Manager extends AbstractHandler {
 
-    private static final String blameInspectorFile = "blameInspector.ser";
-    private static final String itsFile = "its.ser";
-    private static final String stTreeFile = "stTree.ser";
-    private static final String RESULT_FILE = "result.ser";
+    private static final String SER_FORMAT = ".ser";
 
     private static VersionControlService versionControlService;
     private static IssueTrackerService issueTrackerService;
@@ -48,13 +45,14 @@ public class Manager extends AbstractHandler {
                 propertyService.getProjectName(),
                 propertyService.getIssueTracker());
         blameInspector = new BlameInspector(versionControlService, issueTrackerService, isParsingCode);
-        if (useDb && readObjectFromFile(projectName + RESULT_FILE) != null) {
-            this.results = (ArrayList<TicketInfo>) readObjectFromFile(projectName + RESULT_FILE);
-            stackTraceTree = (StackTraceTree) readObjectFromFile(projectName + stTreeFile);
+        if (useDb && readObjectsFromFile(projectName)!= null && readObjectsFromFile(projectName).get(0) != null) {
+            ArrayList<Object> objects = readObjectsFromFile(projectName);
+            this.results = (ArrayList<TicketInfo>) objects.get(0);
+            stackTraceTree = (StackTraceTree) objects.get(1);
             areReadyResults = true;
             return;
         }
-        this.results = new ArrayList<>();
+        this.results = new ArrayList<TicketInfo>();
         stackTraceTree = new StackTraceTree(propertyService.getProjectName());
     }
 
@@ -62,60 +60,76 @@ public class Manager extends AbstractHandler {
         this.nThreads = n;
     }
 
-    public void handleTicket(final int ticketNumber) throws VersionControlServiceException, BlameInspectorException, TicketCorruptedException {
+    public TicketInfo handleTicket(final int ticketNumber) throws VersionControlServiceException, BlameInspectorException, TicketCorruptedException {
         if (areReadyResults) {
-            return;
+            return null;
         }
         TicketInfo ticketInfo = blameInspector.handleTicket(ticketNumber);
-        if (ticketInfo.isAssigned()) {
-            ArrayList<Integer> duples = stackTraceTree.addTicket(ticketInfo.getStackTrace(), ticketNumber);
-            ticketInfo.setDupplicates(duples);
-        }
+        setDuplicate(ticketInfo, ticketNumber);
+        return ticketInfo;
     }
 
+    public  void setDuplicate(final TicketInfo ticketInfo, final int ticketNumber){
+        //if (ticketInfo.isAssigned()) {
+            ArrayList<Integer> duples = stackTraceTree.addTicket(ticketInfo.getStackTrace(), ticketNumber);
+            ticketInfo.setDupplicates(duples);
+        //}
+    }
 
+    public void proccesTickets() throws IssueTrackerException, ManagerException, BlameInspectorException, VersionControlServiceException {
+        int startBound = results.size();
+        int endBound = issueTrackerService.getNumberOfTickets();
+        proccesTickets(startBound, endBound);
+    }
 
     public void proccesTickets(int startBound, int endBound) throws VersionControlServiceException, BlameInspectorException, IssueTrackerException, ManagerException {
+        if (areReadyResults) return;
         nThreads = (nThreads == 0) ? 10 : nThreads;
-        //System.out.println("number of threads : " + nThreads);
         ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
         List<FutureTask> taskList = new ArrayList<>();
         for (int i = startBound; i <= endBound; i++) {
             final int ticketNumber = i;
-            FutureTask<String> task = new FutureTask<String>(new Callable<String>(){
+            FutureTask<TicketInfo> task = new FutureTask<TicketInfo>(new Callable<TicketInfo>(){
                 @Override
-                public String call(){
+                public TicketInfo call(){
+                    TicketInfo ticketInfo =  null;
                     try{
                         BlameInspector blamer = new BlameInspector(versionControlService, issueTrackerService, isParsingCode);
                         blamer.setResults(results);
-                        blamer.handleTicket(ticketNumber);
-                        //System.out.println(ticketNumber);
+                        ticketInfo = blamer.handleTicket(ticketNumber);
+                        Main.getManager().setDuplicate(ticketInfo, ticketInfo.getTicketNumber());
                     if (Main.setAssignee()) {
                         setAssignee();
                     }
                     refresh();
                     } catch (Exception e){}
-                    return String.valueOf(ticketNumber);
+                    return ticketInfo;
                 }
             });
             taskList.add(task);
             executorService.execute(task);
         }
-        String result = "";
         for (int j = 0; j < taskList.size(); j++) {
-            FutureTask<Integer> task = taskList.get(j);
+            FutureTask<TicketInfo> task = taskList.get(j);
             try {
-                result += task.get();
-            }catch (ExecutionException | InterruptedException e){}
+               TicketInfo ticketInfo = task.get();
+            }catch (ExecutionException | InterruptedException e){
+                throw new ManagerException(e);
+            }
         }
-        //System.out.println(result);
         executorService.shutdown();
         try {
-            executorService.awaitTermination(200, TimeUnit.NANOSECONDS);
+            executorService.awaitTermination(200, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             throw new ManagerException(e);
         }
     }
+
+    public synchronized void addingTicket(final TicketInfo ticketInfo){
+        results.add(ticketInfo);
+    }
+
+
 
     public ArrayList<TicketInfo> getResults() {
         Collections.sort(results);
@@ -154,34 +168,35 @@ public class Manager extends AbstractHandler {
         return issueTrackerService;
     }
 
-    public void storeData() {
+    public void storeData() throws ManagerException {
         if (areReadyResults) {
             return;
         }
-        //System.out.println("size : " + blameInspector.getResults().size());
-        //writeObjectToFile(projectName + blameInspectorFile, blameInspector);
-        writeObjectToFile(projectName + stTreeFile, stackTraceTree);
-        writeObjectToFile(projectName + RESULT_FILE, results);
+        writeObjectsToFile(projectName, results, stackTraceTree);
     }
 
-    private void writeObjectToFile(final String fileName, Object o) {
+    private void writeObjectsToFile(final String fileName, Object o1, Object o2) throws ManagerException {
         try {
-            FileOutputStream fout = new FileOutputStream(fileName);
+            FileOutputStream fout = new FileOutputStream(fileName + SER_FORMAT);
             ObjectOutputStream oos = new ObjectOutputStream(fout);
-            oos.writeObject(o);
+            oos.writeObject(o1);
+            oos.writeObject(o2);
             oos.close();
         } catch (IOException e) {
-            // do something wise here
-            // or throw manager exception
+            throw new ManagerException(e);
         }
     }
 
-    private Object readObjectFromFile(final String fileName) {
+    private ArrayList<Object> readObjectsFromFile(final String fileName) {
         try {
-            FileInputStream streamIn = new FileInputStream(fileName);
+            ArrayList<Object> res = new ArrayList<>();
+            FileInputStream streamIn = new FileInputStream(fileName + SER_FORMAT);
             ObjectInputStream objectinputstream = new ObjectInputStream(streamIn);
             Object object = objectinputstream.readObject();
-            return object;
+            res.add(object);
+            object = objectinputstream.readObject();
+            res.add(object);
+            return res;
         } catch (ClassNotFoundException e) {
             // do something wise here
             // or throw manager exception
@@ -196,16 +211,16 @@ public class Manager extends AbstractHandler {
     public void handle(String s, Request request, HttpServletRequest httpServletRequest, HttpServletResponse response) throws IOException, ServletException {
         response.setContentType("text/html; charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
+        PrintWriter out = response.getWriter();
+        Main.printResults(out);
+        request.setHandled(true);
+    }
 
-        if (!issueTrackerService.isUpToDate()) {
-            PrintWriter out = response.getWriter();
-            try {
-                Main.processTickets();
-            } catch (Exception e) {
-                Main.printExceptionData(e);
-            }
-            Main.printResults(out);
-            request.setHandled(true);
+    public boolean isDbUpToDate(){
+        if (!issueTrackerService.isUpToDate(results)){
+            areReadyResults = false;
+            return false;
         }
+        return true;
     }
 }

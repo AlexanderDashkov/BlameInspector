@@ -4,7 +4,7 @@ package blameinspector.reportprinters;
 import blameinspector.TicketInfo;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.List;
 
 public class ReportConsole implements IReportPrinter {
 
@@ -21,7 +21,7 @@ public class ReportConsole implements IReportPrinter {
     }
 
     @Override
-    public void printTickets(ArrayList<TicketInfo> results) {
+    public void printTickets(List<TicketInfo> results) {
         for (TicketInfo ticketInfo : results) {
             printTicket(ticketInfo);
         }

@@ -1,5 +1,6 @@
 package blameinspector.issuetracker;
 
+import blameinspector.TicketInfo;
 import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.eclipse.egit.github.core.Issue;
@@ -15,6 +16,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.List;
 
 
 public class GitHubService extends IssueTrackerService {
@@ -44,8 +46,19 @@ public class GitHubService extends IssueTrackerService {
         this.numberOfTickets = repositoryService.getRepository(repositoryOwner, repositoryName).getOpenIssues();
     }
 
+
+
     @Override
-    public boolean isUpToDate() {
+    public boolean isUpToDate(final List<TicketInfo> results) {
+        this.numberOfTickets =  repository.getOpenIssues();
+        if (results.size() < this.numberOfTickets) return false;
+//        for (TicketInfo ticketInfo : results){
+//            try {
+//                if (!ticketInfo.getContent().toLowerCase().equals(getIssueBody(ticketInfo.getTicketNumber()))){
+//                    return false;
+//                }
+//            } catch (IOException e) {}
+//        }
         return true;
     }
 

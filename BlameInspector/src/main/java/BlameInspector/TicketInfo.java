@@ -12,6 +12,7 @@ public class TicketInfo implements Serializable, Comparator<TicketInfo>, Compara
     private int ticketNumber;
     private ArrayList<String> assignee;
     private ArrayList<TraceInfo> stackTrace;
+    private String content;
 
     private ArrayList<String> assigneeUrl;
     private ArrayList<Integer> dupplicates;
@@ -21,17 +22,18 @@ public class TicketInfo implements Serializable, Comparator<TicketInfo>, Compara
     private String errorType;
 
     private void init(final int ticketNumber, final boolean assigned,
-                      final String ticketUrl) {
+                      final String ticketUrl, final String content) {
         this.ticketNumber = ticketNumber;
         this.assigned = assigned;
         this.ticketUrl = ticketUrl;
         assigneePoints = new HashMap<String, Integer>();
+        this.content = content;
     }
 
     public TicketInfo(final int ticketNumber, final ArrayList<String> assignee, final String ticketUrl,
                       final ArrayList<String> assigneeUrl, ArrayList<Integer> dupl,
-                      final ArrayList<TraceInfo> stackTrace) {
-        init(ticketNumber, true, ticketUrl);
+                      final ArrayList<TraceInfo> stackTrace, final String content) {
+        init(ticketNumber, true, ticketUrl, content);
         this.assignee = assignee;
         for (String as : assignee){
             assigneePoints.put(as, 1);
@@ -41,8 +43,8 @@ public class TicketInfo implements Serializable, Comparator<TicketInfo>, Compara
         this.stackTrace = stackTrace;
     }
 
-    public TicketInfo(final int ticketNumber, final String e, final String ticketUrl) {
-        init(ticketNumber, false, ticketUrl);
+    public TicketInfo(final int ticketNumber, final String e, final String ticketUrl, final String content) {
+        init(ticketNumber, false, ticketUrl, content);
         this.errorType = e;
     }
 
@@ -100,6 +102,10 @@ public class TicketInfo implements Serializable, Comparator<TicketInfo>, Compara
 
     public ArrayList<TraceInfo> getStackTrace(){
         return stackTrace;
+    }
+
+    public String getContent(){
+        return this.content;
     }
 
     @Override

@@ -29,7 +29,7 @@ public class StackTraceTree implements Serializable {
     * @return true, if exactly such StackTrace hasn't mentioned yet,
     * false otherwise
     */
-    public ArrayList<Integer> addTicket(final ArrayList<TraceInfo> stackTrace, final int ticketNumber) {
+    public synchronized ArrayList<Integer> addTicket(final ArrayList<TraceInfo> stackTrace, final int ticketNumber) {
         List<TraceInfo> frames = stackTrace;
         Node currentNode = root;
         Node prevNode = root;

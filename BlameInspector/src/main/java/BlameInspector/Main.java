@@ -6,19 +6,21 @@ import blameinspector.reportprinters.ReportConsole;
 import blameinspector.reportprinters.ReportHtml;
 import blameinspector.vcs.VersionControlServiceException;
 import org.apache.commons.cli.*;
+import org.eclipse.jetty.http.HttpCompliance;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Server;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Scanner;
+import java.util.*;
 
-public class Main {
+public class Main{
 
     private static Manager manager;
     private static PropertyService propertyService;
     private static ArrayList<IReportPrinter> reportPrinters;
+    private static Server server;
 
     private static String header = "Examples of usage:\n  " +
             "blameinspector -p MyProject -t 24  -- show probable assignee for 24 ticket on MyProject\n  " +
@@ -39,8 +41,6 @@ public class Main {
     private static final String ALL_IDENT = "a";
     private static final String PARSE_PROJECT_IDENT = "d";
     private static final String STORED_RES_IDENT = "o";
-    private static final long timeDuration = 300_000;
-    private static final long sleepTime = 120_000;
 
     private static String projectName;
     private static int startBound, endBound;
@@ -57,27 +57,20 @@ public class Main {
             processTickets();
             printResults(null);
 
+            server = new Server(9090);
+            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
+            server.setHandler(manager);
 
-//            Server server = new Server(8080);
-//
-//            ContextHandler context = new ContextHandler();
-//            context.setContextPath( "/BlameInspector" );
-//            context.setHandler( manager );
-//
-//            server.setHandler(context);
-//
-//            long startTime = System.currentTimeMillis();
-//            while (System.currentTimeMillis() - startTime > timeDuration){
-//                 System.out.println("in while");
-//                 Thread.sleep(sleepTime);
-//                 server.start();
-//            }
-//            server.join();
+            server.start();
+
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTaskImpl();
+            timer.schedule(timerTask, 200);
+            server.join();
         } catch (Exception e) {
             printExceptionData(e);
             System.exit(0);
         }
-        //System.out.println("Finished properly!");
     }
 
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException, ManagerException {
@@ -99,6 +92,7 @@ public class Main {
     public static void printResults(PrintWriter writer){
         for (IReportPrinter reportPrinter : reportPrinters) {
             if (writer != null && reportPrinter instanceof ReportHtml){
+                 ((ReportHtml) reportPrinter).setProjectName(projectName);
                  ((ReportHtml) reportPrinter).setWriter(writer);
             }
             reportPrinter.printTickets(manager.getResults());
@@ -252,5 +246,37 @@ public class Main {
         if (isDebug) {
             e.printStackTrace();
         }
+    }
+
+    public static Manager getManager(){
+        return manager;
+    }
+
+
+}
+
+class TimerTaskImpl extends TimerTask{
+
+    private static final long TIME_DURATION= 900_000;
+    private static final long SLEEP_TIME = 10_000;
+
+    @Override
+    public void run() {
+        try {
+            long startTimeMillis = System.currentTimeMillis();
+            long endTimeMillis = System.currentTimeMillis();
+            while(endTimeMillis - startTimeMillis < TIME_DURATION) {
+                Thread.sleep(SLEEP_TIME);
+                //System.out.println("time has come again!");
+                Manager manager = Main.getManager();
+                if (!manager.isDbUpToDate()) {
+                    //System.out.println("Something has changed!");
+                    manager.proccesTickets();
+                }
+            }
+        } catch (Exception e) {
+            Main.printExceptionData(e);
+        }
+
     }
 }

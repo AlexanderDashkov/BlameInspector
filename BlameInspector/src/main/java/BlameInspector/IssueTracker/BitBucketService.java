@@ -1,5 +1,6 @@
 package blameinspector.issuetracker;
 
+import blameinspector.TicketInfo;
 import blameinspector.vcs.BlamedUserInfo;
 import blameinspector.vcs.VersionControlServiceException;
 import org.apache.commons.codec.binary.Base64;
@@ -9,6 +10,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class BitBucketService extends IssueTrackerService {
@@ -30,7 +32,7 @@ public class BitBucketService extends IssueTrackerService {
     }
 
     @Override
-    public boolean isUpToDate() {
+    public boolean isUpToDate(final List<TicketInfo> results) {
         return true;
     }
 

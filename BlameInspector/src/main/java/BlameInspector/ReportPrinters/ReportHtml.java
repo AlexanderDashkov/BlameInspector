@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ReportHtml implements IReportPrinter {
 
@@ -29,14 +31,21 @@ public class ReportHtml implements IReportPrinter {
         reportWriter = new PrintWriter(reportFile, "UTF-8");
         reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
         htmlResult += IHtmlStructureStorage.HTML_HEAD;
-        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName)));
-        htmlResult+= MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName));
+        String date = " Date : " + new Date().toString();
+        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date ));
+        htmlResult+= MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date);
         numberOfAllTickets = 0;
         numberOfAssigned = 0;
     }
 
     public void setWriter(PrintWriter writer){
+        PrintWriter prevWriter = reportWriter;
         this.reportWriter = writer;
+        if (prevWriter != null) {
+            reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
+            String date = " Date : " + new Date().toString();
+            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date));
+        }
     }
 
     public String getHtmlResult(){
@@ -44,7 +53,7 @@ public class ReportHtml implements IReportPrinter {
     }
 
     @Override
-    public void printTickets(ArrayList<TicketInfo> results) {
+    public void printTickets(List<TicketInfo> results) {
         for (TicketInfo ticketInfo : results) {
             printTicket(ticketInfo);
         }
@@ -147,8 +156,11 @@ public class ReportHtml implements IReportPrinter {
                 String.valueOf(numberOfAllTickets), String.valueOf(numberOfAssigned));
         reportWriter.print(output);
         htmlResult += output;
+        numberOfAllTickets = 0;
+        numberOfAssigned = 0;
         reportWriter.close();
     }
+
 
     public String getProjectName() {
         return projectName;
