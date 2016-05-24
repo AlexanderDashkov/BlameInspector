@@ -53,7 +53,7 @@ public class ReportHtml implements IReportPrinter {
     }
 
     @Override
-    public void printTickets(List<TicketInfo> results) {
+    public synchronized void printTickets(List<TicketInfo> results) {
         for (TicketInfo ticketInfo : results) {
             printTicket(ticketInfo);
         }

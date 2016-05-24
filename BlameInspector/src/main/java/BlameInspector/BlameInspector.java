@@ -98,9 +98,11 @@ public class BlameInspector implements Serializable{
             // the insert of smart parsing of stacktrace using pattern
             String lexems[] = body.split("\\s+");
             String stackTrace = "";
-            for (int i = 1; i < lexems.length; i++){
-                if (isStartingStackTrace(lexems[i]) && lexems[i-1].equals("at")){
-                    stackTrace += AT + lexems[i] + "\n";
+            synchronized (this) {
+                for (int i = 1; i < lexems.length; i++) {
+                    if (isStartingStackTrace(lexems[i]) && lexems[i - 1].equals("at")) {
+                        stackTrace += AT + lexems[i] + "\n";
+                    }
                 }
             }
             //System.out.println("Stacktrace # " + ticketNumber + "is:");
@@ -237,7 +239,7 @@ public class BlameInspector implements Serializable{
         return stackTrace;
     }
 
-    public static ArrayList<TraceInfo> getTraceInfo(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
+    public synchronized static ArrayList<TraceInfo> getTraceInfo(final String issueBody, final int ticketNumber) throws TicketCorruptedException {
         NStackTrace stackTrace = getParsedStackTrace(issueBody);
         String[] locationInfo;
         if (stackTrace == null) {

@@ -5,7 +5,6 @@ import blameinspector.vcs.VersionControlServiceException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.antlr.runtime.RecognitionException;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
@@ -83,13 +82,13 @@ public class AppTest
         ticketCheckerOutterProjects("1000", "Kotlin", "Ticket # 1000 was not assigned due to: No StackTrace found in current ticket!");
     }
 
-    public void testSimpleRealTicket() throws ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException {
-        ticketCheckerOutterProjects("2034", "Guava", "Ticket # 2034. Assigned to kluever");
-    }
+//    public void testSimpleRealTicket() throws ParserConfigurationException, SVNException, IOException, JSONException, GitAPIException, SAXException {
+//        ticketCheckerOutterProjects("2034", "Guava", "Ticket # 2034. Assigned to kluever");
+//    }
 
-    public void testComplexRealTicket() throws RecognitionException, IOException {
-        ticketCheckerOutterProjects("1757", "Guava", "Ticket # 1757. Assigned to cpovirk");
-    }
+//    public void testComplexRealTicket() throws RecognitionException, IOException {
+//        ticketCheckerOutterProjects("1757", "Guava", "Ticket # 1757. Assigned to cpovirk");
+//    }
 
     public void testNoEntryTicket() throws IOException {
         ticketCheckerOutterProjects("1841", "Guava", "Ticket # 1841 was not assigned due to: No entry of exception found in current repository.");
@@ -100,13 +99,13 @@ public class AppTest
         //ticketCheckerOutterProjects("1806", "Guava", "Ticket # 1806. Assigned to kevinb@google.com");
     }
 
-    public void testOptim() {
-        ByteArrayOutputStream myOut = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(myOut));
-        Main.main(new String[]{"-p", "BlameWhoTest", "-t", "8", "-d"});
-        assertEquals(myOut.toString().trim(), "Ticket # 8. Assigned to JaneSmithSenior");
-        System.setOut(sysOut);
-    }
+//    public void testOptim() {
+//        ByteArrayOutputStream myOut = new ByteArrayOutputStream();
+//        System.setOut(new PrintStream(myOut));
+//        Main.main(new String[]{"-p", "BlameWhoTest", "-t", "8", "-d"});
+//        assertEquals(myOut.toString().trim(), "Ticket # 8. Assigned to JaneSmithSenior");
+//        System.setOut(sysOut);
+//    }
 
     public void testPerformanceSmall() throws IssueTrackerException, PropertyServiceException, BlameInspectorException, VersionControlServiceException, FileNotFoundException, UnsupportedEncodingException, ManagerException {
         PropertyService propertyService = new PropertyService("BlameWhoTest", "config.properties");

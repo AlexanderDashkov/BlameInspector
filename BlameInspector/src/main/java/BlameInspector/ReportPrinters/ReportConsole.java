@@ -34,6 +34,7 @@ public class ReportConsole implements IReportPrinter {
                     ticketNumber,
                     ticketInfo.getAssignee().get(0)));
             numberOfAssigned++;
+            System.out.println(ticketInfo.getDupplicates().size());
         } else {
             System.out.println(MessageFormat.format(TICKET_FAILED,
                     ticketNumber) + ticketInfo.getErrorType());

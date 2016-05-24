@@ -6,14 +6,15 @@ import blameinspector.reportprinters.ReportConsole;
 import blameinspector.reportprinters.ReportHtml;
 import blameinspector.vcs.VersionControlServiceException;
 import org.apache.commons.cli.*;
-import org.eclipse.jetty.http.HttpCompliance;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Scanner;
+import java.util.TimerTask;
 
 public class Main{
 
@@ -57,16 +58,16 @@ public class Main{
             processTickets();
             printResults(null);
 
-            server = new Server(9090);
-            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
-            server.setHandler(manager);
-
-            server.start();
-
-            Timer timer = new Timer();
-            TimerTask timerTask = new TimerTaskImpl();
-            timer.schedule(timerTask, 200);
-            server.join();
+//            server = new Server(9090);
+//            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
+//            server.setHandler(manager);
+//
+//            server.start();
+//
+//            Timer timer = new Timer();
+//            TimerTask timerTask = new TimerTaskImpl();
+//            timer.schedule(timerTask, 200);
+//            server.join();
         } catch (Exception e) {
             printExceptionData(e);
             System.exit(0);
