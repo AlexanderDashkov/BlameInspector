@@ -35,3 +35,15 @@ Set assignee for tickets from 1 to 4 on MyProject:
 Set assignee for tickets from 1 until tickets end on MyProject and show exception stacktrace if occurs:
 
     java -jar BlameInspector.one-jar.jar -p MyProject -r 1 -f -X
+
+## Using programm
+
+Before running programm with appropriate arguments, you have to create config.properties file in corresponding directory. Copy the structure of config file from default.properties and insert your data.
+
+## Running tests
+
+If you want all tests to run succesfully on your machine, please, clone the following projects on your machine and fill info about them in config file:
+
+    * https://github.com/JackSmithJunior/BlameWhoTest
+    * https://github.com/JetBrains/Kotlin
+    * https://github.com/google/guava
