@@ -20,18 +20,19 @@ public class ReportHtml implements IReportPrinter {
     private String projectName;
     private IssueTrackerService its;
     private String htmlResult;
+    private Date date;
 
 
     private int numberOfAllTickets;
     private int numberOfAssigned;
 
-    public ReportHtml(final String projectName) throws FileNotFoundException, UnsupportedEncodingException {
+    public ReportHtml(final String projectName, final Date dbDate) throws FileNotFoundException, UnsupportedEncodingException {
         htmlResult = "";
         File reportFile = new File("report.html");
         reportWriter = new PrintWriter(reportFile, "UTF-8");
         reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
         htmlResult += IHtmlStructureStorage.HTML_HEAD;
-        String date = " Date : " + new Date().toString();
+        String date = " Date : " + dbDate.toString();
         reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date ));
         htmlResult+= MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date);
         numberOfAllTickets = 0;
@@ -173,4 +174,6 @@ public class ReportHtml implements IReportPrinter {
     public void setIts(IssueTrackerService its) {
         this.its = its;
     }
+
+
 }

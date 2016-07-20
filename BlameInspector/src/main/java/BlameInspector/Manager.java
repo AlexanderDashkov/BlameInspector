@@ -21,6 +21,7 @@ public class Manager extends AbstractHandler {
 
     private static final String SER_FORMAT = ".ser";
 
+
     private static VersionControlService versionControlService;
     private static IssueTrackerService issueTrackerService;
     private static BlameInspector blameInspector;

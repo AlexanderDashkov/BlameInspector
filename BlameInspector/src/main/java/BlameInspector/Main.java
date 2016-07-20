@@ -6,18 +6,22 @@ import blameinspector.reportprinters.ReportConsole;
 import blameinspector.reportprinters.ReportHtml;
 import blameinspector.vcs.VersionControlServiceException;
 import org.apache.commons.cli.*;
+import org.eclipse.jetty.http.HttpCompliance;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Scanner;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class Main{
 
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     private static Manager manager;
     private static PropertyService propertyService;
     private static ArrayList<IReportPrinter> reportPrinters;
@@ -53,25 +57,32 @@ public class Main{
 
     public static void main(final String[] args) {
         try {
+            configureLogging();
             processComandLine(args);
             processConfigFile();
             processTickets();
             printResults(null);
 
-//            server = new Server(9090);
-//            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
-//            server.setHandler(manager);
-//
-//            server.start();
-//
-//            Timer timer = new Timer();
-//            TimerTask timerTask = new TimerTaskImpl();
-//            timer.schedule(timerTask, 200);
-//            server.join();
+            server = new Server(9090);
+            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
+            server.setHandler(manager);
+
+            server.start();
+
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTaskImpl();
+            timer.schedule(timerTask, 200);
+            server.join();
         } catch (Exception e) {
             printExceptionData(e);
             System.exit(0);
         }
+    }
+
+    private static void configureLogging() throws IOException {
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setFormatter(new SimpleFormatter());
+        LOGGER.addHandler(consoleHandler);
     }
 
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException, ManagerException {
@@ -230,8 +241,9 @@ public class Main{
         }
         reportPrinters = new ArrayList<>();
         reportPrinters.add(new ReportConsole());
+        LOGGER.fine("in setting data for report");
         if (cmdLine.hasOption(GENERATE_HTML_IDENT)) {
-            ReportHtml reportHtml = new ReportHtml(projectName);
+            ReportHtml reportHtml = new ReportHtml(projectName, new Date());
             reportPrinters.add(reportHtml);
         }
         useDb = false;
@@ -258,7 +270,7 @@ public class Main{
 
 class TimerTaskImpl extends TimerTask{
 
-    private static final long TIME_DURATION= 900_000;
+    private static final long TIME_DURATION= 300_000;
     private static final long SLEEP_TIME = 10_000;
 
     @Override
@@ -267,11 +279,12 @@ class TimerTaskImpl extends TimerTask{
             long startTimeMillis = System.currentTimeMillis();
             long endTimeMillis = System.currentTimeMillis();
             while(endTimeMillis - startTimeMillis < TIME_DURATION) {
+                endTimeMillis = System.currentTimeMillis();
                 Thread.sleep(SLEEP_TIME);
-                //System.out.println("time has come again!");
+                System.out.println("time has come again!");
                 Manager manager = Main.getManager();
                 if (!manager.isDbUpToDate()) {
-                    //System.out.println("Something has changed!");
+                    System.out.println("Something has changed!");
                     manager.proccesTickets();
                 }
             }
