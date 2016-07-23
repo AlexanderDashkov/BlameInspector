@@ -3,6 +3,7 @@ package blameinspector.vcs;
 
 import com.github.antlrjavaparser.JavaParser;
 import com.github.antlrjavaparser.api.CompilationUnit;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,17 +23,23 @@ public abstract class VersionControlService implements Serializable {
 
     protected String pathToRepo;
 
-    public abstract String getBlamedUserCommit(final String fileName,
+    public String getBlamedUserCommit(final String fileName,
                                                final String className,
-                                               final int lineNumber);
+                                               final int lineNumber){
+        return null;
+    }
 
-    public abstract String getBlamedUserEmail(final String fileName,
+    public String getBlamedUserEmail(final String fileName,
                                               final String className,
-                                              final int lineNumber);
+                                              final int lineNumber){
+        return null;
+    }
 
-    public abstract String getBlamedUserName(final String fileName,
+    public String getBlamedUserName(final String fileName,
                                              final String className,
-                                             final int lineNumber);
+                                             final int lineNumber){
+        return null;
+    }
 
     public String getRepositoryOwner() {
         String[] urlParts = repositoryURL.split("/");
@@ -159,7 +166,7 @@ public abstract class VersionControlService implements Serializable {
         return filesInRepo.get(fileName).get(0);
     }
 
-    public BlamedUserInfo getBlamedUserInfo(final String fileName, final String className, final int lineNumber) {
+    public BlamedUserInfo getBlamedUserInfo(final String fileName, final String className, final int lineNumber) throws GitAPIException, IOException {
         return new BlamedUserInfo(getBlamedUserName(fileName, className, lineNumber),
                 getBlamedUserEmail(fileName, className, lineNumber),
                 getBlamedUserCommit(fileName, className, lineNumber));

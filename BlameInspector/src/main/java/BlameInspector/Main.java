@@ -6,8 +6,6 @@ import blameinspector.reportprinters.ReportConsole;
 import blameinspector.reportprinters.ReportHtml;
 import blameinspector.vcs.VersionControlServiceException;
 import org.apache.commons.cli.*;
-import org.eclipse.jetty.http.HttpCompliance;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 
 import java.io.FileNotFoundException;
@@ -15,6 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +22,7 @@ import java.util.logging.SimpleFormatter;
 public class Main{
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+    private static final Logger LOGGER_PERFORMANCE = Logger.getLogger(Main.class.getName());
     private static Manager manager;
     private static PropertyService propertyService;
     private static ArrayList<IReportPrinter> reportPrinters;
@@ -56,7 +56,7 @@ public class Main{
     private static boolean parseProjectSources;
     private static boolean useDb;
 
-
+    final static CountDownLatch latch = new CountDownLatch(1);
 
     public static void main(final String[] args) {
         try {
@@ -64,21 +64,29 @@ public class Main{
             LOGGER.fine("in main function of main!");
             setDate(new Date().toString());
 
+            long start = System.currentTimeMillis();
             processComandLine(args);
             processConfigFile();
             processTickets();
             printResults(null);
+            long elapsedTime = System.currentTimeMillis() - start;
+            LOGGER_PERFORMANCE.severe("Elapsed time is : " +  elapsedTime + " ms");
+            return;
+//            server = new Server(9090);
+//            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
+//            server.setHandler(manager);
+//
+//            server.start();
 
-            server = new Server(9090);
-            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
-            server.setHandler(manager);
-
-            server.start();
-
-            Timer timer = new Timer();
-            TimerTask timerTask = new TimerTaskImpl();
-            timer.schedule(timerTask, 200);
-            server.join();
+//            Timer timer = new Timer();
+//            TimerTask timerTask = new TimerTaskImpl();
+//            timer.schedule(timerTask, 10);
+//            latch.await();
+//            timer.cancel();
+//
+//            System.out.println("timer has worked!");
+////            server.join();
+//            System.out.println("server finished!");
         } catch (Exception e) {
             printExceptionData(e);
             System.exit(0);
@@ -86,11 +94,16 @@ public class Main{
     }
 
     private static void configureLogging() throws IOException {
-        FileHandler fileHandler = new FileHandler("logging.txt");
+        FileHandler fileHandler = new FileHandler("logging.txt", true);
         fileHandler.setLevel(Level.FINEST);
         fileHandler.setFormatter(new SimpleFormatter());
         LOGGER.addHandler(fileHandler);
         LOGGER.setLevel(Level.FINEST);
+        FileHandler fileHandler1 = new FileHandler("log_performance.txt", true);
+        fileHandler1.setLevel(Level.FINEST);
+        fileHandler1.setFormatter(new SimpleFormatter());
+        LOGGER_PERFORMANCE.addHandler(fileHandler1);
+        LOGGER_PERFORMANCE.setLevel(Level.SEVERE);
     }
 
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException, ManagerException {
@@ -284,7 +297,7 @@ public class Main{
 
 class TimerTaskImpl extends TimerTask{
 
-    private static final long TIME_DURATION= 300_000;
+    private static final long TIME_DURATION= 10_000;
     private static final long SLEEP_TIME = 10_000;
 
     @Override
@@ -302,6 +315,8 @@ class TimerTaskImpl extends TimerTask{
                     manager.proccesTickets();
                 }
             }
+            Main.latch.countDown();
+            System.out.println("Out of the loop!");
         } catch (Exception e) {
             Main.printExceptionData(e);
         }

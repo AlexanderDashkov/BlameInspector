@@ -2,6 +2,7 @@ package blameinspector.vcs;
 
 import org.eclipse.jgit.api.BlameCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -10,6 +11,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,21 +60,9 @@ public class GitService extends VersionControlService {
         }
     }
 
-
-    @Override
     public String getBlamedUserCommit(final String fileName, final String className,
-                                      final int lineNumber) {
+                                      final int lineNumber, final BlameResult blameResult) {
         try {
-            if (blameCommitsID.containsKey(fileName)){
-                if (blameCommitsID.get(fileName).containsKey(lineNumber)){
-                    return blameCommitsID.get(fileName).get(lineNumber);
-                }
-            }
-            String filePath = getFilePath(fileName, className);
-            BlameCommand cmd = new BlameCommand(git.getRepository());
-            cmd.setStartCommit(commitID);
-            cmd.setFilePath(filePath);
-            BlameResult blameResult = cmd.call();
             String blameCommit = blameResult.getSourceCommit(lineNumber - 1).getName();
             if (!blameCommitsID.containsKey(fileName)){
                 blameCommitsID.put(fileName, new HashMap<>());
@@ -85,22 +75,12 @@ public class GitService extends VersionControlService {
         }
     }
 
-    @Override
+
     public String getBlamedUserEmail(final String fileName, final String className,
-                                     final int lineNumber) {
+                                     final int lineNumber, final BlameResult blameResult) {
         try {
-            if (blameEmails.containsKey(fileName)){
-                if (blameEmails.get(fileName).containsKey(lineNumber)){
-                    return blameEmails.get(fileName).get(lineNumber);
-                }
-            }
-            String filePath = getFilePath(fileName, className);
-            //System.out.println("fileName :" + fileName + " filePath : " + filePath);
-            filePath = filePath.replace(this.pathToRepo, "");
-            BlameCommand cmd = new BlameCommand(git.getRepository());
-            cmd.setStartCommit(commitID);
-            cmd.setFilePath(filePath);
-            BlameResult blameResult = cmd.call();
+            //String filePath = getFilePath(fileName, className);
+            //filePath = filePath.replace(this.pathToRepo, "");
             String blamedUserEmail = blameResult.getSourceAuthor(lineNumber - 1).getEmailAddress();
             if (blamedUserEmail.split("@").length > 2) {
                 String chunkedEmail[] = blamedUserEmail.split("@");
@@ -117,18 +97,9 @@ public class GitService extends VersionControlService {
         }
     }
 
-    public String getBlamedUserName(final String fileName, final String className, final int lineNumber) {
+    public String getBlamedUserName(final String fileName, final String className,
+                                    final int lineNumber, final BlameResult blameResult) {
         try {
-            if (blameNames.containsKey(fileName)){
-                if (blameNames.get(fileName).containsKey(lineNumber)){
-                    return blameNames.get(fileName).get(lineNumber);
-                }
-            }
-            String filePath = getFilePath(fileName, className);
-            BlameCommand cmd = new BlameCommand(git.getRepository());
-            cmd.setStartCommit(commitID);
-            cmd.setFilePath(filePath);
-            BlameResult blameResult = cmd.call();
             String blamedUserName = blameResult.getSourceAuthor(lineNumber - 1).getName();
             if (!blameNames.containsKey(fileName)){
                 blameNames.put(fileName, new HashMap<>());
@@ -138,6 +109,42 @@ public class GitService extends VersionControlService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Override
+    public BlamedUserInfo getBlamedUserInfo(final String fileName, final String className, final int lineNumber) throws GitAPIException, IOException {
+        String blamedUserName = null;
+        String blamedUserEmail = null;
+        String blamedUserCommit = null;
+        if (blameNames.containsKey(fileName)){
+            if (blameNames.get(fileName).containsKey(lineNumber)){
+                blamedUserName = blameNames.get(fileName).get(lineNumber);
+            }
+        }
+        if (blameEmails.containsKey(fileName)){
+            if (blameEmails.get(fileName).containsKey(lineNumber)){
+                blamedUserEmail = blameEmails.get(fileName).get(lineNumber);
+            }
+        }
+        if (blameCommitsID.containsKey(fileName)){
+            if (blameCommitsID.get(fileName).containsKey(lineNumber)){
+                blamedUserCommit = blameCommitsID.get(fileName).get(lineNumber);
+            }
+        }
+        if(blamedUserCommit == null || blamedUserName == null || blamedUserEmail == null){
+            String filePath = getFilePath(fileName, className);
+            BlameCommand cmd = new BlameCommand(git.getRepository());
+            cmd.setStartCommit(commitID);
+            cmd.setFilePath(filePath);
+            BlameResult blameResult = cmd.call();
+            blamedUserName = blamedUserName != null ? blamedUserName
+                    : getBlamedUserName(fileName, className, lineNumber, blameResult);
+            blamedUserEmail = blamedUserEmail != null ? blamedUserName
+                    : getBlamedUserEmail(fileName, className, lineNumber, blameResult);
+            blamedUserCommit = blamedUserCommit != null ? blamedUserCommit
+                    : getBlamedUserCommit(fileName, className, lineNumber, blameResult);
+        }
+        return new BlamedUserInfo(blamedUserName, blamedUserEmail, blamedUserCommit);
     }
 
 

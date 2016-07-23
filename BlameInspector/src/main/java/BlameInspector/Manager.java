@@ -1,6 +1,5 @@
 package blameinspector;
 
-
 import blameinspector.issuetracker.IssueTrackerException;
 import blameinspector.issuetracker.IssueTrackerService;
 import blameinspector.vcs.VersionControlService;
@@ -21,7 +20,6 @@ import java.util.concurrent.*;
 public class Manager extends AbstractHandler {
 
     private static final String SER_FORMAT = ".ser";
-
 
     private static VersionControlService versionControlService;
     private static IssueTrackerService issueTrackerService;
@@ -87,7 +85,7 @@ public class Manager extends AbstractHandler {
 
     public void proccesTickets(int startBound, int endBound) throws VersionControlServiceException, BlameInspectorException, IssueTrackerException, ManagerException {
         if (areReadyResults) return;
-        nThreads = (nThreads == 0) ? 10 : nThreads;
+        nThreads = (nThreads == 0) ? 1 : nThreads;
         ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
         List<FutureTask> taskList = new ArrayList<>();
         for (int i = startBound; i <= endBound; i++) {
