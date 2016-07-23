@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -31,6 +32,7 @@ public class Manager extends AbstractHandler {
     private static boolean isParsingCode;
     private static ArrayList<TicketInfo> results;
     private static int nThreads;
+    private static String date;
 
     public Manager(PropertyService propertyService, boolean isParsingCode, boolean useDb) throws VersionControlServiceException, IssueTrackerException {
         nThreads = 0;
@@ -219,6 +221,8 @@ public class Manager extends AbstractHandler {
 
     public boolean isDbUpToDate(){
         if (!issueTrackerService.isUpToDate(results)){
+            date = new Date().toString();
+            Main.setDate(date);
             areReadyResults = false;
             return false;
         }

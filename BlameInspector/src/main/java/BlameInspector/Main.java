@@ -15,7 +15,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
-import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -26,6 +27,7 @@ public class Main{
     private static PropertyService propertyService;
     private static ArrayList<IReportPrinter> reportPrinters;
     private static Server server;
+    private static String date;
 
     private static String header = "Examples of usage:\n  " +
             "blameinspector -p MyProject -t 24  -- show probable assignee for 24 ticket on MyProject\n  " +
@@ -55,9 +57,13 @@ public class Main{
     private static boolean useDb;
 
 
+
     public static void main(final String[] args) {
         try {
             configureLogging();
+            LOGGER.fine("in main function of main!");
+            setDate(new Date().toString());
+
             processComandLine(args);
             processConfigFile();
             processTickets();
@@ -80,9 +86,11 @@ public class Main{
     }
 
     private static void configureLogging() throws IOException {
-        ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setFormatter(new SimpleFormatter());
-        LOGGER.addHandler(consoleHandler);
+        FileHandler fileHandler = new FileHandler("logging.txt");
+        fileHandler.setLevel(Level.FINEST);
+        fileHandler.setFormatter(new SimpleFormatter());
+        LOGGER.addHandler(fileHandler);
+        LOGGER.setLevel(Level.FINEST);
     }
 
     public static void processTickets() throws IssueTrackerException, BlameInspectorException, VersionControlServiceException, ManagerException {
@@ -243,7 +251,7 @@ public class Main{
         reportPrinters.add(new ReportConsole());
         LOGGER.fine("in setting data for report");
         if (cmdLine.hasOption(GENERATE_HTML_IDENT)) {
-            ReportHtml reportHtml = new ReportHtml(projectName, new Date());
+            ReportHtml reportHtml = new ReportHtml(projectName, date);
             reportPrinters.add(reportHtml);
         }
         useDb = false;
@@ -263,6 +271,12 @@ public class Main{
 
     public static Manager getManager(){
         return manager;
+    }
+
+    public static void setDate(final String date){
+        LOGGER.fine("in set Date main!");
+        Main.date = date;
+        System.out.println(Main.date.toString());
     }
 
 

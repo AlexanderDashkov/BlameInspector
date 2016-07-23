@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ReportHtml implements IReportPrinter {
@@ -20,19 +19,20 @@ public class ReportHtml implements IReportPrinter {
     private String projectName;
     private IssueTrackerService its;
     private String htmlResult;
-    private Date date;
+    private String date;
 
 
     private int numberOfAllTickets;
     private int numberOfAssigned;
 
-    public ReportHtml(final String projectName, final Date dbDate) throws FileNotFoundException, UnsupportedEncodingException {
+    public ReportHtml(final String projectName, final String dbDate) throws FileNotFoundException, UnsupportedEncodingException {
         htmlResult = "";
         File reportFile = new File("report.html");
         reportWriter = new PrintWriter(reportFile, "UTF-8");
         reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
         htmlResult += IHtmlStructureStorage.HTML_HEAD;
-        String date = " Date : " + dbDate.toString();
+        date = dbDate;
+        String date = " Date : " + dbDate;
         reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date ));
         htmlResult+= MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date);
         numberOfAllTickets = 0;
@@ -44,7 +44,7 @@ public class ReportHtml implements IReportPrinter {
         this.reportWriter = writer;
         if (prevWriter != null) {
             reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
-            String date = " Date : " + new Date().toString();
+            String date = " Date : " + this.date;
             reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date));
         }
     }
