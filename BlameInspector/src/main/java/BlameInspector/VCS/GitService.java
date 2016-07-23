@@ -24,6 +24,7 @@ public class GitService extends VersionControlService {
     private HashMap<String, HashMap<Integer, String>> blameEmails;
     private HashMap<String, HashMap<Integer, String>> blameNames;
     private HashMap<String, HashMap<Integer, String>> blameCommitsID;
+    private HashMap<String, BlameResult> blameResults;
 
     public GitService(final String pathToRepo, final String repoURL, final boolean isParsingCode)
             throws VersionControlServiceException {
@@ -31,6 +32,7 @@ public class GitService extends VersionControlService {
         this.blameNames = new HashMap<>();
         this.blameEmails = new HashMap<>();
         this.blameCommitsID = new HashMap<>();
+        this.blameResults = new HashMap<>();
         filesInRepo = new HashMap<>();
         methodLocation = new ConcurrentHashMap<>();
         repositoryURL = repoURL;
@@ -82,9 +84,9 @@ public class GitService extends VersionControlService {
             //String filePath = getFilePath(fileName, className);
             //filePath = filePath.replace(this.pathToRepo, "");
             String blamedUserEmail = blameResult.getSourceAuthor(lineNumber - 1).getEmailAddress();
-            if (blamedUserEmail.split("@").length > 2) {
-                String chunkedEmail[] = blamedUserEmail.split("@");
-                blamedUserEmail = chunkedEmail[0] + "@" + chunkedEmail[1];
+            String chunckedEmail[] = blamedUserEmail.split("@");
+            if (chunckedEmail.length > 2) {
+                blamedUserEmail = chunckedEmail[0] + "@" + chunckedEmail[1];
             }
             if (!blameEmails.containsKey(fileName)){
                 blameEmails.put(fileName, new HashMap<>());
@@ -133,10 +135,16 @@ public class GitService extends VersionControlService {
         }
         if(blamedUserCommit == null || blamedUserName == null || blamedUserEmail == null){
             String filePath = getFilePath(fileName, className);
-            BlameCommand cmd = new BlameCommand(git.getRepository());
-            cmd.setStartCommit(commitID);
-            cmd.setFilePath(filePath);
-            BlameResult blameResult = cmd.call();
+            BlameResult blameResult;
+            if(blameResults.containsKey((filePath))){
+                blameResult = blameResults.get(filePath);
+            }else {
+                BlameCommand cmd = new BlameCommand(git.getRepository());
+                cmd.setStartCommit(commitID);
+                cmd.setFilePath(filePath);
+                blameResult = cmd.call();
+                blameResults.put(filePath, blameResult);
+            }
             blamedUserName = blamedUserName != null ? blamedUserName
                     : getBlamedUserName(fileName, className, lineNumber, blameResult);
             blamedUserEmail = blamedUserEmail != null ? blamedUserName
