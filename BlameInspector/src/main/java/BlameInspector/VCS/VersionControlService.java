@@ -9,12 +9,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class VersionControlService implements Serializable {
 
-    protected HashMap<String, ArrayList<String>> filesInRepo;
+    protected ConcurrentHashMap<String, ArrayList<String>> filesInRepo;
     protected ConcurrentHashMap<String, String> methodLocation;
     protected String repositoryURL;
     protected boolean isParsingCode;

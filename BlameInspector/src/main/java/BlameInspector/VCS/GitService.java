@@ -21,19 +21,19 @@ public class GitService extends VersionControlService {
 
     private Git git;
     private ObjectId commitID;
-    private HashMap<String, HashMap<Integer, String>> blameEmails;
-    private HashMap<String, HashMap<Integer, String>> blameNames;
-    private HashMap<String, HashMap<Integer, String>> blameCommitsID;
-    private HashMap<String, BlameResult> blameResults;
+    private ConcurrentHashMap<String, HashMap<Integer, String>> blameEmails;
+    private ConcurrentHashMap<String, HashMap<Integer, String>> blameNames;
+    private ConcurrentHashMap<String, HashMap<Integer, String>> blameCommitsID;
+    private ConcurrentHashMap<String, BlameResult> blameResults;
 
     public GitService(final String pathToRepo, final String repoURL, final boolean isParsingCode)
             throws VersionControlServiceException {
         this.isParsingCode = isParsingCode;
-        this.blameNames = new HashMap<>();
-        this.blameEmails = new HashMap<>();
-        this.blameCommitsID = new HashMap<>();
-        this.blameResults = new HashMap<>();
-        filesInRepo = new HashMap<>();
+        this.blameNames = new ConcurrentHashMap<>();
+        this.blameEmails = new ConcurrentHashMap<>();
+        this.blameCommitsID = new ConcurrentHashMap<>();
+        this.blameResults = new ConcurrentHashMap<>();
+        filesInRepo = new ConcurrentHashMap<>();
         methodLocation = new ConcurrentHashMap<>();
         repositoryURL = repoURL;
         this.pathToRepo = pathToRepo;
