@@ -24,7 +24,7 @@ public interface IHtmlStructureStorage {
             "}\n" +
             "\n" +
             ".table {\n" +
-            "  margin: 0 0 40px 0;\n" +
+            "  margin: 0 0 10px 0;\n" +
             "  width: 100%;\n" +
             "  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);\n" +
             "  display: table;\n" +
@@ -153,14 +153,14 @@ public interface IHtmlStructureStorage {
             "    <div class=\"cell\">Ticket number</div>\n" +
             "    <div class=\"cell\">StackTrace </div>    \n" +
             "    <div class=\"cell\">Assignees by stackTrace </div>    \n" +
-            "    <div class=\"cell\">Errors, if occured </div>\n" +
+            "    <div class=\"cell\">Errors </div>\n" +
             "    <div class=\"cell\">Duplicates unresolved </div>\n" +
             "    <div class=\"cell\">Duplicates resolved </div>\n" +
             "    <div class=\"cell\">Duplicates assignees </div>\n" +
             "   </div>\n";
     public final String HTML_END =
-            "</div>\n" +
-                    "<h4> Summary. Tickets: All : {0}, Assigned : {1} </h4>" +
+            "</div>" +
+                    "<h3> Summary.</h3><h4> Tickets: All : {0}, Assigned : {1} </h4>" +
                     "</body>\n" +
                     "</html>";
 
@@ -173,7 +173,6 @@ public interface IHtmlStructureStorage {
             "    <div class=\"cell\">{7}</div>\n" +
             "    <div class=\"cell\">{8}</div>\n" +
             "</div>\n";
-    ;
     public final String HREF_ELEM = "<a href=\"{0}\">{1}</a>";
     public final String BUTTON_ELEM = "<a href=\"{0}\" class=\"button\"><span>✖</span>{1}</a>";
 }
