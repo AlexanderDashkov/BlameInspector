@@ -32,9 +32,9 @@ public class ReportHtml implements IReportPrinter {
         reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
         htmlResult += IHtmlStructureStorage.HTML_HEAD;
         date = dbDate;
-        String date = " Date : " + dbDate;
-        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date ));
-        htmlResult+= MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date);
+        String date = dbDate;
+        reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName), date ));
+        htmlResult+= MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName), date);
         numberOfAllTickets = 0;
         numberOfAssigned = 0;
     }
@@ -44,8 +44,8 @@ public class ReportHtml implements IReportPrinter {
         this.reportWriter = writer;
         if (prevWriter != null) {
             reportWriter.print(IHtmlStructureStorage.HTML_HEAD);
-            String date = " Date : " + this.date;
-            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName) + date));
+            String date = this.date;
+            reportWriter.print(MessageFormat.format(IHtmlStructureStorage.HTML_START, String.valueOf(projectName), date));
         }
     }
 
@@ -77,7 +77,7 @@ public class ReportHtml implements IReportPrinter {
                 }
                 try {
                     deepStackTrace += traceInfo.getStackTraceLine() + "<br>";
-                    assignees +=  MessageFormat.format(IHtmlStructureStorage.HREF_ELEM, link,
+                    assignees +=  MessageFormat.format(IHtmlStructureStorage.BUTTON_ELEM, link,
                             assignee) + "\n";
                 }catch (Exception e){
                     e.printStackTrace();
