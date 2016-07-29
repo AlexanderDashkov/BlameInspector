@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
+import java.io.File;
 
 public class PropertyService {
 
@@ -27,6 +28,9 @@ public class PropertyService {
 
     private static final String XML_SCHEMA = "projects.xsd";
     private static final String SCHEMA_FACTORY_W3 = "http://www.w3.org/2001/XMLSchema";
+
+    private static String workingDirectory = System.getProperty("user.dir");
+    private static final String PATH_WORKSPACE = workingDirectory + File.separator + "workspace" + File.separator;
 
     private String projectName;
     private String userName;
@@ -45,7 +49,8 @@ public class PropertyService {
                     SchemaFactory.newInstance(SCHEMA_FACTORY_W3);
 
             ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-            dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(classloader.getResourceAsStream(XML_SCHEMA))}));
+            dbf.setSchema(schemaFactory.newSchema(new Source[]{
+                new StreamSource(classloader.getResourceAsStream(XML_SCHEMA))}));
 
             //dbf.setSchema(schemaFactory.newSchema(new Source[]{new StreamSource(XML_SCHEMA)}));
 

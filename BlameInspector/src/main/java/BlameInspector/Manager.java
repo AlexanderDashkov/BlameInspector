@@ -11,6 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -20,6 +22,9 @@ import java.util.concurrent.*;
 public class Manager extends AbstractHandler {
 
     private static final String SER_FORMAT = ".ser";
+
+    private static String workingDirectory = System.getProperty("user.dir");
+    private static final String SER_PATH = workingDirectory + File.separator + "workspace" + File.separator + "ProjectData Files" + File.separator;
 
     private static VersionControlService versionControlService;
     private static IssueTrackerService issueTrackerService;
@@ -32,7 +37,8 @@ public class Manager extends AbstractHandler {
     private static int nThreads;
     private static String date;
 
-    public Manager(PropertyService propertyService, boolean isParsingCode, boolean useDb) throws VersionControlServiceException, IssueTrackerException {
+    public Manager(PropertyService propertyService, boolean isParsingCode, boolean useDb) throws VersionControlServiceException, IssueTrackerException, IOException {
+        Files.createDirectories(Paths.get(SER_PATH));
         nThreads = 0;
         projectName = propertyService.getProjectName();
         this.isParsingCode = isParsingCode;
@@ -85,7 +91,7 @@ public class Manager extends AbstractHandler {
 
     public void proccesTickets(int startBound, int endBound) throws VersionControlServiceException, BlameInspectorException, IssueTrackerException, ManagerException {
         if (areReadyResults) return;
-        nThreads = (nThreads == 0) ? 1 : nThreads;
+        nThreads = (nThreads == 0) ? 10 : nThreads;
         ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
         List<FutureTask> taskList = new ArrayList<>();
         for (int i = startBound; i <= endBound; i++) {
@@ -178,7 +184,7 @@ public class Manager extends AbstractHandler {
 
     private void writeObjectsToFile(final String fileName, Object o1, Object o2) throws ManagerException {
         try {
-            FileOutputStream fout = new FileOutputStream(fileName + SER_FORMAT);
+            FileOutputStream fout = new FileOutputStream(SER_PATH + fileName + SER_FORMAT);
             ObjectOutputStream oos = new ObjectOutputStream(fout);
             oos.writeObject(o1);
             oos.writeObject(o2);
@@ -191,7 +197,7 @@ public class Manager extends AbstractHandler {
     private ArrayList<Object> readObjectsFromFile(final String fileName) {
         try {
             ArrayList<Object> res = new ArrayList<>();
-            FileInputStream streamIn = new FileInputStream(fileName + SER_FORMAT);
+            FileInputStream streamIn = new FileInputStream(SER_PATH + fileName + SER_FORMAT);
             ObjectInputStream objectinputstream = new ObjectInputStream(streamIn);
             Object object = objectinputstream.readObject();
             res.add(object);

@@ -6,12 +6,13 @@ import blameinspector.reportprinters.ReportConsole;
 import blameinspector.reportprinters.ReportHtml;
 import blameinspector.vcs.VersionControlServiceException;
 import org.apache.commons.cli.*;
+import org.eclipse.jetty.http.HttpCompliance;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.FileHandler;
@@ -35,6 +36,9 @@ public class Main{
             "blameinspector -p MyProject -r 1 -f -X  -- set assignee for tickets from 1 until tickets end on MyProject" +
             " and show exception stacktrace if occurs. \n \n";
     private static String footer = "\nPlease report issues at https://github.com/JackSmithJunior/blameinspector/issues";
+    private static String workingDirectory = System.getProperty("user.dir");
+    private static String LOG_PATH = workingDirectory + File.separator + "workspace" + File.separator + "Logging" + File.separator;
+
 
     private static final String PROJECT_IDENT = "p";
     private static final String TICKET_IDENT = "t";
@@ -60,6 +64,7 @@ public class Main{
 
     public static void main(final String[] args) {
         try {
+            Files.createDirectories(Paths.get(LOG_PATH));
             configureLogging();
             LOGGER.fine("in main function of main!");
             setDate(new Date().toString());
@@ -71,22 +76,22 @@ public class Main{
             printResults(null);
             long elapsedTime = System.currentTimeMillis() - start;
             LOGGER_PERFORMANCE.severe("Elapsed time is : " +  elapsedTime + " ms");
-            return;
-//            server = new Server(9090);
-//            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
-//            server.setHandler(manager);
-//
-//            server.start();
 
-//            Timer timer = new Timer();
-//            TimerTask timerTask = new TimerTaskImpl();
-//            timer.schedule(timerTask, 10);
-//            latch.await();
-//            timer.cancel();
-//
-//            System.out.println("timer has worked!");
-////            server.join();
-//            System.out.println("server finished!");
+            server = new Server(9090);
+            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
+            server.setHandler(manager);
+
+            server.start();
+
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTaskImpl();
+            timer.schedule(timerTask, 10);
+            latch.await();
+            timer.cancel();
+
+            System.out.println("timer has worked!");
+            server.join();
+            System.out.println("server finished!");
         } catch (Exception e) {
             printExceptionData(e);
             System.exit(0);
@@ -94,12 +99,12 @@ public class Main{
     }
 
     private static void configureLogging() throws IOException {
-        FileHandler fileHandler = new FileHandler("logging.txt", true);
+        FileHandler fileHandler = new FileHandler(LOG_PATH + "logging.txt", true);
         fileHandler.setLevel(Level.FINEST);
         fileHandler.setFormatter(new SimpleFormatter());
         LOGGER.addHandler(fileHandler);
         LOGGER.setLevel(Level.FINEST);
-        FileHandler fileHandler1 = new FileHandler("log_performance.txt", true);
+        FileHandler fileHandler1 = new FileHandler(LOG_PATH + "log_performance.txt", true);
         fileHandler1.setLevel(Level.FINEST);
         fileHandler1.setFormatter(new SimpleFormatter());
         LOGGER_PERFORMANCE.addHandler(fileHandler1);
