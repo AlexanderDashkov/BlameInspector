@@ -1,5 +1,8 @@
-package blameinspector;
+package blameinspector.unittest;
 
+import blameinspector.AppTest;
+import blameinspector.PropertyService;
+import blameinspector.PropertyServiceException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

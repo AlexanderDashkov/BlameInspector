@@ -1,5 +1,6 @@
-package blameinspector;
+package blameinspector.unittest;
 
+import blameinspector.*;
 import blameinspector.issuetracker.IssueTrackerException;
 import blameinspector.vcs.VersionControlServiceException;
 import junit.framework.Test;
@@ -21,7 +22,7 @@ public class DuplicateTest extends TestCase {
         return new TestSuite(DuplicateTest.class);
     }
 
-    public void testDuplicatesFromBlameWhoTest() throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, TicketCorruptedException {
+    public void testDuplicatesFromBlameWhoTest() throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, TicketCorruptedException, IOException {
         StackTraceTree stackTraceTree = new StackTraceTree("BlameWhoTest");
         PropertyService propertyService = new PropertyService("BlameWhoTest", "config.properties");
         Manager manager = new Manager(propertyService ,false, false);

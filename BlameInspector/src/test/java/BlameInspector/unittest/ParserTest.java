@@ -1,6 +1,7 @@
-package blameinspector;
+package blameinspector.unittest;
 
 
+import blameinspector.BlameInspector;
 import blameinspector.issuetracker.IssueTrackerException;
 import blameinspector.vcs.VersionControlServiceException;
 import com.jmolly.stacktraceparser.NStackTrace;
