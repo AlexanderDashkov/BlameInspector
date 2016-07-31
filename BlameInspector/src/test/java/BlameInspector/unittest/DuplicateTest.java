@@ -3,25 +3,19 @@ package blameinspector.unittest;
 import blameinspector.*;
 import blameinspector.issuetracker.IssueTrackerException;
 import blameinspector.vcs.VersionControlServiceException;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 
 import java.io.IOException;
 
-public class DuplicateTest extends TestCase {
+public class DuplicateTest extends Assert {
 
-    public DuplicateTest(String testName) throws IOException {
-        super(testName);
+    public DuplicateTest() throws IOException {
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite(DuplicateTest.class);
-    }
-
+    @Test
     public void testDuplicatesFromBlameWhoTest() throws PropertyServiceException, VersionControlServiceException, IssueTrackerException, TicketCorruptedException, IOException {
         StackTraceTree stackTraceTree = new StackTraceTree("BlameWhoTest");
         PropertyService propertyService = new PropertyService("BlameWhoTest", "config.properties");

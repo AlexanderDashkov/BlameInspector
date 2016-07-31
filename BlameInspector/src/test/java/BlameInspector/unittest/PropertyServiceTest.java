@@ -1,17 +1,16 @@
 package blameinspector.unittest;
 
-import blameinspector.AppTest;
+
 import blameinspector.PropertyService;
 import blameinspector.PropertyServiceException;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 
-public class PropertyServiceTest extends TestCase {
+public class PropertyServiceTest extends Assert {
 
 
     private static final String POSITIVE_PATH = "src\\test\\resources\\schemas\\positive\\";
@@ -29,8 +28,8 @@ public class PropertyServiceTest extends TestCase {
     private ArrayList<String> positiveTests;
     private ArrayList<Pair> negativeTests;
 
-    public PropertyServiceTest(String testName) throws IOException {
-        super(testName);
+
+    public PropertyServiceTest() throws IOException {
         positiveTests = new ArrayList<>();
         negativeTests = new ArrayList<>();
         positiveTests.add("Basic.xml");
@@ -48,16 +47,15 @@ public class PropertyServiceTest extends TestCase {
         negativeTests.add(new Pair("Corrupted.xml", MISS_CLOSE_TAG));
     }
 
-    public static Test suite() {
-        return new TestSuite(AppTest.class);
-    }
 
+    @Test
     public void testPositive() throws PropertyServiceException {
         for (String fileName : positiveTests) {
             PropertyService propertyService = new PropertyService("BlameWhoTest", POSITIVE_PATH + fileName);
         }
     }
 
+    @Test
     public void testNegative() throws PropertyServiceException {
         for (Pair test : negativeTests) {
             String message = null;
