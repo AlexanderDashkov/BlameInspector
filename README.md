@@ -1,4 +1,4 @@
-# BlameInspector  ![Maven Central](https://img.shields.io/badge/maven--version-3.3.3-blue.svg) ![TeamCity CodeBetter](https://img.shields.io/teamcity/codebetter/bt428.svg?style=plastic) 
+# BlameInspector  ![maven] (https://img.shields.io/badge/maven--version-3.3.3-blue.svg) ![junit] (https://img.shields.io/badge/junit--tests-4.1.1-orange.svg) ![build] (https://img.shields.io/badge/build-passing-green.svg)
 
 ## Purpose 
 
