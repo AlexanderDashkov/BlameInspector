@@ -44,6 +44,6 @@ Before running programm with appropriate arguments, you have to create config.pr
 
 If you want all tests to run succesfully on your machine, please, clone the following projects on your machine and fill info about them in config file:
 
-    * https://github.com/JackSmithJunior/BlameWhoTest
-    * https://github.com/JetBrains/Kotlin
-    * https://github.com/google/guava
+* [BlameWhoTest] (https://github.com/JackSmithJunior/BlameWhoTest)
+* [Kotlin] (https://github.com/JetBrains/Kotlin)
+* [Guava] (https://github.com/google/guava)
