@@ -52,6 +52,7 @@ public class Main{
     private static final String ALL_IDENT = "a";
     private static final String PARSE_PROJECT_IDENT = "d";
     private static final String STORED_RES_IDENT = "o";
+    private static final String SERVER_IDENT = "server";
 
     private static String projectName;
     private static int startBound, endBound;
@@ -59,6 +60,7 @@ public class Main{
     private static boolean isDebug;
     private static boolean parseProjectSources;
     private static boolean useDb;
+    private static boolean serverMode;
 
     final static CountDownLatch latch = new CountDownLatch(1);
 
@@ -77,21 +79,20 @@ public class Main{
             long elapsedTime = System.currentTimeMillis() - start;
             LOGGER_PERFORMANCE.severe("Elapsed time is : " +  elapsedTime + " ms");
 
-            server = new Server(9090);
-            server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
-            server.setHandler(manager);
+            if(serverMode) {
+                server = new Server(9090);
+                server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class).setHttpCompliance(HttpCompliance.LEGACY);
+                server.setHandler(manager);
 
-            server.start();
+                server.start();
 
-            Timer timer = new Timer();
-            TimerTask timerTask = new TimerTaskImpl();
-            timer.schedule(timerTask, 10);
-            latch.await();
-            timer.cancel();
-
-            System.out.println("timer has worked!");
-            server.join();
-            System.out.println("server finished!");
+                Timer timer = new Timer();
+                TimerTask timerTask = new TimerTaskImpl();
+                timer.schedule(timerTask, 10);
+                latch.await();
+                timer.cancel();
+                server.join();
+            }
         } catch (Exception e) {
             printExceptionData(e);
             System.exit(0);
@@ -165,6 +166,8 @@ public class Main{
         Option generateReport = new Option(GENERATE_HTML_IDENT, false, "generate html report");
         generateReport.setArgs(0);
         debugOption.setArgs(0);
+        Option serverModeOption = new Option(SERVER_IDENT, false, "server mode on");
+        serverModeOption.setArgs(0);
         OptionGroup ticketNumbersGroup = new OptionGroup();
         Option allTicketsOption = new Option(ALL_IDENT, "all", false, "all ticket evaluating");
         allTicketsOption.setArgs(0);
@@ -199,6 +202,7 @@ public class Main{
         options.addOption(generateReport);
         options.addOption(helpOption);
         options.addOption(isUsingDbOption);
+        options.addOption(serverModeOption);
 
 
         CommandLineParser cmdLineParser = new PosixParser();
@@ -276,6 +280,10 @@ public class Main{
         if (cmdLine.hasOption(STORED_RES_IDENT)) {
             useDb = true;
         }
+        serverMode = false;
+        if(cmdLine.hasOption(SERVER_IDENT)){
+            serverMode = true;
+        }
     }
 
 
@@ -294,7 +302,6 @@ public class Main{
     public static void setDate(final String date){
         LOGGER.fine("in set Date main!");
         Main.date = date;
-        System.out.println(Main.date.toString());
     }
 
 
